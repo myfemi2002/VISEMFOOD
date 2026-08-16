@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VISEMFOOD Admin - Catering Inquiries</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#faffe8",
+                        "surface-container-low": "#f5f4ec",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e4e3db",
+                        "on-primary-fixed": "#3b0900",
+                        "outline-variant": "#dfc0b7",
+                        "secondary-fixed": "#ffdad4",
+                        "inverse-primary": "#ffb5a0",
+                        "tertiary": "#4d6328",
+                        "on-secondary": "#ffffff",
+                        "background": "#fbf9f1",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#eae8e0",
+                        "outline": "#8b716a",
+                        "secondary-container": "#fed7d0",
+                        "tertiary-fixed": "#d2eca2",
+                        "tertiary-fixed-dim": "#b6d088",
+                        "on-secondary-fixed": "#2b1613",
+                        "on-surface-variant": "#58423c",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#fffbff",
+                        "on-secondary-container": "#795c57",
+                        "tertiary-container": "#657c3e",
+                        "surface-bright": "#fbf9f1",
+                        "on-surface": "#1b1c17",
+                        "on-secondary-fixed-variant": "#5b403c",
+                        "surface-variant": "#e4e3db",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#f0eee6",
+                        "surface-tint": "#a73918",
+                        "secondary": "#745853",
+                        "primary-fixed-dim": "#ffb5a0",
+                        "inverse-on-surface": "#f3f1e9",
+                        "secondary-fixed-dim": "#e3beb8",
+                        "inverse-surface": "#30312c",
+                        "primary-fixed": "#ffdbd1",
+                        "primary": "#a43716",
+                        "primary-container": "#c54f2c",
+                        "on-tertiary-fixed": "#131f00",
+                        "on-background": "#1b1c17",
+                        "on-tertiary-fixed-variant": "#394d14",
+                        "on-primary-fixed-variant": "#862201",
+                        "surface": "#fbf9f1",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#dcdad2",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "section-gap": "120px",
+                        "margin-desktop": "64px",
+                        "container-max": "1280px",
+                        "margin-mobile": "16px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Libre Caslon Text"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "display-lg-mobile": ["Libre Caslon Text"],
+                        "headline-md": ["Libre Caslon Text"],
+                        "display-lg": ["Libre Caslon Text"],
+                        "title-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["48px", { "lineHeight": "56px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg-mobile": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-md": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "display-lg": ["64px", { "lineHeight": "72px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "title-lg": ["22px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .material-symbols-outlined {
+                font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            }
+            .icon-filled {
+                font-variation-settings: 'FILL' 1;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 left-72 z-40 flex justify-between items-center px-gutter h-16 bg-surface-bright border-b border-outline-variant">
+<div class="flex items-center gap-4">
+<h1 class="font-headline-md text-headline-md text-primary hidden md:block">VISEMFOOD Admin</h1>
+<div class="relative ml-8">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-64 transition-all" placeholder="Search inquiries..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 transition-all opacity-80 active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 transition-all opacity-80 active:scale-95">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-low rounded-full p-2 transition-all opacity-80 active:scale-95">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="h-screen w-72 flex flex-col fixed left-0 top-0 bg-surface-container shadow-sm border-r border-outline-variant py-gutter px-4 z-50">
+<div class="mb-8 px-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden border border-outline-variant bg-surface-container-highest flex-shrink-0">
+<img alt="Admin User Profile" class="w-full h-full object-cover" data-alt="A professional headshot of an administrative professional in a bright, modern office setting. Warm, natural lighting highlights the subject, conveying trust and competence within a premium service environment. The aesthetic is clean, upscale, and slightly desaturated." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGfznyqqjm_eANWimCKh7goWU0aE-L8vyBnGJtmDnZYZF3rrWxGPEnOg7Hg6SjyjG9DWq7A1hAhPmHyHblaXH5BThNEfKK8542GvIYRJLXn3xZhb-0TJfGq49wp0wlARG5L40lqh4WMCt6llGus6k7fB3nMeCsBeLftxXiSkyhJML7uGII4HWs4q_JxK8Zr4hzNKF_ohOvk7lOhpJKiYHUrOwUXwxRMWJ7bbWltnFiNfrcBNka0WcX"/>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md font-semibold text-primary tracking-tight text-xl">VISEMFOOD</h2>
+<p class="font-label-md text-label-md text-on-surface-variant">Admin Management</p>
+</div>
+</div>
+<button class="mb-8 w-full bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">add</span>
+            New Listing
+        </button>
+<div class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+                Bulk Orders
+            </a>
+<a class="flex items-center gap-4 bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 font-semibold font-label-md text-label-md scale-[0.98] transition-transform duration-150" href="#">
+<span class="material-symbols-outlined icon-filled" data-icon="event_available">event_available</span>
+                Catering Inquiries
+            </a>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="restaurant_menu">restaurant_menu</span>
+                Product Catalog
+            </a>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+                Analytics
+            </a>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant flex flex-col gap-2">
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+                Logout
+            </a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="ml-72 pt-16 min-h-screen bg-background">
+<div class="p-margin-desktop w-full max-w-container-max mx-auto flex gap-gutter">
+<!-- Left Column: List -->
+<div class="w-1/2 flex flex-col gap-6">
+<div class="flex justify-between items-end mb-4 border-b border-outline-variant pb-4">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-background mb-2">Catering Inquiries</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage and respond to event catering requests.</p>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-container-high transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">filter_list</span> Filter
+                        </button>
+</div>
+</div>
+<!-- Inquiry List -->
+<div class="flex flex-col gap-4">
+<!-- Item 1 (Active) -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border-l-4 border-primary shadow-[0px_4px_20px_rgba(62,39,35,0.05)] cursor-pointer hover:bg-surface-container-low transition-colors">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-title-lg text-title-lg text-on-surface">Eleanor Vance</h3>
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-md text-label-md text-[12px]">New</span>
+</div>
+<div class="flex gap-6 font-body-md text-body-md text-on-surface-variant">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                                Oct 15, 2024
+                            </div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">group</span>
+                                150 Guests
+                            </div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-surface-variant shadow-[0px_4px_20px_rgba(62,39,35,0.05)] cursor-pointer hover:bg-surface-container-low transition-colors">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-title-lg text-title-lg text-on-surface">Theodore Laurence</h3>
+<span class="bg-tertiary-container/20 text-tertiary px-3 py-1 rounded-full font-label-md text-label-md text-[12px]">Quoted</span>
+</div>
+<div class="flex gap-6 font-body-md text-body-md text-on-surface-variant">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                                Nov 02, 2024
+                            </div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">group</span>
+                                75 Guests
+                            </div>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-surface-variant shadow-[0px_4px_20px_rgba(62,39,35,0.05)] cursor-pointer hover:bg-surface-container-low transition-colors opacity-70">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-title-lg text-title-lg text-on-surface">Josephine March</h3>
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full font-label-md text-label-md text-[12px]">Completed</span>
+</div>
+<div class="flex gap-6 font-body-md text-body-md text-on-surface-variant">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                                Sep 10, 2024
+                            </div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">group</span>
+                                200 Guests
+                            </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Detail View (Glassmorphism inspired card) -->
+<div class="w-1/2">
+<div class="sticky top-24 bg-surface-container-lowest rounded-2xl shadow-[0px_12px_32px_rgba(74,21,75,0.08)] overflow-hidden border border-surface-variant flex flex-col h-[calc(100vh-140px)]">
+<!-- Detail Header -->
+<div class="p-8 border-b border-surface-variant bg-surface-container-low relative">
+<!-- Abstract pattern watermark -->
+<div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: repeating-linear-gradient(45deg, #a43716 0, #a43716 1px, transparent 1px, transparent 10px);"></div>
+<div class="relative z-10 flex justify-between items-start">
+<div>
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-md text-label-md text-[12px] mb-4 inline-block">New Inquiry</span>
+<h2 class="font-headline-md text-headline-md text-on-background mb-1">Eleanor Vance</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Corporate Gala Dinner</p>
+</div>
+<div class="text-right">
+<p class="font-label-md text-label-md text-on-surface-variant mb-1">Submission Date</p>
+<p class="font-body-md text-body-md text-on-surface">Oct 01, 2024</p>
+</div>
+</div>
+</div>
+<!-- Detail Content (Scrollable) -->
+<div class="p-8 overflow-y-auto flex-1 flex flex-col gap-8">
+<!-- Key Details Grid -->
+<div class="grid grid-cols-2 gap-6">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant mb-2 flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">event</span> Event Date</p>
+<p class="font-body-lg text-body-lg text-on-surface">October 15, 2024</p>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant mb-2 flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">schedule</span> Time</p>
+<p class="font-body-lg text-body-lg text-on-surface">6:00 PM - 11:00 PM</p>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant mb-2 flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">group</span> Guest Count</p>
+<p class="font-body-lg text-body-lg text-on-surface">150 Attendees</p>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant mb-2 flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">location_on</span> Location</p>
+<p class="font-body-lg text-body-lg text-on-surface">Grand Heritage Hall</p>
+</div>
+</div>
+<hr class="border-t border-surface-variant"/>
+<!-- Menu & Preferences -->
+<div>
+<h4 class="font-title-lg text-title-lg text-on-surface mb-4">Menu Preferences</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Client requested a focus on modern interpretations of classic regional dishes, prioritizing seasonal ingredients.</p>
+<div class="flex flex-wrap gap-2">
+<span class="bg-tertiary-container/20 text-tertiary px-3 py-1 rounded-full font-label-md text-label-md text-[12px]">Vegetarian Options Needed</span>
+<span class="bg-tertiary-container/20 text-tertiary px-3 py-1 rounded-full font-label-md text-label-md text-[12px]">Gluten-Free Available</span>
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full font-label-md text-label-md text-[12px]">Premium Bar Setup</span>
+</div>
+</div>
+<hr class="border-t border-surface-variant"/>
+<!-- Additional Notes -->
+<div>
+<h4 class="font-title-lg text-title-lg text-on-surface mb-4">Client Notes</h4>
+<div class="bg-surface-container-low p-4 rounded-xl border border-surface-variant">
+<p class="font-body-md text-body-md text-on-surface italic">"We are hoping for an elegant presentation that feels elevated but approachable. The CEO has a strict nut allergy that needs to be accommodated across all courses."</p>
+</div>
+</div>
+</div>
+<!-- Detail Actions (Sticky Bottom) -->
+<div class="p-6 border-t border-surface-variant bg-surface-container-lowest flex gap-4">
+<button class="flex-1 bg-primary text-on-primary font-label-md text-label-md py-3 rounded-[16px] hover:bg-primary-container transition-colors shadow-md">
+                            Send Quote
+                        </button>
+<button class="flex-1 border border-secondary text-secondary font-label-md text-label-md py-3 rounded-[8px] hover:bg-secondary hover:text-on-secondary transition-colors">
+                            Mark as Confirmed
+                        </button>
+<button class="px-4 border border-outline-variant text-on-surface-variant rounded-[8px] hover:bg-surface-container-low transition-colors" title="Archive">
+<span class="material-symbols-outlined">archive</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

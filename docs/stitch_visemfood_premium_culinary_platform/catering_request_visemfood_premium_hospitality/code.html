@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Catering Request - VISEMFOOD</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600&amp;family=Libre+Caslon+Text:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#657c3e",
+                        "on-surface": "#1b1c17",
+                        "on-secondary-container": "#795c57",
+                        "on-surface-variant": "#58423c",
+                        "on-secondary-fixed-variant": "#5b403c",
+                        "surface-variant": "#e4e3db",
+                        "secondary-fixed-dim": "#e3beb8",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#2b1613",
+                        "surface-bright": "#fbf9f1",
+                        "surface": "#fbf9f1",
+                        "inverse-surface": "#30312c",
+                        "surface-container-high": "#eae8e0",
+                        "on-primary-fixed": "#3b0900",
+                        "primary-container": "#c54f2c",
+                        "on-primary-fixed-variant": "#862201",
+                        "on-background": "#1b1c17",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#ffb5a0",
+                        "primary-fixed": "#ffdbd1",
+                        "background": "#fbf9f1",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed": "#131f00",
+                        "outline-variant": "#dfc0b7",
+                        "on-tertiary-fixed-variant": "#394d14",
+                        "tertiary-fixed-dim": "#b6d088",
+                        "surface-tint": "#a73918",
+                        "primary-fixed-dim": "#ffb5a0",
+                        "inverse-on-surface": "#f3f1e9",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "secondary": "#745853",
+                        "surface-container-low": "#f5f4ec",
+                        "tertiary-fixed": "#d2eca2",
+                        "tertiary": "#4d6328",
+                        "surface-container": "#f0eee6",
+                        "outline": "#8b716a",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#ffdad4",
+                        "primary": "#a43716",
+                        "secondary-container": "#fed7d0",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e4e3db",
+                        "on-tertiary-container": "#faffe8",
+                        "surface-dim": "#dcdad2",
+                        "on-primary-container": "#fffbff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "section-gap": "120px",
+                        "gutter": "24px",
+                        "margin-desktop": "64px",
+                        "container-max": "1280px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "title-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "display-lg-mobile": ["Libre Caslon Text"],
+                        "headline-lg": ["Libre Caslon Text"],
+                        "headline-md": ["Libre Caslon Text"],
+                        "display-lg": ["Libre Caslon Text"]
+                    },
+                    "fontSize": {
+                        "title-lg": ["22px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-lg-mobile": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-lg": ["48px", { "lineHeight": "56px", "fontWeight": "600" }],
+                        "headline-md": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "display-lg": ["64px", { "lineHeight": "72px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .adinkra-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l30 30-30 30L0 30z' fill='%23a43716' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        .soft-shadow-level-1 {
+            box-shadow: 0px 4px 20px rgba(62, 39, 35, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface-dim border-b border-outline-variant/30 shadow-sm sticky top-0 z-50">
+<nav class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="font-headline-md text-headline-md text-primary dark:text-primary-fixed tracking-tight">
+                VISEMFOOD
+            </div>
+<!-- Desktop Nav -->
+<ul class="hidden md:flex items-center gap-8 font-label-md text-label-md">
+<li><a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors duration-300" href="#">Order Food</a></li>
+<li><a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors duration-300" href="#">Trays &amp; Coolers</a></li>
+<li class="text-primary font-bold border-b-2 border-primary pb-1"><a class="transition-all scale-95 opacity-80" href="#">Catering</a></li>
+<li><a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors duration-300" href="#">Our Story</a></li>
+<li><a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors duration-300" href="#">Delivery</a></li>
+<li><a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors duration-300" href="#">Contact</a></li>
+</ul>
+<div class="hidden md:flex items-center gap-6">
+<button class="font-label-md text-label-md uppercase text-secondary hover:text-primary transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+<button class="font-label-md text-label-md uppercase text-secondary hover:text-primary transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+                    Cart
+                </button>
+<button class="bg-primary text-on-primary font-label-md text-label-md uppercase px-6 py-3 rounded-[16px] hover:bg-surface-tint transition-colors">
+                    ORDER ONLINE
+                </button>
+</div>
+<!-- Mobile Menu Icon -->
+<button class="md:hidden text-primary">
+<span class="material-symbols-outlined text-3xl">menu</span>
+</button>
+</nav>
+</header>
+<main>
+<!-- Hero Section -->
+<section class="relative h-[819px] min-h-[600px] flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center z-0 scale-105 transform origin-center" data-alt="A high-fidelity, wide-angle photograph of an exquisitely set catering event table featuring premium African cuisine. The setting is bathed in warm, sun-drenched natural light highlighting the rich textures of jollof rice, grilled plantains, and richly spiced meats presented on elegant ceramic platters. The aesthetic is modern editorial elegance, combining high-end luxury styling with deep cultural authenticity, soft shadows, and a warm color palette." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCsPisompjag1XtErVDRFYuBc17TCxEIgvN9KkGnVAbcItjUvoxvMRk0UZzuCLw05oew364OwUPL6cNJXX1Z3CS6YmShlnc8qkBrVW6wOHhMahP1xwM2O2FrB2a2R5hG_iN9rqCplrHDyvGyEVx0T7EhYe6yNOzqX7M-3l42u3x_p__JTJLCIJxAfBcBvtnaPK8OMUM03tFc3EEWiz_ZAxu1aSYCyv2mZ_3yxjS5oDNjrwlbrNbhLbR')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-black/20 z-10"></div>
+<div class="relative z-20 text-center px-margin-mobile md:px-margin-desktop max-w-4xl mx-auto flex flex-col items-center">
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-white mb-6 drop-shadow-lg">
+                    Elevated African Hospitality for Your Most Memorable Moments.
+                </h1>
+<p class="font-body-lg text-body-lg text-surface-bright/90 mb-10 max-w-2xl text-shadow">
+                    From intimate gatherings to grand celebrations, we bring the authentic flavors and warmth of VISEMFOOD to your table.
+                </p>
+<a class="bg-primary text-on-primary font-label-md text-label-md uppercase px-8 py-4 rounded-[16px] hover:bg-surface-tint transition-colors shadow-lg hover:shadow-xl inline-flex items-center gap-2" href="#inquiry-form">
+                    Inquire Now
+                    <span class="material-symbols-outlined">arrow_downward</span>
+</a>
+</div>
+</section>
+<!-- Services Section -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto adinkra-pattern relative">
+<div class="text-center mb-16">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-4">Curated Experiences</h2>
+<div class="h-[2px] w-24 bg-primary mx-auto mb-6"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- Service Card 1 -->
+<div class="bg-surface-container-lowest rounded-[24px] overflow-hidden soft-shadow-level-1 group cursor-pointer transition-transform duration-300 hover:-translate-y-2">
+<div class="h-48 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A professional corporate catering setup featuring an elegant display of upscale African hors d'oeuvres and small plates on sleek serving trays. The lighting is crisp and modern, illuminating the vibrant burnt oranges and deep browns of the food against a warm cream background, embodying a sophisticated business event." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIp2cLABWsJpZjZ_9arvR7_rCbUPOTjbTCM0OYwlSzdZ8M7iLnsXqgChZ0NM2QP8WflrMYoDsJbrmq_T6WWMWdfkQ9kiieu-KA6flgcXR-1o5CULfUwf9QmtYc0jIp2swa-rF-FKwc45XGiPwWO0sTx6FdV3c3I2Is1pey3oOQRNJ571hNLzvnRJ-TcWgZKfIGj9sgsloZXLyQg8Y976FN-TGYSFwTyI9rwKm7eIeZzqZM1CsxWgMk"/>
+</div>
+<div class="p-6 pb-8">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-3 font-headline-md">Corporate Events</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 line-clamp-3">
+                            Impress clients and colleagues with bespoke menus designed for boardroom lunches, product launches, and corporate galas.
+                        </p>
+<a class="text-primary font-label-md text-label-md uppercase hover:text-surface-tint inline-flex items-center gap-1" href="#">
+                            Learn More <span class="material-symbols-outlined text-sm">chevron_right</span>
+</a>
+</div>
+</div>
+<!-- Service Card 2 -->
+<div class="bg-surface-container-lowest rounded-[24px] overflow-hidden soft-shadow-level-1 group cursor-pointer transition-transform duration-300 hover:-translate-y-2">
+<div class="h-48 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A luxurious wedding reception table setting featuring premium African cuisine elegantly plated. Soft, romantic lighting highlights gold-rimmed plates, crystal glassware, and a majestic centerpiece dish of seasoned rice and grilled meats. The atmosphere feels opulent, warm, and highly editorial." src="https://lh3.googleusercontent.com/aida-public/AB6AXuComRmu_h-sHuDoBCJHYusa3VBeNKd9pBSCEk__E07OWO23P72MmsHwCLA0GFUtKTIJ6zfPGVP2RNs0MgcVseDtuVUKb4qlza3pUs_6xkiey9LqEaDFyQwjoK8uzoKKA07OU62Zo5fJq7HQ9_E-XB3ffcMGfEShWUMo6EqnTIu8X03vKuXGOhiTsERrBvsTbcg8Wc_ETmzbR30EIKoxqEwi0tfY4sXfmqzBr482cUmdCBFWxzgpLWJi"/>
+</div>
+<div class="p-6 pb-8">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-3 font-headline-md">Weddings</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 line-clamp-3">
+                            Celebrate your union with a feast that honors tradition and elevates the dining experience for you and your guests.
+                        </p>
+<a class="text-primary font-label-md text-label-md uppercase hover:text-surface-tint inline-flex items-center gap-1" href="#">
+                            Learn More <span class="material-symbols-outlined text-sm">chevron_right</span>
+</a>
+</div>
+</div>
+<!-- Service Card 3 -->
+<div class="bg-surface-container-lowest rounded-[24px] overflow-hidden soft-shadow-level-1 group cursor-pointer transition-transform duration-300 hover:-translate-y-2">
+<div class="h-48 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="An intimate private dinner party setting showcasing beautifully presented African dishes in a warm, inviting home dining room. The styling features elegant linens, warm candlelight, and a sophisticated, convivial atmosphere focusing on high-end shared platters." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhzD_UnP13ydWcVxLToe-4vQXaLVLuoIQsFMJ_rk1LzBiczTWyKpXlDpPIYOLap5qjoLgnknHQdosSy5T6hgwmPbEQJ9MUerxaElwBUBIYz3t9jutgCW_HGq41sYGXOzwePWSha91ORpgeCHkobKKzJ3bCUpebOKlNylUZcyai6_AWD3KykjfhJ_PmSOO1Ho8VHbQFwi4Z_qOAaFPyuVTFv_cGMYm4jcv15QZNFxeA6Ix9urYCUcUV"/>
+</div>
+<div class="p-6 pb-8">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-3 font-headline-md">Private Parties</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 line-clamp-3">
+                            From anniversaries to intimate birthday dinners, we provide full-service dining that allows you to be a guest at your own event.
+                        </p>
+<a class="text-primary font-label-md text-label-md uppercase hover:text-surface-tint inline-flex items-center gap-1" href="#">
+                            Learn More <span class="material-symbols-outlined text-sm">chevron_right</span>
+</a>
+</div>
+</div>
+<!-- Service Card 4 -->
+<div class="bg-surface-container-lowest rounded-[24px] overflow-hidden soft-shadow-level-1 group cursor-pointer transition-transform duration-300 hover:-translate-y-2">
+<div class="h-48 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A vibrant community celebration featuring a beautifully arranged buffet of authentic African foods. Large, stylish chafing dishes hold colorful stews and rice dishes, set against a backdrop of warm natural light and elegant, minimalist styling that elevates a traditional gathering." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBywXNtwayEhwmyknjv_6BaX3gUGyr_PcmuCBSi7lGctv6Hu2ZQzMB6T4f-fV4g24z8T2XoOPRwaAsFTCWpB7TmoMoSJ8YtsaIxoSseghnLNLwyAKF6woHYGmKu2G2bt1CvCgjHn6JKJKwJCNUQ8mjV4UUABsIG9XzQJKM6BUR2mvpP9zjoFDBCv3yzQlhou3En9Piz8Jifazb_MUn97TaeYm_-FTXmJ-YhTB-6MwJ3MNBWw_pGEOhj"/>
+</div>
+<div class="p-6 pb-8">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-3 font-headline-md">Community Gatherings</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 line-clamp-3">
+                            Large-scale catering that doesn't compromise on quality or presentation, perfect for festivals and cultural events.
+                        </p>
+<a class="text-primary font-label-md text-label-md uppercase hover:text-surface-tint inline-flex items-center gap-1" href="#">
+                            Learn More <span class="material-symbols-outlined text-sm">chevron_right</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest dark:bg-inverse-surface border-t-2 border-primary bg-[url('subtle-pattern-url')] bg-opacity-5">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop py-section-gap max-w-container-max mx-auto">
+<div class="md:col-span-1">
+<div class="font-headline-sm text-headline-md text-primary mb-6">VISEMFOOD</div>
+<p class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md mb-4">
+                    © 2024 VISEMFOOD. Premium African Hospitality.
+                </p>
+</div>
+<div class="md:col-span-3 flex flex-wrap gap-8 md:justify-end">
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary transition-colors duration-200" href="#">Menu</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary transition-colors duration-200" href="#">Corporate Catering</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary transition-colors duration-200" href="#">Events</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary transition-colors duration-200" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary transition-colors duration-200" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+</body></html>

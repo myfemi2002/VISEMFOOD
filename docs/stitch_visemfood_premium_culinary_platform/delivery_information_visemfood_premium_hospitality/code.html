@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VISEMFOOD - Delivery &amp; Pickup</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-background": "#1b1c17",
+                      "on-secondary-fixed": "#2b1613",
+                      "inverse-on-surface": "#f3f1e9",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary-fixed": "#131f00",
+                      "primary": "#a43716",
+                      "tertiary": "#4d6328",
+                      "secondary-fixed": "#ffdad4",
+                      "secondary-container": "#fed7d0",
+                      "surface-variant": "#e4e3db",
+                      "inverse-primary": "#ffb5a0",
+                      "on-primary-container": "#fffbff",
+                      "background": "#fbf9f1",
+                      "outline": "#8b716a",
+                      "surface-container-high": "#eae8e0",
+                      "error-container": "#ffdad6",
+                      "surface-bright": "#fbf9f1",
+                      "on-surface": "#1b1c17",
+                      "tertiary-fixed": "#d2eca2",
+                      "secondary": "#745853",
+                      "surface-container": "#f0eee6",
+                      "on-primary-fixed": "#3b0900",
+                      "on-surface-variant": "#58423c",
+                      "inverse-surface": "#30312c",
+                      "primary-fixed-dim": "#ffb5a0",
+                      "error": "#ba1a1a",
+                      "on-primary-fixed-variant": "#862201",
+                      "surface-dim": "#dcdad2",
+                      "primary-container": "#c54f2c",
+                      "on-secondary-container": "#795c57",
+                      "surface-container-highest": "#e4e3db",
+                      "surface-container-low": "#f5f4ec",
+                      "tertiary-fixed-dim": "#b6d088",
+                      "on-error-container": "#93000a",
+                      "tertiary-container": "#657c3e",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-container": "#faffe8",
+                      "surface": "#fbf9f1",
+                      "primary-fixed": "#ffdbd1",
+                      "on-tertiary-fixed-variant": "#394d14",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "surface-tint": "#a73918",
+                      "outline-variant": "#dfc0b7",
+                      "secondary-fixed-dim": "#e3beb8",
+                      "on-secondary-fixed-variant": "#5b403c",
+                      "on-error": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-max": "1280px",
+                      "unit": "8px",
+                      "section-gap": "120px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "64px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Libre Caslon Text"
+                      ],
+                      "display-lg-mobile": [
+                              "Libre Caslon Text"
+                      ],
+                      "headline-md": [
+                              "Libre Caslon Text"
+                      ],
+                      "body-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display-lg": [
+                              "Libre Caslon Text"
+                      ],
+                      "label-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "title-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-lg": [
+                              "Plus Jakarta Sans"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "40px",
+                              {
+                                      "lineHeight": "48px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "64px",
+                              {
+                                      "lineHeight": "72px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "title-lg": [
+                              "22px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .ambient-shadow-raised {
+            box-shadow: 0px 4px 20px rgba(62, 39, 35, 0.05);
+        }
+        .ambient-shadow-floating {
+            box-shadow: 0px 12px 32px rgba(74, 21, 75, 0.08);
+        }
+        .african-pattern-bg {
+            background-image: url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><path d="M20 0l20 20-20 20L0 20z" fill="rgba(164,55,22,0.03)" fill-rule="evenodd"/></svg>');
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<header class="bg-background dark:bg-inverse-surface text-primary dark:text-inverse-primary font-body-md text-body-md docked full-width top-0 sticky bg-background/80 backdrop-blur-md shadow-sm z-50">
+<div class="flex justify-between items-center px-margin-desktop w-full max-w-container-max mx-auto h-20 md:px-margin-desktop px-margin-mobile">
+<!-- Brand Logo -->
+<a class="font-headline-md text-headline-md font-bold text-primary dark:text-inverse-primary tracking-tight" href="#">
+                VISEMFOOD
+            </a>
+<!-- Navigation Links (Web) -->
+<nav class="hidden md:flex items-center space-x-8">
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors duration-200" href="#">Order Food</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors duration-200" href="#">Trays &amp; Coolers</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors duration-200" href="#">Catering</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors duration-200" href="#">Our Story</a>
+<a aria-current="page" class="text-primary dark:text-inverse-primary font-bold border-b-2 border-primary hover:text-primary transition-colors duration-200" href="#">Delivery</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors duration-200" href="#">Contact</a>
+</nav>
+<!-- Trailing Action -->
+<div class="hidden md:block">
+<button class="bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-[16px] hover:bg-surface-tint transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    ORDER ONLINE
+                </button>
+</div>
+<!-- Mobile Menu Toggle (Simplified for brevity) -->
+<button class="md:hidden text-primary p-2">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</div>
+</header>
+<main>
+<!-- Hero Section -->
+<section class="relative pt-24 pb-section-gap px-margin-mobile md:px-margin-desktop african-pattern-bg">
+<div class="max-w-container-max mx-auto text-center">
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-background mb-6 max-w-4xl mx-auto">
+                    Reliable Delivery &amp; <br class="hidden md:block"/>Seamless Pickup
+                </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-10">
+                    Bringing the authentic flavors of VISEMFOOD to your doorstep or ready for your arrival. Experience premium African hospitality wherever you are.
+                </p>
+<div class="flex flex-col sm:flex-row justify-center gap-4">
+<button class="bg-primary text-on-primary font-label-md text-label-md px-8 py-4 rounded-[16px] hover:bg-surface-tint transition-all shadow-md hover:shadow-lg active:scale-95">
+                        Schedule Delivery
+                    </button>
+<button class="border-2 border-secondary text-secondary font-label-md text-label-md px-8 py-4 rounded-lg hover:bg-surface-container transition-all active:scale-95">
+                        Order for Pickup
+                    </button>
+</div>
+</div>
+<!-- Hero Image -->
+<div class="max-w-container-max mx-auto mt-16 rounded-[24px] overflow-hidden ambient-shadow-raised h-[400px] md:h-[600px] relative">
+<img class="w-full h-full object-cover object-center" data-alt="A top-down view of a beautifully packaged upscale food delivery order on a warm wooden table. The packaging is premium, featuring elegant minimalist design with burnt orange accents. The lighting is soft, warm, and natural, suggesting a high-end culinary experience brought home. A rich, dark cocoa brown napkin rests nearby, completing the sophisticated yet inviting composition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaFYVhdCOsUfLqciVeW-qO4tUFf7ansb_Z9jaA8oH9IIY8oewHhPUKANOZtl31JGAWS3Cfcl5dVa6knDYhOah3LKqLpL8rJhJ2Pp4oEkhbUXNIirNa5IhQYeDjhArl9AITYLQK6HNCeoFUBNn6k7LTwXLcQR3NV9cQCjlvvJB8HaI2ZzR2aZINjN_5f7g7Q35aT595flmgcUuhU4r43ZWmbSlTgQr2ILwhCmfGhcMFP-KAmpArVmjz"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+</div>
+</section>
+<!-- How It Works -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop bg-surface-container-low">
+<div class="max-w-container-max mx-auto">
+<div class="text-center mb-16">
+<h2 class="font-headline-md text-headline-md text-on-background mb-4">How It Works</h2>
+<div class="h-1 w-24 bg-primary mx-auto rounded-full"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+<!-- Connecting line for desktop -->
+<div class="hidden md:block absolute top-1/2 left-[16%] right-[16%] h-0.5 bg-outline-variant -z-10 transform -translate-y-1/2"></div>
+<!-- Step 1 -->
+<div class="flex flex-col items-center text-center group bg-surface p-8 rounded-[24px] ambient-shadow-raised relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="w-20 h-20 rounded-full bg-secondary-container flex items-center justify-center mb-6 text-on-secondary-container group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors duration-300">
+<span class="material-symbols-outlined text-4xl" data-icon="devices" data-weight="fill" style="font-variation-settings: 'FILL' 1;">devices</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-on-background mb-3">1. Place Your Order</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                            Select your favorites online. Whether it's a single meal or catering for a crowd, our platform is simple and intuitive.
+                        </p>
+</div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center text-center group bg-surface p-8 rounded-[24px] ambient-shadow-raised relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="w-20 h-20 rounded-full bg-secondary-container flex items-center justify-center mb-6 text-on-secondary-container group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors duration-300">
+<span class="material-symbols-outlined text-4xl" data-icon="restaurant" data-weight="fill" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-on-background mb-3">2. We Prepare</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                            Our chefs craft your meal with authentic ingredients and utmost care, ensuring the highest quality and flavor.
+                        </p>
+</div>
+<!-- Step 3 -->
+<div class="flex flex-col items-center text-center group bg-surface p-8 rounded-[24px] ambient-shadow-raised relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="w-20 h-20 rounded-full bg-secondary-container flex items-center justify-center mb-6 text-on-secondary-container group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors duration-300">
+<span class="material-symbols-outlined text-4xl" data-icon="local_shipping" data-weight="fill" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-on-background mb-3">3. Pickup or Delivery</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                            Collect it fresh from our kitchen or relax while we bring the warmth of VISEMFOOD directly to your door.
+                        </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Delivery Zones & Pickup Info -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop">
+<div class="max-w-container-max mx-auto">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
+<!-- Delivery Info -->
+<div class="bg-surface rounded-[24px] overflow-hidden ambient-shadow-raised flex flex-col h-full border border-surface-variant">
+<div class="h-64 relative">
+<img class="w-full h-full object-cover" data-alt="A modern delivery vehicle, perhaps a sleek, unbranded dark van, parked on a sunlit residential street lined with trees. The scene conveys a sense of reliable, premium delivery service. Warm morning light casts soft shadows on the road, creating an inviting, high-end neighborhood atmosphere consistent with a light-mode editorial aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuTYZjqlxiBgdhuMWJ1B1Nit4Cw8_e0WNigSudKx1INmI0P3qTbvcTaK9bPRYPzP77hbXQ-X3-YqQgg8pm3fq-9nbFjDxblbSBtuLpKvZjSGUEOeEbA5aK_EA_4b05Z1wsn1RAGfKgjLMm9bXX6BoFZhnxJCSGxwicD4d9sEScmJZo1WBxLG-C5mo1cn2GlR759Vl-j2iuAmeXs-SYFnEszBMmo-tD4J0VpMLcUhaPzvBrm0KRD_8O"/>
+<div class="absolute inset-0 bg-black/20"></div>
+<div class="absolute bottom-4 left-6">
+<span class="bg-tertiary-container/80 text-on-tertiary-container px-3 py-1 rounded-full font-label-md text-xs backdrop-blur-sm">Delivery Services</span>
+</div>
+</div>
+<div class="p-8 flex-grow flex flex-col justify-between">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-background mb-4">Delivery Zones</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">
+                                    We offer both immediate local delivery for standard orders and scheduled delivery for catering events.
+                                </p>
+<div class="space-y-6">
+<div class="flex items-start">
+<span class="material-symbols-outlined text-primary mr-4 mt-1" data-icon="location_on">location_on</span>
+<div>
+<h4 class="font-title-lg text-title-lg text-on-background">Local Delivery</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Available within a 15-mile radius of our main kitchen. Standard delivery fees start at $5.99.</p>
+<p class="font-label-md text-label-md text-secondary mt-2">Check your zip code at checkout.</p>
+</div>
+</div>
+<div class="flex items-start">
+<span class="material-symbols-outlined text-primary mr-4 mt-1" data-icon="event_available">event_available</span>
+<div>
+<h4 class="font-title-lg text-title-lg text-on-background">Scheduled &amp; Catering</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Extended delivery range available for large events and catering orders. Must be scheduled in advance.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Pickup Info -->
+<div class="bg-surface rounded-[24px] overflow-hidden ambient-shadow-raised flex flex-col h-full border border-surface-variant">
+<div class="h-64 relative">
+<img class="w-full h-full object-cover" data-alt="An inviting exterior shot of an upscale modern kitchen storefront. The entrance features warm wood accents and clean lines. Sunlight streams through large glass windows, revealing a glimpse of a pristine, bustling interior. A subtle 'Pickup Here' sign in elegant typography is visible. The mood is welcoming and professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6z0isg3duedBr1tUw1aM0SA8vT_T8SML9fg7YNzCvN-FPz5vEnbSsMva1MTFL2zUbBaVgLSfOK8oTDrzt4iO3rh90s4W7y5WUugyqkFRcS8GeE94zZVQ3ivarlQf3bC_OFIpTew2hOYP7lHcF6rqjIC9P3vvUWdB9NXO8ze_EGIPqotaQiKNJiNYgjQnYciJpuua_0lLSLlSdBmS9DrJi8aLwm6yoCXm49nZQXmhrSilZGNa6dCre"/>
+<div class="absolute inset-0 bg-black/20"></div>
+<div class="absolute bottom-4 left-6">
+<span class="bg-primary-container/80 text-on-primary-container px-3 py-1 rounded-full font-label-md text-xs backdrop-blur-sm">Main Kitchen Pickup</span>
+</div>
+</div>
+<div class="p-8 flex-grow flex flex-col justify-between">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-background mb-4">Pickup Information</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">
+                                    Skip the line and pick up your order directly from our culinary center.
+                                </p>
+<div class="space-y-6">
+<div class="flex items-start">
+<span class="material-symbols-outlined text-secondary mr-4 mt-1" data-icon="storefront">storefront</span>
+<div>
+<h4 class="font-title-lg text-title-lg text-on-background">Location</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">123 Culinary Way<br/>Suite 100<br/>Food District, FD 90210</p>
+</div>
+</div>
+<div class="flex items-start">
+<span class="material-symbols-outlined text-secondary mr-4 mt-1" data-icon="schedule">schedule</span>
+<div>
+<h4 class="font-title-lg text-title-lg text-on-background">Pickup Hours</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Mon - Sat: 11:00 AM - 9:00 PM<br/>Sun: 12:00 PM - 8:00 PM</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-surface-variant">
+<button class="w-full border-2 border-secondary text-secondary font-label-md text-label-md px-6 py-3 rounded-lg hover:bg-surface-container transition-colors">
+                                    Get Directions
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Ordering Rules -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop bg-surface-container-high african-pattern-bg">
+<div class="max-w-container-max mx-auto">
+<div class="text-center mb-12">
+<h2 class="font-headline-md text-headline-md text-on-background mb-4">Ordering Guidelines</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">To ensure the highest quality and freshness, we require advance notice for larger orders.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+<!-- Trays Rule -->
+<div class="bg-surface p-8 rounded-[24px] ambient-shadow-raised flex items-center">
+<div class="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center mr-6 flex-shrink-0">
+<span class="font-headline-md text-primary font-bold">48h</span>
+</div>
+<div>
+<h3 class="font-title-lg text-title-lg text-on-background">Trays Notice</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Please allow a minimum of 48 hours notice for all standard tray orders.</p>
+</div>
+</div>
+<!-- Coolers Rule -->
+<div class="bg-surface p-8 rounded-[24px] ambient-shadow-raised flex items-center">
+<div class="w-16 h-16 rounded-full bg-primary-container flex items-center justify-center mr-6 flex-shrink-0">
+<span class="font-headline-md text-on-primary-container font-bold">72h</span>
+</div>
+<div>
+<h3 class="font-title-lg text-title-lg text-on-background">Coolers Notice</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Due to preparation complexity, cooler orders require a 72-hour advance notice.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- FAQ Section -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop bg-background">
+<div class="max-w-3xl mx-auto">
+<div class="text-center mb-12">
+<h2 class="font-headline-md text-headline-md text-on-background">Delivery FAQ</h2>
+</div>
+<div class="space-y-4">
+<!-- FAQ Item 1 -->
+<details class="group bg-surface rounded-lg ambient-shadow-raised overflow-hidden [&amp;_summary::-webkit-details-marker]:hidden">
+<summary class="flex items-center justify-between p-6 cursor-pointer font-title-lg text-title-lg text-on-background select-none">
+                            What is the standard delivery radius?
+                            <span class="material-symbols-outlined transition-transform duration-300 group-open:rotate-180" data-icon="expand_more">expand_more</span>
+</summary>
+<div class="p-6 pt-0 font-body-md text-body-md text-on-surface-variant border-t border-surface-variant">
+                            Our standard local delivery covers a 15-mile radius from our main kitchen. If you are outside this zone, please contact us for custom delivery options.
+                        </div>
+</details>
+<!-- FAQ Item 2 -->
+<details class="group bg-surface rounded-lg ambient-shadow-raised overflow-hidden [&amp;_summary::-webkit-details-marker]:hidden">
+<summary class="flex items-center justify-between p-6 cursor-pointer font-title-lg text-title-lg text-on-background select-none">
+                            Is there a minimum order for delivery?
+                            <span class="material-symbols-outlined transition-transform duration-300 group-open:rotate-180" data-icon="expand_more">expand_more</span>
+</summary>
+<div class="p-6 pt-0 font-body-md text-body-md text-on-surface-variant border-t border-surface-variant">
+                            Yes, standard local deliveries require a minimum order of $35. Catering and scheduled deliveries have different minimums depending on the package.
+                        </div>
+</details>
+<!-- FAQ Item 3 -->
+<details class="group bg-surface rounded-lg ambient-shadow-raised overflow-hidden [&amp;_summary::-webkit-details-marker]:hidden">
+<summary class="flex items-center justify-between p-6 cursor-pointer font-title-lg text-title-lg text-on-background select-none">
+                            How do I track my order?
+                            <span class="material-symbols-outlined transition-transform duration-300 group-open:rotate-180" data-icon="expand_more">expand_more</span>
+</summary>
+<div class="p-6 pt-0 font-body-md text-body-md text-on-surface-variant border-t border-surface-variant">
+                            Once your order is dispatched, you will receive an SMS and email notification with a live tracking link to follow your delivery driver in real-time.
+                        </div>
+</details>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container dark:bg-surface-container-high text-primary dark:text-inverse-primary font-body-md text-body-md full-width flat no shadows">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter px-margin-desktop py-section-gap w-full max-w-container-max mx-auto md:px-margin-desktop px-margin-mobile">
+<!-- Brand -->
+<div class="flex flex-col space-y-4">
+<span class="font-headline-lg text-headline-lg text-primary dark:text-inverse-primary tracking-tight">VISEMFOOD</span>
+<p class="text-on-surface-variant dark:text-on-surface-variant font-body-md">© 2024 VISEMFOOD. Premium African Hospitality.</p>
+</div>
+<!-- Links Column 1 -->
+<div class="flex flex-col space-y-3">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary transition-colors focus:underline" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary transition-colors focus:underline" href="#">Terms of Service</a>
+</div>
+<!-- Links Column 2 -->
+<div class="flex flex-col space-y-3">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary transition-colors focus:underline" href="#">Refund Policy</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary transition-colors focus:underline" href="#">Catering FAQ</a>
+</div>
+</div>
+</footer>
+</body></html>

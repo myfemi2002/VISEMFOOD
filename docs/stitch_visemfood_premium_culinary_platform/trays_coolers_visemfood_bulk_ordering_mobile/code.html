@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VISEMFOOD - Trays &amp; Coolers</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-primary": "#ffb5a0",
+                      "on-background": "#1b1c17",
+                      "on-tertiary-container": "#faffe8",
+                      "surface-container-highest": "#e4e3db",
+                      "surface-container": "#f0eee6",
+                      "on-secondary-container": "#795c57",
+                      "inverse-on-surface": "#f3f1e9",
+                      "primary-fixed": "#ffdbd1",
+                      "on-error": "#ffffff",
+                      "background": "#fbf9f1",
+                      "tertiary": "#4d6328",
+                      "surface": "#fbf9f1",
+                      "tertiary-fixed-dim": "#b6d088",
+                      "surface-container-high": "#eae8e0",
+                      "on-primary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-surface": "#1b1c17",
+                      "secondary-fixed-dim": "#e3beb8",
+                      "surface-container-low": "#f5f4ec",
+                      "primary-fixed-dim": "#ffb5a0",
+                      "inverse-surface": "#30312c",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-container": "#fffbff",
+                      "error": "#ba1a1a",
+                      "surface-tint": "#a73918",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-fixed-variant": "#394d14",
+                      "tertiary-fixed": "#d2eca2",
+                      "surface-variant": "#e4e3db",
+                      "on-primary-fixed-variant": "#862201",
+                      "on-secondary": "#ffffff",
+                      "secondary-fixed": "#ffdad4",
+                      "on-secondary-fixed": "#2b1613",
+                      "on-tertiary-fixed": "#131f00",
+                      "on-surface-variant": "#58423c",
+                      "tertiary-container": "#657c3e",
+                      "secondary-container": "#fed7d0",
+                      "surface-container-lowest": "#ffffff",
+                      "outline": "#8b716a",
+                      "surface-bright": "#fbf9f1",
+                      "primary-container": "#c54f2c",
+                      "on-secondary-fixed-variant": "#5b403c",
+                      "secondary": "#745853",
+                      "surface-dim": "#dcdad2",
+                      "outline-variant": "#dfc0b7",
+                      "primary": "#a43716",
+                      "on-primary-fixed": "#3b0900"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-max": "1280px",
+                      "section-gap": "120px",
+                      "margin-desktop": "64px",
+                      "gutter": "24px",
+                      "margin-mobile": "16px",
+                      "unit": "8px"
+              },
+              "fontFamily": {
+                      "title-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-lg": [
+                              "Libre Caslon Text"
+                      ],
+                      "display-lg": [
+                              "Libre Caslon Text"
+                      ],
+                      "body-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display-lg-mobile": [
+                              "Libre Caslon Text"
+                      ],
+                      "body-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "label-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-md": [
+                              "Libre Caslon Text"
+                      ]
+              },
+              "fontSize": {
+                      "title-lg": [
+                              "22px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "64px",
+                              {
+                                      "lineHeight": "72px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "40px",
+                              {
+                                      "lineHeight": "48px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Subtle Pattern Overlay */
+        .pattern-overlay {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23a43716' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        /* Utility for hiding scrollbar but allowing scroll */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased relative min-h-screen pt-20">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-md shadow-[0px_4px_20px_rgba(62,39,35,0.05)] transition-all duration-300 ease-in-out h-20">
+<div class="flex justify-between items-center h-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<!-- Mobile Menu Toggle (Left) -->
+<button aria-label="Menu" class="md:hidden flex items-center justify-center text-on-surface p-2">
+<span class="material-symbols-outlined text-3xl">menu</span>
+</button>
+<!-- Brand Logo -->
+<a class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim tracking-tight" href="#">
+                VISEMFOOD
+            </a>
+<!-- Desktop Navigation -->
+<div class="hidden md:flex space-x-8 items-center h-full">
+<a class="font-label-md text-label-md text-secondary dark:text-secondary-fixed-dim font-medium hover:text-primary transition-colors hover:text-primary-container dark:hover:text-primary-fixed duration-300" href="#">Order Food</a>
+<a class="font-label-md text-label-md text-primary font-semibold border-b-2 border-primary pb-1 flex flex-col justify-center h-full" href="#">Trays &amp; Coolers</a>
+<a class="font-label-md text-label-md text-secondary dark:text-secondary-fixed-dim font-medium hover:text-primary transition-colors hover:text-primary-container dark:hover:text-primary-fixed duration-300" href="#">Catering</a>
+<a class="font-label-md text-label-md text-secondary dark:text-secondary-fixed-dim font-medium hover:text-primary transition-colors hover:text-primary-container dark:hover:text-primary-fixed duration-300" href="#">Our Story</a>
+<a class="font-label-md text-label-md text-secondary dark:text-secondary-fixed-dim font-medium hover:text-primary transition-colors hover:text-primary-container dark:hover:text-primary-fixed duration-300" href="#">Delivery</a>
+</div>
+<!-- Trailing Actions (Search on right logic applied here implicitly by order) -->
+<div class="flex items-center space-x-2 md:space-x-4">
+<button aria-label="Search" class="hidden md:flex items-center justify-center p-2 text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button aria-label="account_circle" class="items-center justify-center p-2 text-secondary hover:text-primary transition-colors flex" data-icon="account_circle">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+<button aria-label="shopping_cart" class="items-center justify-center p-2 text-secondary hover:text-primary transition-colors flex relative" data-icon="shopping_cart">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="absolute top-1 right-1 bg-primary text-on-primary text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">0</span>
+</button>
+<a class="hidden md:inline-flex bg-primary text-on-primary px-6 py-3 rounded-full font-label-md text-label-md hover:bg-primary-container transition-colors items-center active:scale-95 duration-300 ease-in-out" href="#">
+                    ORDER ONLINE
+                </a>
+</div>
+</div>
+</nav>
+<!-- Mobile Drawer Nav (Hidden by default, assumed handled by JS in real app) -->
+<div class="fixed inset-0 bg-surface z-40 hidden flex-col pt-24 px-margin-mobile" id="mobile-nav">
+<div class="flex flex-col space-y-6">
+<a class="font-title-lg text-title-lg text-secondary" href="#">Order Food</a>
+<a class="font-title-lg text-title-lg text-primary font-bold border-b-2 border-primary pb-2 w-max" href="#">Trays &amp; Coolers</a>
+<a class="font-title-lg text-title-lg text-secondary" href="#">Catering</a>
+<a class="font-title-lg text-title-lg text-secondary" href="#">Our Story</a>
+<a class="font-title-lg text-title-lg text-secondary" href="#">Delivery</a>
+</div>
+</div>
+<!-- Main Content Canvas -->
+<main class="w-full">
+<!-- Mobile Hero Section -->
+<section class="relative w-full h-[60vh] min-h-[400px] flex items-end pb-gutter md:hidden bg-surface-container-high pattern-overlay">
+<!-- Background Image -->
+<div class="absolute inset-0 bg-cover bg-center w-full h-full opacity-80 mix-blend-multiply" data-alt="A beautifully styled overhead shot of large catering trays filled with vibrant Nigerian cuisine, including Jollof rice, plantains, and grilled meats, set on a dark, rustic wooden table with soft, warm overhead lighting highlighting the textures and colors. Minimalist editorial style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAhIKPJ6mGHPRQw5JzGwmeW3vTd5LtSBw9oXIkm5Vs5x4Dgnfbf6Ixb4AM-Cq295bY40I3FiiyTNJMdPVhMa03kTaRo8uwruEcDEQTM0dXFxVQBH5RBXyTSiWRXTeUpYIVo1zvs2VVIagqLMSO9D1ckVZQW5m1uVB8RUcQPYveZqRLJ1ze1JyTCK_JcdWDNUK_nJ8CqOFNdrTrTtt2-rwe8hXYUNe8WLpUr-dPK3An_ymp7Byy_6lcA')"></div>
+<!-- Gradient Overlay -->
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent"></div>
+<div class="relative z-10 px-margin-mobile w-full flex flex-col gap-4">
+<span class="bg-primary/10 text-primary font-label-md text-label-md px-3 py-1 rounded-full w-max border border-primary/20 backdrop-blur-sm">Bulk Ordering</span>
+<h1 class="font-display-lg-mobile text-display-lg-mobile text-on-background">Trays, Coolers &amp;<br/>Bulk Orders</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-sm">Bring the authentic taste of VISEMFOOD to your gatherings. Premium portions, elegantly prepared for sharing.</p>
+<div class="flex flex-col gap-3 mt-4">
+<button class="bg-primary text-on-primary font-label-md text-label-md py-4 rounded-full w-full flex items-center justify-center gap-2 active:scale-95 transition-transform shadow-[0px_4px_20px_rgba(62,39,35,0.15)]">
+                        Start Order
+                        <span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+<button class="bg-transparent border border-outline text-on-background font-label-md text-label-md py-4 rounded-full w-full flex items-center justify-center active:scale-95 transition-transform">
+                        Download Menu (PDF)
+                    </button>
+</div>
+</div>
+</section>
+<!-- Desktop Hero Section (Hidden on Mobile) -->
+<section class="hidden md:flex relative w-full h-[70vh] min-h-[600px] items-center px-margin-desktop max-w-container-max mx-auto pattern-overlay">
+<div class="grid grid-cols-12 gap-gutter w-full">
+<div class="col-span-5 flex flex-col justify-center z-10 gap-6">
+<span class="bg-primary/10 text-primary font-label-md text-label-md px-4 py-1.5 rounded-full w-max border border-primary/20">Bulk Ordering</span>
+<h1 class="font-display-lg text-display-lg text-on-background">Trays, Coolers &amp;<br/>Bulk Orders</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Bring the authentic taste of VISEMFOOD to your gatherings. Premium portions, elegantly prepared for sharing.</p>
+<div class="flex gap-4 mt-4">
+<button class="bg-primary text-on-primary font-label-md text-label-md px-8 py-4 rounded-full flex items-center justify-center gap-2 hover:bg-primary-container transition-colors shadow-[0px_4px_20px_rgba(62,39,35,0.15)]">
+                            Start Order
+                        </button>
+<button class="bg-transparent border border-outline text-on-background font-label-md text-label-md px-8 py-4 rounded-full flex items-center justify-center hover:bg-surface-container-high transition-colors">
+                            Download Menu
+                        </button>
+</div>
+</div>
+<div class="col-span-7 relative h-full rounded-2xl overflow-hidden shadow-[0px_12px_32px_rgba(74,21,75,0.08)]">
+<img class="absolute inset-0 w-full h-full object-cover" data-alt="A beautifully styled overhead shot of large catering trays filled with vibrant Nigerian cuisine, including Jollof rice, plantains, and grilled meats, set on a dark, rustic wooden table with soft, warm overhead lighting highlighting the textures and colors. Minimalist editorial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbpGngp5xLZzR6KkXk_G-5X78ZVYiUd6JJWLVzCsLiDeyXZGKtWVuB1tz3f5bMXb_3TNjByVqIKKirQXx210PHtY48uuBzak-gw_z4U9yo-6RQyRI5N58Ke0OOTUlLN4CYu5SZTHodEx2r6qcuk0c3RGankbbe3CnKOYDPF6R3s-yvyHd-hAovbpK1IlDln4I7jRlo22h--RfSuoQ5EwcDh9IikPufFQg-A8cJeJn4ruh0f_zHqDQe"/>
+</div>
+</div>
+</section>
+<!-- Signature Dishes at Scale -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto relative">
+<div class="flex flex-col gap-2 mb-12">
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background">Signature Dishes</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Our most loved dishes, scaled for your event. Available in Half and Full Tray sizes.</p>
+</div>
+<!-- Bento Grid / Asymmetric Layout for Dishes -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Dish Card 1 (Large) -->
+<div class="md:col-span-8 bg-surface-container-lowest rounded-[24px] overflow-hidden shadow-[0px_4px_20px_rgba(62,39,35,0.05)] flex flex-col group">
+<div class="relative h-64 md:h-80 w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out" data-alt="A close-up, high-end editorial food photo of a large tray of steaming, vibrant reddish-orange Jollof rice, garnished with fresh herbs and sliced plantains. Warm, directional lighting creates an inviting, premium aesthetic against a neutral cream background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9tYuc68LI3bRxJVSfT4JQAxQtNYSJvpjCissi8eex_wKK8zluzJ9oFIy8VSKU900a0so43hbmf8jC-jIk5IGE9i9SS03-z7EORqVLmH5R2HiDUJ-WzeTHrQGPyUhNnAqj6izTUcQrAha5U_fDVyOxBKvB_J1X4-nu93RJ0veMHjSjTIhKG_C-1jxF9mdy26nVQop8IE3SwEeFGGVCk4seH1ehRaNOQxI1mKELcgOHaVcYnxLUYz_i"/>
+<div class="absolute top-4 left-4">
+<span class="bg-tertiary/20 text-tertiary-container font-label-md text-label-md px-3 py-1 rounded-full backdrop-blur-md">Most Popular</span>
+</div>
+</div>
+<div class="p-6 md:p-8 flex flex-col gap-6">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-background mb-2">Classic Jollof Rice</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Our award-winning recipe. Long-grain rice slow-cooked in a rich tomato, pepper, and onion blend with authentic spices.</p>
+</div>
+<!-- Pricing Table -->
+<div class="flex flex-col gap-3 mt-auto">
+<div class="flex justify-between items-center border-b-2 border-primary/10 pb-3">
+<div class="flex flex-col">
+<span class="font-title-lg text-title-lg text-on-background">Half Tray</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Serves 10-12</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="font-title-lg text-title-lg text-primary font-bold">$65</span>
+<button class="h-10 w-10 rounded-full border border-outline flex items-center justify-center text-on-background active:bg-primary active:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+</div>
+<div class="flex justify-between items-center pt-1">
+<div class="flex flex-col">
+<span class="font-title-lg text-title-lg text-on-background">Full Tray</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Serves 20-24</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="font-title-lg text-title-lg text-primary font-bold">$120</span>
+<button class="h-10 w-10 rounded-full border border-outline flex items-center justify-center text-on-background active:bg-primary active:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Dish Card 2 (Stacked Mobile, Side Desktop) -->
+<div class="md:col-span-4 flex flex-col gap-gutter">
+<div class="bg-surface-container-lowest rounded-[24px] overflow-hidden shadow-[0px_4px_20px_rgba(62,39,35,0.05)] flex flex-col flex-1 group">
+<div class="relative h-48 w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out" data-alt="A beautifully plated portion of rich, golden-yellow Egusi soup with assorted meats, styled in a modern rustic bowl. Shot from slightly above with soft natural light. Editorial food photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCt23q4T-sIifzUT_SDEYlPv9kvBN8Nd_cxMLqPNAjKUveidY28OVBWE40-GaCaNIZICoqWI2rp_j1EIkMPid0U81uv__WdYPSgQv7TQfesY1Y456h4MFPOiM1RhiMuF59XBlg7GisfL5H4i0M8Vi1MKksPQfW8ZfHsKpTE_tcJHD7cqJT3ApvP3G9O3bj7ag2RthL3tkK1RvfrlbUk-eR2Xtx0Hn4GEmiI3HL1KpWUsgWbnG50Afoq"/>
+</div>
+<div class="p-6 flex flex-col gap-4 flex-1">
+<h3 class="font-title-lg text-title-lg text-on-background">Egusi Soup</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm line-clamp-2">Rich melon seed soup with spinach and assorted premium meats.</p>
+<div class="mt-auto">
+<div class="flex justify-between items-center pt-2 border-t-2 border-primary/5">
+<span class="font-body-md text-body-md text-on-surface-variant">Half (10-12)</span>
+<div class="flex items-center gap-2">
+<span class="font-title-lg text-title-lg text-primary">$85</span>
+<button class="h-8 w-8 rounded-full bg-surface-container flex items-center justify-center text-on-background"><span class="material-symbols-outlined text-[16px]">add</span></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-[24px] overflow-hidden shadow-[0px_4px_20px_rgba(62,39,35,0.05)] flex flex-col flex-1 group">
+<div class="relative h-48 w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out" data-alt="A stylized shot of thinly sliced, spice-rubbed Beef Suya on a wooden board, garnished with fresh red onions and tomatoes. Warm, moody lighting emphasizing the texture of the meat and spices. Premium aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIQ3y1H6dcmG94cwt2P6rBu1yJcCYB1JIXDeiuyymt315TiV5JukAmSva0IiAdjjq9u8F2klVVlhDf5bjj2oyCb4-JdhfRfQFZ1OW5QVEZjQHAnkZGAnvSIH-Xsy6NiwpqlCqEdfFvw7lJ1Q0QEaoeWCwRJ4MPH2lLFeMSj1p0ofo5meTtixBPEjXoFaT1tfzJ2Cyw2rBinXuv8gEIUVPhkwN2DJmlfOK6BW_8eXoZSVnLGflxJTVz"/>
+</div>
+<div class="p-6 flex flex-col gap-4 flex-1">
+<h3 class="font-title-lg text-title-lg text-on-background">Beef Suya</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm line-clamp-2">Thinly sliced beef, rubbed with our signature Yaji spice blend and fire-grilled.</p>
+<div class="mt-auto">
+<div class="flex justify-between items-center pt-2 border-t-2 border-primary/5">
+<span class="font-body-md text-body-md text-on-surface-variant">Half (10-12)</span>
+<div class="flex items-center gap-2">
+<span class="font-title-lg text-title-lg text-primary">$95</span>
+<button class="h-8 w-8 rounded-full bg-surface-container flex items-center justify-center text-on-background"><span class="material-symbols-outlined text-[16px]">add</span></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 flex justify-center">
+<button class="bg-transparent border-2 border-outline text-on-background font-label-md text-label-md px-6 py-3 rounded-full flex items-center justify-center gap-2 hover:bg-surface-container transition-colors">
+                    View Full Bulk Menu
+                </button>
+</div>
+</section>
+<!-- Curated Party Packs (Glassmorphism / Stacked) -->
+<section class="py-section-gap bg-surface-container-high relative overflow-hidden">
+<!-- Decorative Pattern -->
+<div class="absolute inset-0 pattern-overlay opacity-50"></div>
+<div class="relative z-10 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="text-center flex flex-col items-center gap-4 mb-16">
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background">Curated Party Packs</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-lg">Take the guesswork out of ordering. Our curated packs are designed to offer a complete dining experience for groups of any size.</p>
+</div>
+<div class="flex flex-col gap-6 md:grid md:grid-cols-3">
+<!-- Pack 1 -->
+<div class="bg-surface/80 backdrop-blur-lg rounded-[24px] p-8 border border-surface-dim shadow-[0px_12px_32px_rgba(74,21,75,0.04)] flex flex-col gap-6">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-md text-headline-md text-on-background">The Mini<br/>Celebration</h3>
+<span class="font-title-lg text-title-lg text-primary font-bold">$275</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Serves 10-12 guests. Perfect for intimate gatherings and family dinners.</p>
+<div class="border-t-2 border-primary/10 pt-6 mt-auto">
+<ul class="space-y-3 font-body-md text-body-md text-on-background mb-8">
+<li class="flex gap-3"><span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span> 1 Half Tray Jollof Rice</li>
+<li class="flex gap-3"><span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span> 1 Half Tray Grilled Chicken</li>
+<li class="flex gap-3"><span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span> 1 Half Tray Fried Plantains</li>
+<li class="flex gap-3"><span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span> 1 Dozen Meat Pies</li>
+</ul>
+<button class="w-full bg-transparent border-2 border-primary text-primary font-label-md text-label-md py-3 rounded-full hover:bg-primary hover:text-on-primary transition-colors">Select Package</button>
+</div>
+</div>
+<!-- Pack 2 (Highlighted) -->
+<div class="bg-surface rounded-[24px] p-8 border-2 border-primary shadow-[0px_12px_32px_rgba(74,21,75,0.08)] flex flex-col gap-6 relative transform md:-translate-y-4">
+<div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-on-primary font-label-md text-label-md px-4 py-1 rounded-full whitespace-nowrap shadow-md">
+                            Best Value
+                        </div>
+<div class="flex justify-between items-start mt-2">
+<h3 class="font-headline-md text-headline-md text-on-background">The Heritage<br/>Feast</h3>
+<span class="font-title-lg text-title-lg text-primary font-bold">$550</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Serves 20-25 guests. A complete spread covering all the classics.</p>
+<div class="border-t-2 border-primary/10 pt-6 mt-auto">
+<ul class="space-y-3 font-body-md text-body-md text-on-background mb-8">
+<li class="flex gap-3"><span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span> 1 Full Tray Jollof Rice</li>
+<li class="flex gap-3"><span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span> 1 Full Tray Assorted Meat Stew</li>
+<li class="flex gap-3"><span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span> 1 Full Tray Fried Plantains</li>
+<li class="flex gap-3"><span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span> 1 Half Tray Beef Suya</li>
+<li class="flex gap-3"><span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span> 2 Dozen Puff Puff</li>
+</ul>
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-3 rounded-full hover:bg-primary-container transition-colors shadow-sm">Select Package</button>
+</div>
+</div>
+<!-- Pack 3 -->
+<div class="bg-surface/80 backdrop-blur-lg rounded-[24px] p-8 border border-surface-dim shadow-[0px_12px_32px_rgba(74,21,75,0.04)] flex flex-col gap-6">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-md text-headline-md text-on-background">The Grand<br/>Gala</h3>
+<span class="font-title-lg text-title-lg text-primary font-bold">$995</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Serves 45-50 guests. The ultimate impressive spread for large corporate events or weddings.</p>
+<div class="border-t-2 border-primary/10 pt-6 mt-auto">
+<ul class="space-y-3 font-body-md text-body-md text-on-background mb-8">
+<li class="flex gap-3"><span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span> 2 Full Trays Jollof Rice</li>
+<li class="flex gap-3"><span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span> 2 Full Trays Egusi &amp; Fufu</li>
+<li class="flex gap-3"><span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span> 1 Full Tray Goat Meat Pepper Soup</li>
+<li class="flex gap-3"><span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span> Choice of 3 Premium Appetizers</li>
+</ul>
+<button class="w-full bg-transparent border-2 border-primary text-primary font-label-md text-label-md py-3 rounded-full hover:bg-primary hover:text-on-primary transition-colors">Select Package</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Ordering Guide & Contact (Minimalist Editorial) -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+<!-- Guide Text -->
+<div class="flex flex-col gap-8">
+<div>
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background mb-4">How to Order</h2>
+<div class="w-16 h-1 bg-primary mb-6"></div>
+</div>
+<div class="flex gap-6 items-start">
+<div class="h-12 w-12 rounded-full bg-surface-container-high flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">schedule</span>
+</div>
+<div>
+<h4 class="font-title-lg text-title-lg text-on-background mb-2">Notice Periods</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">We require a minimum of 48 hours notice for all standard bulk orders (Trays &amp; Coolers). For Curated Packs or orders exceeding $1000, please provide 7 days notice.</p>
+</div>
+</div>
+<div class="flex gap-6 items-start">
+<div class="h-12 w-12 rounded-full bg-surface-container-high flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">local_shipping</span>
+</div>
+<div>
+<h4 class="font-title-lg text-title-lg text-on-background mb-2">Pickup &amp; Delivery</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Orders can be picked up at our main kitchen. Delivery is available within a 25-mile radius for a flat fee of $35. Setup services are available upon request.</p>
+</div>
+</div>
+<div class="flex gap-6 items-start">
+<div class="h-12 w-12 rounded-full bg-surface-container-high flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">eco</span>
+</div>
+<div>
+<h4 class="font-title-lg text-title-lg text-on-background mb-2">Packaging</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">All items are securely packaged in premium, heat-retaining aluminum trays. Disposable chafing dish sets are available for purchase.</p>
+</div>
+</div>
+</div>
+<!-- Contact Card -->
+<div class="bg-surface-container-lowest p-8 md:p-12 rounded-[24px] border border-surface-dim shadow-[0px_12px_32px_rgba(74,21,75,0.08)] text-center flex flex-col items-center">
+<span class="material-symbols-outlined text-5xl text-primary mb-4" style="font-variation-settings: 'FILL' 1;">restaurant_menu</span>
+<h3 class="font-headline-md text-headline-md text-on-background mb-4">Planning a Custom Event?</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-8 max-w-sm">Our catering team is ready to help you design the perfect menu for your special occasion. We accommodate dietary restrictions and special requests.</p>
+<button class="bg-on-background text-surface w-full font-label-md text-label-md py-4 rounded-full flex items-center justify-center gap-2 hover:bg-primary transition-colors">
+                        Contact Catering Team
+                        <span class="material-symbols-outlined text-sm">mail</span>
+</button>
+<a class="mt-4 font-label-md text-label-md text-secondary hover:text-primary transition-colors underline decoration-secondary underline-offset-4" href="tel:+1234567890">or call (555) 123-4567</a>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest dark:bg-inverse-surface w-full pt-section-gap pb-gutter border-t-2 border-primary/10 flat no shadows opacity-100 hover:opacity-80 transition-opacity mt-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<!-- Brand & Copyright -->
+<div class="flex flex-col gap-4">
+<span class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim font-bold">
+                    VISEMFOOD
+                </span>
+<p class="font-body-md text-body-md text-on-surface dark:text-inverse-on-surface">
+                    Premium African Hospitality, delivered to your table.
+                </p>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant mt-auto pt-8">
+                    © 2024 VISEMFOOD. All Rights Reserved.
+                </p>
+</div>
+<!-- Links Column 1 -->
+<div class="flex flex-col gap-3">
+<h4 class="font-label-md text-label-md text-on-surface dark:text-inverse-on-surface font-bold mb-2">Menu</h4>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors duration-200" href="#">Order Food</a>
+<a class="font-body-md text-body-md text-primary font-bold transition-colors duration-200" href="#">Trays &amp; Coolers</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors duration-200" href="#">Catering</a>
+</div>
+<!-- Links Column 2 -->
+<div class="flex flex-col gap-3">
+<h4 class="font-label-md text-label-md text-on-surface dark:text-inverse-on-surface font-bold mb-2">About</h4>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors duration-200" href="#">Our Story</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors duration-200" href="#">Delivery</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors duration-200" href="#">Contact</a>
+</div>
+<!-- Links Column 3 -->
+<div class="flex flex-col gap-3">
+<h4 class="font-label-md text-label-md text-on-surface dark:text-inverse-on-surface font-bold mb-2">Legal</h4>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors duration-200" href="#">Privacy Policy</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors duration-200" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+</body></html>

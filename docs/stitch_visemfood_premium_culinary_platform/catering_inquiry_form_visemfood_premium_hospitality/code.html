@@ -1,0 +1,384 @@
+<!DOCTYPE html><html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Catering Inquiry | VISEMFOOD</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "tertiary-fixed-dim": "#b6d088",
+                            "on-error-container": "#93000a",
+                            "on-primary-container": "#fffbff",
+                            "primary-fixed-dim": "#ffb5a0",
+                            "surface-container-lowest": "#ffffff",
+                            "error-container": "#ffdad6",
+                            "on-tertiary-container": "#faffe8",
+                            "outline-variant": "#dfc0b7",
+                            "on-secondary": "#ffffff",
+                            "inverse-surface": "#30312c",
+                            "secondary": "#745853",
+                            "inverse-primary": "#ffb5a0",
+                            "outline": "#8b716a",
+                            "surface": "#fbf9f1",
+                            "surface-tint": "#a73918",
+                            "primary": "#a43716",
+                            "on-primary": "#ffffff",
+                            "surface-container": "#f0eee6",
+                            "surface-bright": "#fbf9f1",
+                            "surface-variant": "#e4e3db",
+                            "on-tertiary-fixed-variant": "#394d14",
+                            "inverse-on-surface": "#f3f1e9",
+                            "on-error": "#ffffff",
+                            "on-background": "#1b1c17",
+                            "on-tertiary": "#ffffff",
+                            "surface-container-highest": "#e4e3db",
+                            "tertiary-fixed": "#d2eca2",
+                            "on-primary-fixed": "#3b0900",
+                            "surface-container-low": "#f5f4ec",
+                            "secondary-container": "#fed7d0",
+                            "on-secondary-container": "#795c57",
+                            "primary-fixed": "#ffdbd1",
+                            "error": "#ba1a1a",
+                            "on-surface-variant": "#58423c",
+                            "tertiary-container": "#657c3e",
+                            "tertiary": "#4d6328",
+                            "surface-dim": "#dcdad2",
+                            "on-secondary-fixed-variant": "#5b403c",
+                            "background": "#fbf9f1",
+                            "secondary-fixed-dim": "#e3beb8",
+                            "secondary-fixed": "#ffdad4",
+                            "on-tertiary-fixed": "#131f00",
+                            "on-secondary-fixed": "#2b1613",
+                            "primary-container": "#c54f2c",
+                            "on-primary-fixed-variant": "#862201",
+                            "surface-container-high": "#eae8e0",
+                            "on-surface": "#1b1c17"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                    },
+                    "spacing": {
+                            "margin-desktop": "64px",
+                            "unit": "8px",
+                            "gutter": "24px",
+                            "container-max": "1280px",
+                            "margin-mobile": "16px",
+                            "section-gap": "120px"
+                    },
+                    "fontFamily": {
+                            "headline-lg": [
+                                    "Libre Caslon Text"
+                            ],
+                            "headline-md": [
+                                    "Libre Caslon Text"
+                            ],
+                            "body-lg": [
+                                    "Plus Jakarta Sans"
+                            ],
+                            "body-md": [
+                                    "Plus Jakarta Sans"
+                            ],
+                            "display-lg": [
+                                    "Libre Caslon Text"
+                            ],
+                            "title-lg": [
+                                    "Plus Jakarta Sans"
+                            ],
+                            "label-md": [
+                                    "Plus Jakarta Sans"
+                            ],
+                            "display-lg-mobile": [
+                                    "Libre Caslon Text"
+                            ]
+                    },
+                    "fontSize": {
+                            "headline-lg": [
+                                    "48px",
+                                    {
+                                            "lineHeight": "56px",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "headline-md": [
+                                    "32px",
+                                    {
+                                            "lineHeight": "40px",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "body-lg": [
+                                    "18px",
+                                    {
+                                            "lineHeight": "28px",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "body-md": [
+                                    "16px",
+                                    {
+                                            "lineHeight": "24px",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "display-lg": [
+                                    "64px",
+                                    {
+                                            "lineHeight": "72px",
+                                            "letterSpacing": "-0.02em",
+                                            "fontWeight": "700"
+                                    }
+                            ],
+                            "title-lg": [
+                                    "22px",
+                                    {
+                                            "lineHeight": "28px",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "label-md": [
+                                    "14px",
+                                    {
+                                            "lineHeight": "20px",
+                                            "letterSpacing": "0.05em",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "display-lg-mobile": [
+                                    "40px",
+                                    {
+                                            "lineHeight": "48px",
+                                            "letterSpacing": "-0.01em",
+                                            "fontWeight": "700"
+                                    }
+                            ]
+                    }
+            },
+                },
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        .pattern-overlay {
+            background-image: url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h40v40H0V0zm20 20h20v20H20V20zM0 20h20v20H0V20z" fill="%23a43716" fill-opacity="0.03" fill-rule="evenodd"/></svg>');
+        }
+        .ambient-shadow {
+            box-shadow: 0px 4px 20px rgba(62, 39, 35, 0.05);
+        }
+        .floating-shadow {
+            box-shadow: 0px 12px 32px rgba(74, 21, 75, 0.08);
+        }
+        .input-field {
+            @apply w-full bg-surface-container-lowest border border-outline rounded text-body-md font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent px-4 py-3 transition-colors duration-300;
+        }
+        .label-text {
+            @apply block font-label-md text-label-md text-on-surface-variant mb-2;
+        }
+    </style>
+</head>
+<body class="antialiased font-body-md text-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface-dim shadow-sm border-b border-outline-variant/30 sticky top-0 z-50 w-full transition-all duration-300">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<a class="font-headline-md text-headline-md text-primary dark:text-primary-fixed tracking-tight hover:opacity-80 transition-opacity" href="#">
+                VISEMFOOD
+            </a>
+<nav class="hidden md:flex space-x-8 items-center">
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors duration-300 font-label-md text-label-md" href="#">Order Food</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors duration-300 font-label-md text-label-md" href="#">Trays &amp; Coolers</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1 font-label-md text-label-md" href="#">Catering</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors duration-300 font-label-md text-label-md" href="#">Our Story</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors duration-300 font-label-md text-label-md" href="#">Delivery</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors duration-300 font-label-md text-label-md" href="#">Contact</a>
+</nav>
+<div class="flex items-center space-x-6">
+<button aria-label="account_circle" class="text-secondary hover:text-primary transition-colors duration-300">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</button>
+<div class="hidden md:flex items-center space-x-4">
+<button class="font-label-md text-label-md uppercase text-secondary hover:text-primary transition-colors duration-300">Cart</button>
+<button class="bg-primary text-on-primary font-label-md text-label-md uppercase px-6 py-2.5 rounded-full hover:bg-surface-tint transition-colors duration-300">ORDER ONLINE</button>
+</div>
+<button aria-label="shopping_bag" class="text-secondary hover:text-primary transition-colors duration-300">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">shopping_bag</span>
+</button>
+<button aria-label="menu" class="md:hidden text-secondary hover:text-primary transition-colors duration-300">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+</div>
+</div>
+</header>
+<main class="min-h-screen pb-section-gap relative">
+<div class="pattern-overlay absolute inset-0 pointer-events-none z-[-1]"></div>
+<!-- Hero Section -->
+<section class="pt-section-gap pb-16 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto text-center">
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary mb-6">Request a Catering Consultation</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
+                Bring elevated African hospitality to your next event. Fill out the form below, and our concierges will curate a bespoke culinary experience tailored to your vision.
+            </p>
+<div class="w-24 h-0.5 bg-primary mx-auto mt-12 opacity-50"></div>
+</section>
+<!-- Main Content Area -->
+<section class="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Form Area -->
+<div class="lg:col-span-8 bg-surface-container-lowest rounded-2xl ambient-shadow p-8 md:p-12">
+<!-- Progress Stepper (Visual Only) -->
+<div class="flex justify-between items-center mb-12 relative">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-surface-variant z-0"></div>
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-1/4 h-0.5 bg-primary z-0 transition-all duration-500" id="progress-bar"></div>
+<div class="relative z-10 flex flex-col items-center group">
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-title-lg text-title-lg mb-2 shadow-sm">1</div>
+<span class="font-label-md text-label-md text-primary hidden md:block">Basics</span>
+</div>
+<div class="relative z-10 flex flex-col items-center group">
+<div class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-title-lg text-title-lg mb-2 border border-outline-variant">2</div>
+<span class="font-label-md text-label-md text-on-surface-variant hidden md:block">Style</span>
+</div>
+<div class="relative z-10 flex flex-col items-center group">
+<div class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-title-lg text-title-lg mb-2 border border-outline-variant">3</div>
+<span class="font-label-md text-label-md text-on-surface-variant hidden md:block">Venue</span>
+</div>
+<div class="relative z-10 flex flex-col items-center group">
+<div class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-title-lg text-title-lg mb-2 border border-outline-variant">4</div>
+<span class="font-label-md text-label-md text-on-surface-variant hidden md:block">Menu</span>
+</div>
+<div class="relative z-10 flex flex-col items-center group">
+<div class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-title-lg text-title-lg mb-2 border border-outline-variant">5</div>
+<span class="font-label-md text-label-md text-on-surface-variant hidden md:block">Contact</span>
+</div>
+</div>
+<form class="space-y-8" id="catering-form">
+<!-- Step 1: Event Basics -->
+<div class="space-y-6 animate-fade-in" id="step-1">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-6 border-b border-surface-variant pb-4">Event Basics</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="label-text" for="event-name">Event Name</label>
+<input class="input-field" id="event-name" placeholder="e.g. Adebayo Wedding Reception" required="" type="text">
+</div>
+<div>
+<label class="label-text" for="guest-count">Estimated Guest Count</label>
+<select class="input-field appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23745853%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]" id="guest-count" required="">
+<option disabled="" selected="" value="">Select an estimate</option>
+<option value="10-25">Intimate (10 - 25)</option>
+<option value="26-50">Gathering (26 - 50)</option>
+<option value="51-100">Event (51 - 100)</option>
+<option value="100+">Gala (100+)</option>
+</select>
+</div>
+<div>
+<label class="label-text" for="event-date">Event Date</label>
+<input class="input-field" id="event-date" required="" type="date">
+</div>
+<div>
+<label class="label-text" for="event-time">Preferred Time</label>
+<input class="input-field" id="event-time" required="" type="time">
+</div>
+</div>
+</div>
+<!-- Form Actions -->
+<div class="flex justify-between items-center pt-8 border-t border-surface-variant mt-12">
+<button class="invisible font-label-md text-label-md text-secondary border border-outline px-6 py-3 rounded-lg hover:bg-surface-variant transition-colors duration-300" type="button">
+                                BACK
+                            </button>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-8 py-3 rounded-[16px] hover:bg-surface-tint transition-colors duration-300 flex items-center gap-2" type="button">
+                                NEXT STEP
+                                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_forward</span>
+</button>
+</div>
+</form>
+</div>
+<!-- Sidebar Area -->
+<div class="lg:col-span-4 space-y-8">
+<!-- Image Card -->
+<div class="rounded-[24px] overflow-hidden ambient-shadow relative h-64 md:h-auto md:aspect-[4/5]">
+<img class="object-cover w-full h-full absolute inset-0" data-alt="A beautifully plated, high-end interpretation of Jollof rice served in a sleek, minimalist ceramic bowl. The lighting is warm and directional, evoking a sun-drenched upscale kitchen. Accents of burnt orange and deep greens highlight the fresh ingredients. The composition is editorial and sophisticated, aligning with a premium light-mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPHVviFVoQzsjfs3xEacFOtx3VeBsyuC-TNPFMewhAOoGektNk_Cu_QGiu4HWK-lUUSEGyU9WQNUZr49O4rbE5TVrtqto3V8PdMluwZIksqkgURrvWTU-3GGUPpTHL75GaiVFiEMJgjAVu5OWnZNvn1Rk2cV1hpTuK0xQQi9neswgqd0C0hKFtZev7jBEAVFKJ6dt9iDwFC8rFwruS9w5VPouLeLUhTmbO3ADH95oTB_5sjySwb2Go">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-6">
+<span class="inline-block bg-tertiary/20 text-tertiary-fixed font-label-md text-label-md px-3 py-1 rounded-full mb-2 backdrop-blur-sm">Culinary Heritage</span>
+<h3 class="font-headline-md text-headline-md text-white">Elevated Tradition</h3>
+</div>
+</div>
+<!-- Guarantee Card -->
+<div class="bg-surface-container-high rounded-2xl p-8 border-l-4 border-primary">
+<h3 class="font-title-lg text-title-lg text-primary mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">verified</span>
+                            The VISEM Guarantee
+                        </h3>
+<ul class="space-y-4">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary mt-0.5" style="font-variation-settings: 'FILL' 0;">schedule</span>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">5-Day Notice Minimum</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1">To ensure perfection, we require at least 5 days notice for all catering requests.</p>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary mt-0.5" style="font-variation-settings: 'FILL' 0;">local_dining</span>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">Premium Ingredients</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1">Sourced locally and imported directly to maintain authentic, vibrant flavors.</p>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary mt-0.5" style="font-variation-settings: 'FILL' 0;">groups</span>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">Concierge Service</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1">Professional, white-glove staffing available for full-service events.</p>
+</div>
+</li>
+</ul><div class="mt-8 pt-8 border-t border-outline-variant/30">
+    <div class="flex items-start gap-3 mb-4">
+        <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 0;">description</span>
+        <div>
+            <h4 class="font-label-md text-label-md text-on-surface">Catering Menu</h4>
+            <p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1">Explore our full range of seasonal African delicacies and curated packages.</p>
+        </div>
+    </div>
+    <button class="w-full flex items-center justify-center gap-2 bg-surface-variant text-on-surface-variant font-label-md text-label-md uppercase py-3 rounded-lg hover:bg-primary hover:text-on-primary transition-all duration-300">
+        <span class="material-symbols-outlined text-[20px]">download</span>
+        Download PDF Menu
+    </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest dark:bg-inverse-surface border-t-2 border-primary relative overflow-hidden">
+<div 0="" 40="" 40\"="" class="absolute inset-0 bg-[url('data:image/svg+xml;utf8,&lt;svg width=\" height="\&quot;40\&quot;" viewbox="\&quot;0" xmlns="\&quot;http://www.w3.org/2000/svg\&quot;"><path 0h40v40h0v0zm20="" 20h20v20h0v20z\"="" 20h20v20h20v20zm0="" d="\&quot;M0" fill="\&quot;%23a43716\&quot;" fill-opacity="\&quot;0.05\&quot;" fill-rule="\&quot;evenodd\&quot;/">')] pointer-events-none"&gt;</path></div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop py-section-gap max-w-container-max mx-auto relative z-10">
+<div class="md:col-span-1">
+<h2 class="font-headline-sm text-headline-sm text-primary mb-4 font-headline-md tracking-tight">VISEMFOOD</h2>
+<p class="font-body-md text-body-md text-on-surface dark:text-inverse-on-surface mb-6 opacity-80">
+                    Premium African Hospitality.
+                </p>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant text-sm">
+                    © 2024 VISEMFOOD.
+                </p>
+</div>
+<div class="md:col-span-3 flex flex-wrap gap-x-12 gap-y-6 justify-start md:justify-end">
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 rounded" href="#">Menu</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 rounded" href="#">Corporate Catering</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 rounded" href="#">Events</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 rounded" href="#">Privacy Policy</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 rounded" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+
+
+</body></html>

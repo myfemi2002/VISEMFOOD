@@ -1,0 +1,411 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRoleSlug {
+  SUPER_ADMIN
+  CONTENT_MANAGER
+  OPERATIONS_STAFF
+}
+
+enum AvailabilityStatus {
+  IN_STOCK
+  LIMITED
+  UNAVAILABLE
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  IN_REVIEW
+  CONFIRMED
+  CLOSED
+}
+
+enum BulkOrderStatus {
+  NEW
+  PENDING_CONFIRMATION
+  CONFIRMED
+  IN_PREPARATION
+  DELIVERED
+  COMPLETED
+}
+
+enum ContactStatus {
+  NEW
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  READY
+  DELIVERED
+  COMPLETED
+  CANCELLED
+}
+
+enum OrderType {
+  PRODUCT
+  TRAY_PACKAGE
+  CATERING
+}
+
+enum OrderSource {
+  WHATSAPP
+  ADMIN_MANUAL
+  CONTACT_FOLLOWUP
+}
+
+model Role {
+  id          String       @id @default(cuid())
+  name        String
+  slug        UserRoleSlug @unique
+  description String?
+  users       User[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model User {
+  id                      String             @id @default(cuid())
+  name                    String
+  email                   String             @unique
+  passwordHash            String
+  phone                   String?
+  roleId                  String
+  isActive                Boolean            @default(true)
+  lastLoginAt             DateTime?
+  role                    Role               @relation(fields: [roleId], references: [id])
+  assignedCatering        CateringInquiry[]
+  assignedBulkOrders      BulkOrderInquiry[]
+  assignedContact         ContactInquiry[]
+  handledOrders           Order[]
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
+}
+
+model ProductCategory {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  imageId     String?
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  image       MediaAsset? @relation("CategoryImage", fields: [imageId], references: [id])
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([sortOrder])
+}
+
+model Product {
+  id                       String             @id @default(cuid())
+  categoryId               String
+  name                     String
+  slug                     String             @unique
+  shortDescription         String
+  description              String             @db.LongText
+  price                    Decimal            @db.Decimal(10, 2)
+  currency                 String             @default("NGN")
+  servingSize              String?
+  sku                      String?
+  availabilityStatus       AvailabilityStatus @default(IN_STOCK)
+  isFeatured               Boolean            @default(false)
+  isActive                 Boolean            @default(true)
+  whatsappMessageTemplate  String?
+  sortOrder                Int                @default(0)
+  category                 ProductCategory    @relation(fields: [categoryId], references: [id])
+  images                   ProductImage[]
+  orderItems               OrderItem[]
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+
+  @@index([categoryId])
+  @@index([isActive])
+  @@index([sortOrder])
+}
+
+model ProductImage {
+  id           String     @id @default(cuid())
+  productId    String
+  mediaAssetId String
+  isPrimary    Boolean    @default(false)
+  sortOrder    Int        @default(0)
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  mediaAsset   MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@index([productId])
+}
+
+model TrayPackage {
+  id                      String     @id @default(cuid())
+  name                    String
+  slug                    String     @unique
+  shortDescription        String
+  description             String     @db.LongText
+  price                   Decimal    @db.Decimal(10, 2)
+  currency                String     @default("NGN")
+  servingRange            String
+  packageType             String
+  whatsappMessageTemplate String?
+  isFeatured              Boolean    @default(false)
+  isActive                Boolean    @default(true)
+  sortOrder               Int        @default(0)
+  images                  TrayPackageImage[]
+  orderItems              OrderItem[]
+  bulkInquiries           BulkOrderInquiry[]
+  createdAt               DateTime   @default(now())
+  updatedAt               DateTime   @updatedAt
+
+  @@index([isActive])
+  @@index([sortOrder])
+}
+
+model TrayPackageImage {
+  id            String      @id @default(cuid())
+  trayPackageId String
+  mediaAssetId  String
+  isPrimary     Boolean     @default(false)
+  sortOrder     Int         @default(0)
+  trayPackage   TrayPackage @relation(fields: [trayPackageId], references: [id], onDelete: Cascade)
+  mediaAsset    MediaAsset  @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+}
+
+model CateringInquiry {
+  id               String        @id @default(cuid())
+  fullName         String
+  phone            String
+  email            String
+  eventType        String
+  eventDate        DateTime?
+  guestCount       Int?
+  preferredMenu    String?
+  serviceType      String?
+  budgetRange      String?
+  additionalNotes  String?       @db.LongText
+  status           InquiryStatus @default(NEW)
+  internalNotes    String?       @db.LongText
+  assignedToUserId String?
+  assignedTo       User?         @relation(fields: [assignedToUserId], references: [id])
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model BulkOrderInquiry {
+  id               String          @id @default(cuid())
+  fullName         String
+  phone            String
+  email            String?
+  trayPackageId    String?
+  quantity         Int?
+  eventDate        DateTime?
+  pickupOrDelivery String?
+  notes            String?         @db.LongText
+  status           BulkOrderStatus @default(NEW)
+  internalNotes    String?         @db.LongText
+  assignedToUserId String?
+  trayPackage      TrayPackage?    @relation(fields: [trayPackageId], references: [id])
+  assignedTo       User?           @relation(fields: [assignedToUserId], references: [id])
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ContactInquiry {
+  id               String        @id @default(cuid())
+  fullName         String
+  phone            String?
+  email            String
+  subject          String
+  message          String        @db.LongText
+  status           ContactStatus @default(NEW)
+  internalNotes    String?       @db.LongText
+  assignedToUserId String?
+  assignedTo       User?         @relation(fields: [assignedToUserId], references: [id])
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  orderReference    String      @unique
+  customerName      String
+  customerPhone     String
+  customerEmail     String?
+  orderType         OrderType
+  source            OrderSource @default(WHATSAPP)
+  status            OrderStatus @default(PENDING)
+  totalAmount       Decimal?    @db.Decimal(10, 2)
+  currency          String      @default("NGN")
+  pickupOrDelivery  String?
+  deliveryAddress   String?     @db.LongText
+  orderNotes        String?     @db.LongText
+  handledByUserId   String?
+  handledBy         User?       @relation(fields: [handledByUserId], references: [id])
+  items             OrderItem[]
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id            String       @id @default(cuid())
+  orderId       String
+  productId     String?
+  trayPackageId String?
+  itemName      String
+  itemType      OrderType
+  unitPrice     Decimal?     @db.Decimal(10, 2)
+  quantity      Int          @default(1)
+  lineTotal     Decimal?     @db.Decimal(10, 2)
+  order         Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product       Product?     @relation(fields: [productId], references: [id])
+  trayPackage   TrayPackage? @relation(fields: [trayPackageId], references: [id])
+  createdAt     DateTime     @default(now())
+
+  @@index([orderId])
+}
+
+model HomepageSection {
+  id           String     @id @default(cuid())
+  sectionKey   String     @unique
+  title        String
+  subtitle     String?
+  body         String?    @db.LongText
+  buttonText   String?
+  buttonLink   String?
+  mediaAssetId String?
+  sortOrder    Int        @default(0)
+  isActive     Boolean    @default(true)
+  mediaAsset   MediaAsset? @relation("HomepageSectionMedia", fields: [mediaAssetId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model WebsitePage {
+  id              String      @id @default(cuid())
+  title           String
+  slug            String      @unique
+  pageType        String      @unique
+  heroTitle       String?
+  heroSubtitle    String?
+  bodyContent     String?     @db.LongText
+  metaTitle       String?
+  metaDescription String?
+  isPublished     Boolean     @default(true)
+  blocks          PageBlock[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model PageBlock {
+  id           String      @id @default(cuid())
+  pageId       String
+  blockKey     String
+  title        String?
+  subtitle     String?
+  content      String?     @db.LongText
+  mediaAssetId String?
+  buttonText   String?
+  buttonLink   String?
+  sortOrder    Int         @default(0)
+  isActive     Boolean     @default(true)
+  page         WebsitePage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  mediaAsset   MediaAsset? @relation("PageBlockMedia", fields: [mediaAssetId], references: [id])
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@unique([pageId, blockKey])
+}
+
+model MediaAsset {
+  id                   String              @id @default(cuid())
+  provider             String              @default("cloudinary")
+  publicId             String
+  secureUrl            String
+  resourceType         String
+  format               String?
+  width                Int?
+  height               Int?
+  bytes                Int?
+  folder               String?
+  altText              String?
+  categoryImageFor     ProductCategory[]   @relation("CategoryImage")
+  productImages        ProductImage[]
+  trayPackageImages    TrayPackageImage[]
+  homepageSectionMedia HomepageSection[]   @relation("HomepageSectionMedia")
+  pageBlockMedia       PageBlock[]         @relation("PageBlockMedia")
+  logoForSettings      SiteSetting[]       @relation("LogoAsset")
+  faviconForSettings   SiteSetting[]       @relation("FaviconAsset")
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+}
+
+model MediaSetting {
+  id                 String   @id @default(cuid())
+  provider           String   @unique @default("cloudinary")
+  cloudName          String
+  apiKey             String
+  apiSecretEncrypted String
+  uploadPreset       String?
+  defaultFolder      String?
+  secureUrls         Boolean  @default(true)
+  isEnabled          Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model WhatsAppSetting {
+  id                    String   @id @default(cuid())
+  singletonKey          String   @unique @default("default")
+  adminPhoneNumber      String
+  defaultOrderMessage   String
+  defaultTrayMessage    String
+  defaultCateringMessage String
+  isEnabled             Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model SiteSetting {
+  id             String      @id @default(cuid())
+  singletonKey   String      @unique @default("default")
+  siteName       String
+  supportEmail   String?
+  supportPhone   String?
+  whatsappNumber String?
+  businessAddress String?    @db.LongText
+  businessHours  String?
+  facebookUrl    String?
+  instagramUrl   String?
+  tiktokUrl      String?
+  logoMediaAssetId String?
+  faviconMediaAssetId String?
+  logo           MediaAsset? @relation("LogoAsset", fields: [logoMediaAssetId], references: [id])
+  favicon        MediaAsset? @relation("FaviconAsset", fields: [faviconMediaAssetId], references: [id])
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VISEMFOOD Admin - Product Catalog</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#faffe8",
+                        "surface-container-low": "#f5f4ec",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e4e3db",
+                        "on-primary-fixed": "#3b0900",
+                        "outline-variant": "#dfc0b7",
+                        "secondary-fixed": "#ffdad4",
+                        "inverse-primary": "#ffb5a0",
+                        "tertiary": "#4d6328",
+                        "on-secondary": "#ffffff",
+                        "background": "#fbf9f1",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#eae8e0",
+                        "outline": "#8b716a",
+                        "secondary-container": "#fed7d0",
+                        "tertiary-fixed": "#d2eca2",
+                        "tertiary-fixed-dim": "#b6d088",
+                        "on-secondary-fixed": "#2b1613",
+                        "on-surface-variant": "#58423c",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#fffbff",
+                        "on-secondary-container": "#795c57",
+                        "tertiary-container": "#657c3e",
+                        "surface-bright": "#fbf9f1",
+                        "on-surface": "#1b1c17",
+                        "on-secondary-fixed-variant": "#5b403c",
+                        "surface-variant": "#e4e3db",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#f0eee6",
+                        "surface-tint": "#a73918",
+                        "secondary": "#745853",
+                        "primary-fixed-dim": "#ffb5a0",
+                        "inverse-on-surface": "#f3f1e9",
+                        "secondary-fixed-dim": "#e3beb8",
+                        "inverse-surface": "#30312c",
+                        "primary-fixed": "#ffdbd1",
+                        "primary": "#a43716",
+                        "primary-container": "#c54f2c",
+                        "on-tertiary-fixed": "#131f00",
+                        "on-background": "#1b1c17",
+                        "on-tertiary-fixed-variant": "#394d14",
+                        "on-primary-fixed-variant": "#862201",
+                        "surface": "#fbf9f1",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#dcdad2",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "section-gap": "120px",
+                        "margin-desktop": "64px",
+                        "container-max": "1280px",
+                        "margin-mobile": "16px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Libre Caslon Text", "serif"],
+                        "body-lg": ["Plus Jakarta Sans", "sans-serif"],
+                        "display-lg-mobile": ["Libre Caslon Text", "serif"],
+                        "headline-md": ["Libre Caslon Text", "serif"],
+                        "display-lg": ["Libre Caslon Text", "serif"],
+                        "title-lg": ["Plus Jakarta Sans", "sans-serif"],
+                        "label-md": ["Plus Jakarta Sans", "sans-serif"],
+                        "body-md": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["48px", { "lineHeight": "56px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg-mobile": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-md": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "display-lg": ["64px", { "lineHeight": "72px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "title-lg": ["22px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: theme('colors.background'); color: theme('colors.on-background'); }
+        h1, h2, h3, .font-headline-md, .font-headline-lg, .font-display-lg { font-family: 'Libre Caslon Text', serif; }
+        
+        /* Ambient shadows */
+        .shadow-ambient-raised { box-shadow: 0px 4px 20px rgba(62, 39, 35, 0.05); }
+        .shadow-ambient-floating { box-shadow: 0px 12px 32px rgba(74, 21, 75, 0.08); }
+
+        /* Custom scrollbar for main content area */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: theme('colors.outline-variant'); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: theme('colors.outline'); }
+        
+        /* African pattern overlay */
+        .pattern-overlay {
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v20h2v2H20v-1.5zM0 20h2v20H0V20zm4 0h2v20H4V20zm4 0h2v20H8V20zm4 0h2v20h-2V20zm4 0h2v20h-2V20zm4 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2z' fill='%23a73918' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="flex min-h-screen relative">
+<!-- TopNavBar -->
+<nav class="fixed top-0 right-0 left-72 z-40 flex justify-between items-center px-gutter h-16 bg-surface-bright border-b border-outline-variant">
+<div class="flex items-center gap-4">
+<h1 class="font-headline-md text-headline-md text-primary hidden md:block">VISEMFOOD Admin</h1>
+<span class="font-title-lg text-title-lg text-on-surface ml-4">Product Catalog</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="hover:bg-surface-container-low rounded-full p-2 transition-all text-on-surface-variant hover:text-primary opacity-80 active:scale-95">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button class="hover:bg-surface-container-low rounded-full p-2 transition-all text-on-surface-variant hover:text-primary opacity-80 active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="hover:bg-surface-container-low rounded-full p-2 transition-all text-on-surface-variant hover:text-primary opacity-80 active:scale-95">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<button class="hover:bg-surface-container-low rounded-full p-2 transition-all text-on-surface-variant hover:text-primary opacity-80 active:scale-95 ml-2">
+<span class="material-symbols-outlined" data-icon="account_circle" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+</button>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="h-screen w-72 flex flex-col fixed left-0 top-0 bg-surface-container shadow-sm border-r border-outline-variant z-50">
+<div class="flex flex-col h-full py-gutter px-4">
+<!-- Brand -->
+<div class="mb-8 px-4 flex flex-col">
+<span class="font-headline-md text-headline-md font-semibold text-primary tracking-tight">VISEMFOOD</span>
+<span class="font-label-md text-label-md text-on-surface-variant mt-1">Admin Management</span>
+</div>
+<!-- CTA -->
+<button class="mb-8 w-full bg-primary text-on-primary py-3 rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">add</span>
+                New Listing
+            </button>
+<!-- Nav Links -->
+<nav class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:bg-surface-container-highest transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:bg-surface-container-highest transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-md text-label-md">Bulk Orders</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:bg-surface-container-highest transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="event_available">event_available</span>
+<span class="font-label-md text-label-md">Catering Inquiries</span>
+</a>
+<!-- ACTIVE TAB -->
+<a class="flex items-center gap-4 bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 font-semibold hover:bg-surface-container-highest transition-all duration-200 scale-[0.98] transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="restaurant_menu" style="font-variation-settings: 'FILL' 1;">restaurant_menu</span>
+<span class="font-label-md text-label-md">Product Catalog</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:bg-surface-container-highest transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+</nav>
+<!-- Footer Links -->
+<div class="mt-auto pt-4 border-t border-outline-variant flex flex-col gap-2">
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:bg-surface-container-highest transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant px-4 py-3 hover:bg-surface-container-highest transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="ml-72 mt-16 flex-1 w-full p-margin-desktop bg-background pattern-overlay custom-scrollbar overflow-y-auto relative">
+<div class="max-w-container-max mx-auto">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-12">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-background">Inventory Management</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2">Manage your catering menu offerings, prices, and availability.</p>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-2 border-2 border-secondary text-secondary rounded-lg font-label-md text-label-md hover:bg-surface-container-low transition-colors">
+                        Export CSV
+                    </button>
+<button class="px-6 py-2 bg-primary text-on-primary rounded-xl font-label-md text-label-md hover:bg-primary-container transition-colors shadow-ambient-raised">
+                        Save Changes
+                    </button>
+</div>
+</div>
+<!-- Tabs/Filters -->
+<div class="flex gap-8 mb-8 border-b border-outline-variant pb-1">
+<button class="font-title-lg text-title-lg text-primary font-bold border-b-2 border-primary pb-2 -mb-[2px]">Main Dishes</button>
+<button class="font-title-lg text-title-lg text-on-surface-variant hover:text-primary transition-colors pb-2">Sides &amp; Appetizers</button>
+<button class="font-title-lg text-title-lg text-on-surface-variant hover:text-primary transition-colors pb-2">Party Packs</button>
+</div>
+<!-- Products Grid (Bento style) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-section-gap">
+<!-- Product Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl shadow-ambient-raised overflow-hidden flex flex-col relative group">
+<div class="h-48 w-full relative">
+<img class="w-full h-full object-cover" data-alt="A high-quality, professional food photography shot of authentic Nigerian Jollof Rice in a large catering tray. The rice is vibrant orange-red, steaming slightly, garnished with sliced plantains and grilled chicken pieces. The lighting is warm and inviting, evoking a premium dining experience. Set against a clean, modern kitchen background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcUnyPZgapWdH8tAMaJ9VlyhNvJuXuYWW9Gh_xGMv5dHpLePvhbk7IK3wlqhEreSpuEj8M1LuEksI5EpDvT8LCIE-JuhpS7u8eot8w_yugPyFufWJv-CJONp-b_2WSssN5jcIS1oOU8v0kIVPrgawaHW6dcsy1XKn8_8GGStwrBy1aN3kfle9IItB3IDxe-oszcnFTowA-cqfCDMWLGegX-fy3-yXQE1TvOGLScQ0RIRMgWg61FuVS"/>
+<div class="absolute top-4 right-4 bg-tertiary-container text-on-tertiary bg-opacity-90 px-3 py-1 rounded-full font-label-md text-label-md backdrop-blur-sm shadow-sm flex items-center gap-1">
+<div class="w-2 h-2 rounded-full bg-[#d2eca2]"></div> In Stock
+                        </div>
+</div>
+<div class="p-6 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-headline-md text-on-background">Smoky Party Jollof</h3>
+<button class="text-on-surface-variant hover:text-primary transition-colors p-1">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 line-clamp-2">Authentic Nigerian party-style jollof rice cooked over firewood flavor profile.</p>
+<div class="mt-auto space-y-4">
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-lg border border-outline-variant border-opacity-30">
+<span class="font-label-md text-label-md text-on-surface">Half Tray</span>
+<div class="flex items-center gap-2">
+<span class="font-title-lg text-title-lg text-primary">$65</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-lg border border-outline-variant border-opacity-30">
+<span class="font-label-md text-label-md text-on-surface">Full Tray</span>
+<div class="flex items-center gap-2">
+<span class="font-title-lg text-title-lg text-primary">$120</span>
+</div>
+</div>
+</div>
+<!-- Toggle -->
+<div class="mt-6 pt-4 border-t border-outline-variant border-opacity-50 flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant">Visibility Status</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-tertiary-container"></div>
+</label>
+</div>
+</div>
+</div>
+<!-- Product Card 2 (Sold Out Example) -->
+<div class="bg-surface-container-lowest rounded-xl shadow-ambient-raised overflow-hidden flex flex-col relative group opacity-75">
+<div class="h-48 w-full relative">
+<img class="w-full h-full object-cover grayscale-[30%]" data-alt="A professional close-up food shot of rich Egusi Soup with assorted meats, served in a large, elegant catering bowl. The texture of the melon seeds and leafy greens is prominent. Warm, focused lighting highlights the golden palm oil hues. The background is slightly blurred, minimalist, conveying a high-end culinary standard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYxM5salJeCzpDyZLm88kUaKY_MoD-TVbR-kxvtlYlJoK1F5E2GqhHuxKpNMonuJ5LYUxWpT47t2QgkweqI8B9T_vYinj63yD1svD0CMkLGMBx9NQWSmLZ6GXoMtbz6jUjZYLQe8TEzqJudDLE-LC-TwrwgCzTEkEovSH5ocILFCdRhOFixxCw8BSjwXHNvfvQECRbc9HoVeo4Zb_BTIu9Tk1b905dot1JkkQH05SX4yFqhfTsRJ6y"/>
+<div class="absolute top-4 right-4 bg-error text-on-error bg-opacity-90 px-3 py-1 rounded-full font-label-md text-label-md backdrop-blur-sm shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">block</span> Sold Out
+                        </div>
+</div>
+<div class="p-6 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-headline-md text-on-background">Premium Egusi Soup</h3>
+<button class="text-on-surface-variant hover:text-primary transition-colors p-1">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 line-clamp-2">Rich melon seed soup cooked with spinach, assorted meats, and dried fish.</p>
+<div class="mt-auto space-y-4">
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-lg border border-outline-variant border-opacity-30">
+<span class="font-label-md text-label-md text-on-surface">Half Tray</span>
+<div class="flex items-center gap-2">
+<span class="font-title-lg text-title-lg text-on-surface-variant">$85</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-lg border border-outline-variant border-opacity-30">
+<span class="font-label-md text-label-md text-on-surface">Full Tray</span>
+<div class="flex items-center gap-2">
+<span class="font-title-lg text-title-lg text-on-surface-variant">$160</span>
+</div>
+</div>
+</div>
+<!-- Toggle -->
+<div class="mt-6 pt-4 border-t border-outline-variant border-opacity-50 flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant">Visibility Status</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-tertiary-container"></div>
+</label>
+</div>
+</div>
+</div>
+<!-- Add New Card -->
+<div class="bg-surface-container-low rounded-xl border-2 border-dashed border-outline-variant hover:border-primary transition-colors flex flex-col items-center justify-center p-8 cursor-pointer min-h-[400px]">
+<div class="w-16 h-16 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-[32px]">add</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-primary mb-2">Add New Item</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-center">Create a new catering dish listing</p>
+</div>
+</div>
+<!-- Quick Edit Drawer / Overlay Placeholder (Hidden state) -->
+<!-- Normally this would slide in or pop up, leaving it structural here to show depth logic -->
+</div>
+</main>
+</body></html>
