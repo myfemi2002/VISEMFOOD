@@ -6,3 +6,6 @@ node_modules/
 dist/
 coverage/
 *.log
+.tmp/
+.tmp-dev.err
+.tmp-dev.out

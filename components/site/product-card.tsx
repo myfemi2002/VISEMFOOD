@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CldImage } from "next-cloudinary";
+import { CloudImage } from "@/components/site/cloud-image";
 
 type ProductCardProps = {
   slug: string;
@@ -22,19 +22,18 @@ export function ProductCard({
   image,
   whatsappUrl
 }: ProductCardProps) {
-  const publicId = image?.publicId || "cld-sample-5";
+  const imageSrc = image?.secureUrl || null;
 
   return (
     <article className="card overflow-hidden">
       <Link href={`/products/${slug}`} className="block bg-surface-muted p-4">
         <div className="overflow-hidden rounded-2xl">
-          <CldImage
-            src={publicId}
-            width="700"
-            height="700"
+          <CloudImage
+            src={imageSrc}
+            width={700}
+            height={700}
             alt={name}
             className="h-64 w-full object-cover"
-            crop={{ type: "auto", source: true }}
           />
         </div>
       </Link>

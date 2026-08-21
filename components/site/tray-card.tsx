@@ -1,24 +1,23 @@
-import { CldImage } from "next-cloudinary";
+import { CloudImage } from "@/components/site/cloud-image";
 
 type TrayCardProps = {
   name: string;
   shortDescription: string;
   servingRange: string;
   price: number | string;
-  image?: { publicId?: string | null } | null;
+  image?: { publicId?: string | null; secureUrl?: string | null } | null;
   whatsappUrl: string;
 };
 
 export function TrayCard({ name, shortDescription, servingRange, price, image, whatsappUrl }: TrayCardProps) {
   return (
     <article className="card overflow-hidden">
-      <CldImage
-        src={image?.publicId || "cld-sample-4"}
-        width="900"
-        height="600"
+      <CloudImage
+        src={image?.secureUrl || null}
+        width={900}
+        height={600}
         alt={name}
         className="h-64 w-full object-cover"
-        crop={{ type: "fill", source: true }}
       />
       <div className="space-y-4 p-6">
         <div className="flex items-start justify-between gap-4">

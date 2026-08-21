@@ -344,7 +344,7 @@ model PageBlock {
 model MediaAsset {
   id                   String              @id @default(cuid())
   provider             String              @default("cloudinary")
-  publicId             String
+  publicId             String              @unique
   secureUrl            String
   resourceType         String
   format               String?

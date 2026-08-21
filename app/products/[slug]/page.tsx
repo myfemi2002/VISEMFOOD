@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { CldImage } from "next-cloudinary";
+import { CloudImage } from "@/components/site/cloud-image";
 import { getProductBySlug, getWhatsAppSettings } from "@/lib/data";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 
@@ -13,7 +13,7 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
 
   if (!product) notFound();
 
-  const primaryImage = product.images?.[0]?.publicId || "cld-sample-5";
+  const primaryImage = product.images?.[0]?.secureUrl || null;
   const whatsappUrl = buildWhatsAppUrl({
     phoneNumber: whatsapp.adminPhoneNumber,
     template: product.whatsappMessageTemplate || whatsapp.defaultOrderMessage,
@@ -24,12 +24,11 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
   return (
     <div className="grid gap-10 lg:grid-cols-[1.1fr,0.9fr]">
       <div className="card overflow-hidden bg-surface-muted p-4">
-        <CldImage
+        <CloudImage
           src={primaryImage}
-          width="1200"
-          height="1200"
+          width={1200}
+          height={1200}
           alt={product.name}
-          crop={{ type: "auto", source: true }}
           className="h-full w-full rounded-[1.5rem] object-cover"
         />
       </div>
