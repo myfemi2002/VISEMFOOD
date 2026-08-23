@@ -5,12 +5,20 @@ type QuantityStepperProps = {
 
 export function QuantityStepper({ value, onChange }: QuantityStepperProps) {
   return (
-    <div className="surface-overlay-strong border-soft inline-flex items-center gap-3 rounded-full border px-3 py-2">
-      <button type="button" onClick={() => onChange(Math.max(0, value - 1))}>
+    <div className="surface-overlay-strong border-soft inline-flex min-h-13 items-center gap-2 rounded-full border px-2 py-2 sm:gap-3 sm:px-3">
+      <button
+        type="button"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full"
+        onClick={() => onChange(Math.max(0, value - 1))}
+      >
         <span className="material-symbols-rounded">remove</span>
       </button>
-      <span className="min-w-6 text-center font-semibold">{value}</span>
-      <button type="button" onClick={() => onChange(value + 1)}>
+      <span className="min-w-8 text-center text-sm font-semibold sm:text-base">{value}</span>
+      <button
+        type="button"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full"
+        onClick={() => onChange(value + 1)}
+      >
         <span className="material-symbols-rounded">add</span>
       </button>
     </div>

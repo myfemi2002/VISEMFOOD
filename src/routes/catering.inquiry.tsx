@@ -59,7 +59,7 @@ function CateringInquiryPage() {
           body="Validated with Zod and react-hook-form, and designed to be swapped to real persistence later without changing the route structure."
           as="h1"
         />
-        <form onSubmit={submit} className="card-surface mt-8 grid gap-4 p-6 lg:grid-cols-2">
+        <form onSubmit={submit} className="card-surface mt-8 grid gap-4 p-5 sm:p-6 lg:grid-cols-2">
           <div>
             <input className="field" placeholder="Full name" {...form.register("fullName")} />
             {form.formState.errors.fullName ? <p className="form-error mt-2">{form.formState.errors.fullName.message}</p> : null}
@@ -89,7 +89,7 @@ function CateringInquiryPage() {
             {form.formState.errors.preferredMenu ? <p className="form-error mt-2">{form.formState.errors.preferredMenu.message}</p> : null}
           </div>
           <textarea className="textarea-field lg:col-span-2" placeholder="Additional notes" {...form.register("notes")} />
-          <button type="submit" className="btn-primary lg:col-span-2">
+          <button type="submit" className="btn-primary w-full lg:col-span-2 sm:w-fit">
             Submit Inquiry
           </button>
         </form>

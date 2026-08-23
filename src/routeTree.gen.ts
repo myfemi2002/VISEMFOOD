@@ -14,6 +14,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CateringRouteImport } from './routes/catering'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DeliveryRouteImport } from './routes/delivery'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as OurStoryRouteImport } from './routes/our-story'
 import { Route as TraysCoolersRouteImport } from './routes/trays-coolers'
@@ -48,6 +49,11 @@ const ContactRoute = ContactRouteImport.update({
 const DeliveryRoute = DeliveryRouteImport.update({
   id: '/delivery',
   path: '/delivery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MenuRoute = MenuRouteImport.update({
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/catering': typeof CateringRouteWithChildren
   '/contact': typeof ContactRoute
   '/delivery': typeof DeliveryRoute
+  '/login': typeof LoginRoute
   '/menu': typeof MenuRouteWithChildren
   '/our-story': typeof OurStoryRoute
   '/trays-coolers': typeof TraysCoolersRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/catering': typeof CateringRouteWithChildren
   '/contact': typeof ContactRoute
   '/delivery': typeof DeliveryRoute
+  '/login': typeof LoginRoute
   '/menu': typeof MenuRouteWithChildren
   '/our-story': typeof OurStoryRoute
   '/trays-coolers': typeof TraysCoolersRoute
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/catering': typeof CateringRouteWithChildren
   '/contact': typeof ContactRoute
   '/delivery': typeof DeliveryRoute
+  '/login': typeof LoginRoute
   '/menu': typeof MenuRouteWithChildren
   '/our-story': typeof OurStoryRoute
   '/trays-coolers': typeof TraysCoolersRoute
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
     | '/catering'
     | '/contact'
     | '/delivery'
+    | '/login'
     | '/menu'
     | '/our-story'
     | '/trays-coolers'
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/catering'
     | '/contact'
     | '/delivery'
+    | '/login'
     | '/menu'
     | '/our-story'
     | '/trays-coolers'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/catering'
     | '/contact'
     | '/delivery'
+    | '/login'
     | '/menu'
     | '/our-story'
     | '/trays-coolers'
@@ -211,6 +223,7 @@ export interface RootRouteChildren {
   CateringRoute: typeof CateringRouteWithChildren
   ContactRoute: typeof ContactRoute
   DeliveryRoute: typeof DeliveryRoute
+  LoginRoute: typeof LoginRoute
   MenuRoute: typeof MenuRouteWithChildren
   OurStoryRoute: typeof OurStoryRoute
   TraysCoolersRoute: typeof TraysCoolersRoute
@@ -251,6 +264,13 @@ declare module '@tanstack/react-router' {
       path: '/delivery'
       fullPath: '/delivery'
       preLoaderRoute: typeof DeliveryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/menu': {
@@ -372,6 +392,7 @@ const rootRouteChildren: RootRouteChildren = {
   CateringRoute: CateringRouteWithChildren,
   ContactRoute: ContactRoute,
   DeliveryRoute: DeliveryRoute,
+  LoginRoute: LoginRoute,
   MenuRoute: MenuRouteWithChildren,
   OurStoryRoute: OurStoryRoute,
   TraysCoolersRoute: TraysCoolersRoute,

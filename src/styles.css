@@ -30,6 +30,12 @@
   --vf-warning-soft: rgba(180, 122, 31, 0.14);
   --vf-danger-soft: rgba(186, 26, 26, 0.12);
   --vf-secondary-soft: rgba(116, 88, 83, 0.12);
+  --vf-footer-bg: #1f1814;
+  --vf-footer-bg-soft: #2b211c;
+  --vf-footer-text: #f5efe6;
+  --vf-footer-text-soft: #cdbfb1;
+  --vf-footer-line: rgba(223, 192, 183, 0.18);
+  --vf-footer-accent: #e0b28f;
   --vf-radius-sm: 8px;
   --vf-radius-md: 16px;
   --vf-radius-lg: 24px;
@@ -48,6 +54,11 @@ html,
 body,
 #app {
   min-height: 100%;
+}
+
+html,
+body {
+  overflow-x: clip;
 }
 
 body {
@@ -94,17 +105,17 @@ button {
 }
 
 .page-shell {
-  width: min(1280px, calc(100% - 2rem));
+  width: min(1280px, calc(100% - 2.5rem));
   margin-inline: auto;
 }
 
 .content-shell {
-  width: min(1200px, calc(100% - 2rem));
+  width: min(1200px, calc(100% - 2.5rem));
   margin-inline: auto;
 }
 
 .section-gap {
-  padding-block: clamp(3rem, 7vw, 6rem);
+  padding-block: clamp(2.75rem, 6vw, 6rem);
 }
 
 .card-surface {
@@ -154,6 +165,10 @@ button {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.875rem 1.25rem;
+  min-height: 3rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
   transition:
     transform 180ms ease,
     background-color 180ms ease,
@@ -243,6 +258,32 @@ button {
   overflow-x: auto;
 }
 
+.mobile-table-cards {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.mobile-table-card {
+  border: 1px solid var(--vf-border-soft);
+  border-radius: var(--vf-radius-md);
+  background: color-mix(in srgb, var(--vf-surface-card) 94%, var(--vf-surface) 6%);
+  padding: 1rem;
+}
+
+.mobile-table-row {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.mobile-table-label {
+  color: var(--vf-text-soft);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .empty-state {
   padding: 2rem;
   text-align: center;
@@ -317,9 +358,128 @@ button {
   font-size: 0.875rem;
 }
 
+.footer-shell {
+  position: relative;
+  overflow: hidden;
+  color: var(--vf-footer-text);
+  background:
+    radial-gradient(circle at top left, rgba(164, 55, 22, 0.24), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(77, 99, 40, 0.18), transparent 28%),
+    linear-gradient(180deg, var(--vf-footer-bg-soft), var(--vf-footer-bg));
+}
+
+.footer-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.18;
+  background-image: var(--vf-pattern);
+  background-size: 36px 36px, 52px 52px;
+}
+
+.footer-link {
+  color: var(--vf-footer-text-soft);
+  transition: color 180ms ease, transform 180ms ease;
+}
+
+.footer-link:hover {
+  color: var(--vf-footer-text);
+  transform: translateX(2px);
+}
+
+.footer-muted {
+  color: var(--vf-footer-text-soft);
+}
+
+.footer-grid {
+  display: grid;
+  gap: 2.5rem;
+}
+
+.footer-brand {
+  max-width: 34rem;
+}
+
+@media (min-width: 768px) {
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 3rem;
+    row-gap: 3rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .footer-grid {
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.95fr) minmax(0, 1fr) minmax(0, 1.15fr);
+    column-gap: 3.5rem;
+    row-gap: 2.5rem;
+    align-items: start;
+  }
+}
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(27, 28, 23, 0.45);
+  backdrop-filter: blur(4px);
+}
+
+.drawer-panel {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: min(24rem, calc(100vw - 1.25rem));
+  padding: 1.25rem;
+  overflow-y: auto;
+  z-index: 70;
+}
+
+.mobile-action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 45;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(251, 249, 241, 0.25), rgba(251, 249, 241, 0.96) 32%);
+  backdrop-filter: blur(10px);
+}
+
+.eyebrow {
+  margin-bottom: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--vf-tertiary);
+}
+
 @media (max-width: 900px) {
   .page-shell,
   .content-shell {
-    width: min(100%, calc(100% - 1rem));
+    width: min(100%, calc(100% - 1.5rem));
+  }
+}
+
+@media (max-width: 767px) {
+  .section-gap {
+    padding-block: 2.5rem;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost {
+    padding-inline: 1rem;
+  }
+
+  .status-chip {
+    padding-inline: 0.625rem;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.875rem;
   }
 }
