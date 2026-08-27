@@ -141,7 +141,7 @@ function LandingPage() {
 
             <div className="space-y-4">
               <h1 className="heading-display max-w-4xl text-5xl font-bold leading-[1.02] text-[var(--vf-text)] sm:text-6xl lg:text-7xl xl:text-[5.3rem]">
-                Rich flavors, <span className="italic text-[var(--vf-primary)]">elevated</span> for every occasion.
+                Rich flavors, <span className="italic text-[var(--vf-secondary)]">elevated</span> for every occasion.
               </h1>
               <p className="max-w-2xl text-base leading-8 text-soft sm:text-lg sm:leading-9">
                 VISEMFOOD brings authentic African meals into a refined, modern ordering experience for personal dining, family gatherings, gifting, and premium event service.
@@ -177,7 +177,7 @@ function LandingPage() {
               {["Freshly prepared", "Pickup & delivery", "Catering available"].map((item) => (
                 <span
                   key={item}
-                  className="rounded-full border border-[var(--vf-border-soft)] bg-white/70 px-4 py-2"
+                  className="rounded-full border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] px-4 py-2"
                 >
                   {item}
                 </span>
@@ -218,7 +218,7 @@ function LandingPage() {
         </div>
       </section>
 
-      <section className="border-y border-[var(--vf-border-soft)] bg-white/65 py-8 sm:py-10">
+      <section className="border-y border-[var(--vf-border-soft)] bg-[var(--vf-surface-strong)] py-8 sm:py-10">
         <div className="page-shell grid gap-6 md:grid-cols-3">
           {pillars.map((pillar) => (
             <article key={pillar.title} className="mx-auto flex max-w-sm flex-col items-center text-center">
@@ -245,7 +245,7 @@ function LandingPage() {
             {experiences.map((experience) => (
               <article
                 key={experience.title}
-                className={experience.dark ? "overflow-hidden rounded-[var(--vf-radius-lg)] bg-[var(--vf-text)] text-white shadow-[var(--vf-shadow-float)]" : "card-surface overflow-hidden"}
+                className={experience.dark ? "dark-surface-shell overflow-hidden rounded-[var(--vf-radius-lg)] shadow-[var(--vf-shadow-float)]" : "card-surface overflow-hidden"}
               >
                 <div className="relative aspect-[16/11] overflow-hidden">
                   <img
@@ -308,7 +308,7 @@ function LandingPage() {
 
       <section className="section-gap pt-0">
         <div className="page-shell grid gap-8 xl:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)] xl:items-center">
-          <div className="relative overflow-hidden rounded-[var(--vf-radius-lg)] border border-[var(--vf-border-soft)] bg-white p-3 shadow-[var(--vf-shadow-float)] sm:p-4">
+          <div className="relative overflow-hidden rounded-[var(--vf-radius-lg)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] p-3 shadow-[var(--vf-shadow-float)] sm:p-4">
             <img
               src={storyImage}
               alt="Chef preparing traditional African cuisine with modern presentation"
@@ -348,7 +348,7 @@ function LandingPage() {
               ))}
             </div>
 
-            <div className="mt-6 rounded-[var(--vf-radius-lg)] border border-[var(--vf-border-soft)] bg-white p-5 shadow-[var(--vf-shadow-soft)] sm:p-6">
+            <div className="mt-6 rounded-[var(--vf-radius-lg)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] p-5 shadow-[var(--vf-shadow-soft)] sm:p-6">
               <p className="heading-display text-2xl font-bold text-[var(--vf-text)]">
                 "We cook for the feeling around the table, not just the plate."
               </p>
@@ -371,7 +371,7 @@ function LandingPage() {
 
       <section className="section-gap pt-0">
         <div className="page-shell">
-          <div className="rounded-[calc(var(--vf-radius-lg)+0.25rem)] border border-[var(--vf-border-soft)] bg-white/80 p-6 shadow-[var(--vf-shadow-soft)] sm:p-8">
+          <div className="rounded-[calc(var(--vf-radius-lg)+0.25rem)] border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-strong)] p-6 shadow-[var(--vf-shadow-soft)] sm:p-8">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <SectionHeading
                 eyebrow="Plan Your Order"
@@ -404,7 +404,7 @@ function LandingPage() {
           className="page-shell overflow-hidden rounded-[calc(var(--vf-radius-lg)+0.4rem)] border border-[var(--vf-footer-line)] px-6 py-8 text-white shadow-[var(--vf-shadow-float)] sm:px-8 sm:py-10 lg:px-10"
           style={{
             background:
-              "radial-gradient(circle at top right, rgba(164, 55, 22, 0.28), transparent 32%), radial-gradient(circle at bottom left, rgba(77, 99, 40, 0.24), transparent 36%), linear-gradient(180deg, var(--vf-footer-bg-soft), var(--vf-footer-bg))",
+              "radial-gradient(circle at top right, rgba(107, 69, 48, 0.28), transparent 32%), radial-gradient(circle at bottom left, rgba(126, 154, 84, 0.22), transparent 36%), linear-gradient(180deg, var(--vf-footer-bg-soft), var(--vf-footer-bg))",
           }}
         >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -413,7 +413,10 @@ function LandingPage() {
               title="The trust signal customers look for before they order."
               body="Real praise helps new guests feel confident that the food, service, and presentation will match the promise."
             />
-            <Link to="/contact" className="btn-secondary w-full border-white/25 text-white hover:bg-white/10 sm:w-fit">
+            <Link
+              to="/contact"
+              className="btn-secondary w-full border-[var(--vf-dark-border)] text-[var(--vf-on-dark)] hover:bg-[var(--vf-footer-hover)] sm:w-fit"
+            >
               Share an Enquiry
             </Link>
           </div>
@@ -422,7 +425,7 @@ function LandingPage() {
             {testimonials.map((testimonial) => (
               <article
                 key={testimonial.name}
-                className="rounded-[var(--vf-radius-lg)] border border-white/10 bg-white/6 p-6 backdrop-blur-sm"
+                className="rounded-[var(--vf-radius-lg)] border border-[var(--vf-dark-border)] bg-white/6 p-6 backdrop-blur-sm"
               >
                 <div className="flex gap-1 text-[var(--vf-footer-accent)]">
                   {Array.from({ length: 5 }).map((_, index) => (

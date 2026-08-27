@@ -23,7 +23,7 @@ export function SectionHeading({
       <HeadingTag className="heading-display text-4xl font-bold text-[var(--vf-text)] sm:text-5xl">
         {title}
       </HeadingTag>
-      {body ? <p className="mt-4 text-base leading-8 text-soft">{body}</p> : null}
+      {body ? <p className="mt-4 text-base leading-8 text-muted">{body}</p> : null}
     </div>
   );
 }

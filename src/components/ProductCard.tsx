@@ -31,7 +31,7 @@ export function ProductCard({ product }: { product: Product }) {
 
         <div className="absolute left-4 top-4 flex gap-2">
           {featureLabel ? (
-            <span className="rounded-full bg-[color-mix(in_srgb,var(--vf-surface-card)_94%,transparent)] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--vf-text)] shadow-[var(--vf-shadow-soft)]">
+            <span className="rounded-full border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-elevated)] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--vf-secondary)] shadow-[var(--vf-shadow-soft)]">
               {featureLabel}
             </span>
           ) : null}
@@ -41,9 +41,15 @@ export function ProductCard({ product }: { product: Product }) {
           <StatusChip tone={tone}>{product.availability}</StatusChip>
         </div>
 
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/78 via-black/24 to-transparent px-5 pb-5 pt-8 text-white">
+        <div
+          className="absolute inset-x-0 bottom-0 px-5 pb-5 pt-8 text-white"
+          style={{
+            background:
+              "linear-gradient(180deg, transparent 0%, var(--vf-dark-scrim-soft) 18%, var(--vf-dark-scrim-strong) 100%)",
+          }}
+        >
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--vf-footer-accent)]">{product.category}</p>
-          <p className="mt-2 text-sm font-medium text-white/88">{product.servingSize}</p>
+          <p className="mt-2 text-sm font-medium text-[var(--vf-on-dark-soft)]">{product.servingSize}</p>
         </div>
       </div>
 
@@ -53,7 +59,7 @@ export function ProductCard({ product }: { product: Product }) {
           className="pointer-events-none absolute bottom-28 right-5 flex h-11 w-11 items-center justify-center rounded-full shadow-lg ring-2 ring-white/70"
           style={{
             background:
-              "linear-gradient(135deg, color-mix(in srgb, var(--vf-warning) 72%, white), color-mix(in srgb, var(--vf-primary) 76%, white))",
+              "linear-gradient(135deg, color-mix(in srgb, var(--vf-primary-light) 70%, white), color-mix(in srgb, var(--vf-secondary-light) 76%, white))",
           }}
         >
           <span className="material-symbols-rounded text-lg text-[var(--vf-text)]">potted_plant</span>
@@ -65,7 +71,7 @@ export function ProductCard({ product }: { product: Product }) {
           <Link
             to="/menu/$slug"
             params={{ slug: product.slug }}
-            className="heading-display block text-3xl font-bold leading-tight text-[var(--vf-text)] transition-colors group-hover:text-[var(--vf-primary)]"
+            className="heading-display block text-3xl font-bold leading-tight text-[var(--vf-text)] transition-colors group-hover:text-[var(--vf-secondary)]"
           >
             {product.name}
           </Link>
@@ -91,7 +97,7 @@ export function ProductCard({ product }: { product: Product }) {
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">
                 Starting From
               </p>
-              <p className="mt-1 text-2xl font-bold text-[var(--vf-text)]">NGN {product.price.toLocaleString()}</p>
+              <p className="mt-1 text-2xl font-bold text-[var(--vf-secondary)]">NGN {product.price.toLocaleString()}</p>
             </div>
 
             <button
@@ -106,7 +112,7 @@ export function ProductCard({ product }: { product: Product }) {
                   image: product.image,
                 })
               }
-              className="inline-flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--vf-border-soft)] bg-[color-mix(in_srgb,var(--vf-surface-muted)_46%,white)] text-[var(--vf-text)] transition-all hover:border-[var(--vf-primary)] hover:bg-[var(--vf-primary)] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--vf-border-soft)] bg-[var(--vf-surface-strong)] text-[var(--vf-secondary)] transition-all hover:border-[var(--vf-primary)] hover:bg-[var(--vf-primary)] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
               <span className="material-symbols-rounded">{isSoldOut ? "block" : "add"}</span>
             </button>

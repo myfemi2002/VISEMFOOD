@@ -17,7 +17,8 @@ const inquirySchema = z.object({
   notes: z.string().optional(),
 });
 
-type InquiryValues = z.infer<typeof inquirySchema>;
+type InquiryFormValues = z.input<typeof inquirySchema>;
+type InquiryValues = z.output<typeof inquirySchema>;
 
 export const Route = createFileRoute("/catering/inquiry")({
   head: () =>
@@ -29,7 +30,7 @@ export const Route = createFileRoute("/catering/inquiry")({
 });
 
 function CateringInquiryPage() {
-  const form = useForm<InquiryValues>({
+  const form = useForm<InquiryFormValues, unknown, InquiryValues>({
     resolver: zodResolver(inquirySchema),
     defaultValues: {
       fullName: "",

@@ -64,7 +64,7 @@ function AdminDashboardPage() {
     <section className="mx-auto max-w-[1280px] space-y-8 pb-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="heading-display text-5xl font-bold tracking-tight text-[var(--vf-primary)]">Overview</h1>
+          <h1 className="heading-display text-5xl font-bold tracking-tight text-[var(--vf-secondary)]">Overview</h1>
           <p className="mt-1.5 text-base text-soft">{formattedDate}</p>
         </div>
 
@@ -73,7 +73,7 @@ function AdminDashboardPage() {
             id="dashboard-period-select"
             value={selectedPeriod}
             onChange={(event) => setSelectedPeriod(event.target.value as Period)}
-            className="appearance-none rounded-xl border border-[var(--vf-border-soft)] bg-white px-4 py-2.5 pr-10 text-sm font-semibold text-[var(--vf-text)] shadow-[var(--vf-shadow-soft)] outline-none transition-colors hover:bg-[var(--vf-surface)] focus:border-[var(--vf-primary)]"
+            className="field appearance-none px-4 py-2.5 pr-10 text-sm font-semibold hover:bg-[var(--vf-surface)]"
           >
             <option value="Today">Today</option>
             <option value="This Week">This Week</option>
@@ -119,8 +119,8 @@ function AdminDashboardPage() {
       </div>
 
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)]">
-        <div className="overflow-hidden rounded-[calc(var(--vf-radius-lg)-2px)] border border-[var(--vf-border-soft)] bg-white shadow-[var(--vf-shadow-soft)]">
-          <div className="flex flex-col gap-3 border-b border-[var(--vf-border-soft)] bg-[color-mix(in_srgb,var(--vf-surface)_76%,white)] p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="overflow-hidden rounded-[calc(var(--vf-radius-lg)-2px)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] shadow-[var(--vf-shadow-soft)]">
+          <div className="flex flex-col gap-3 border-b border-[var(--vf-border-soft)] bg-[var(--vf-surface-strong)] p-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-lg font-bold text-[var(--vf-text)]">Live Orders</h2>
               <p className="mt-1 text-xs uppercase tracking-[0.1em] text-[var(--vf-text-soft)]">
@@ -149,7 +149,7 @@ function AdminDashboardPage() {
               return (
                 <div
                   key={order.id}
-                  className="flex flex-col gap-4 p-5 transition-colors hover:bg-[color-mix(in_srgb,var(--vf-surface)_76%,white)] sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-4 p-5 transition-colors hover:bg-[var(--vf-surface-strong)] sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[var(--vf-border-soft)] bg-[var(--vf-surface)] text-[var(--vf-primary)]">
@@ -161,7 +161,7 @@ function AdminDashboardPage() {
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-bold text-[var(--vf-primary)]">{order.id}</span>
                         <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--vf-text)]">
-                          • {order.customer}
+                          / {order.customer}
                         </span>
                       </div>
                       <p className="mt-1 text-sm leading-6 text-soft">
@@ -186,7 +186,7 @@ function AdminDashboardPage() {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-[calc(var(--vf-radius-lg)-2px)] border border-[var(--vf-border-soft)] bg-white p-6 shadow-[var(--vf-shadow-soft)]">
+          <div className="rounded-[calc(var(--vf-radius-lg)-2px)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] p-6 shadow-[var(--vf-shadow-soft)]">
             <h2 className="w-fit border-b-2 border-[var(--vf-primary)] pb-1.5 text-lg font-bold text-[var(--vf-text)]">
               Quick Actions
             </h2>
@@ -213,7 +213,7 @@ function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-[calc(var(--vf-radius-lg)-2px)] bg-[var(--vf-primary)] p-5 text-white shadow-[var(--vf-shadow-float)]">
+          <div className="dark-surface-shell relative overflow-hidden rounded-[calc(var(--vf-radius-lg)-2px)] p-5 text-white shadow-[var(--vf-shadow-float)]">
             <div className="absolute right-[-2.5rem] top-[-2.5rem] h-28 w-28 rounded-full bg-white/10" />
             <div className="relative flex items-start gap-3.5">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15">
@@ -229,7 +229,7 @@ function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="rounded-[calc(var(--vf-radius-lg)-2px)] border border-[var(--vf-border-soft)] bg-white p-6 shadow-[var(--vf-shadow-soft)]">
+          <div className="rounded-[calc(var(--vf-radius-lg)-2px)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] p-6 shadow-[var(--vf-shadow-soft)]">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-sm font-bold text-[var(--vf-text)]">{metrics.orderLabel}</p>
@@ -269,13 +269,13 @@ function AdminMetricCard({
       : accent === "success"
         ? "bg-[var(--vf-success-soft)] text-[var(--vf-tertiary)]"
         : accent === "primary"
-          ? "bg-[color-mix(in_srgb,var(--vf-primary)_12%,white)] text-[var(--vf-primary)]"
+          ? "bg-[var(--vf-primary-light)] text-[var(--vf-primary)]"
           : "bg-[var(--vf-surface-muted)] text-[var(--vf-secondary)]";
 
   const wrapperClass =
     accent === "danger"
       ? "border-[color-mix(in_srgb,var(--vf-danger)_18%,white)] bg-[color-mix(in_srgb,var(--vf-danger-soft)_72%,white)]"
-      : "border-[var(--vf-border-soft)] bg-white";
+      : "border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)]";
 
   return (
     <div className={`flex flex-col justify-between rounded-[calc(var(--vf-radius-lg)-2px)] border p-6 shadow-[var(--vf-shadow-soft)] ${wrapperClass}`}>
@@ -286,13 +286,13 @@ function AdminMetricCard({
 
         {linkTo && linkLabel ? (
           <Link to={linkTo} className="text-xs font-semibold text-[var(--vf-primary)] hover:underline">
-            {linkLabel} →
+            {linkLabel} <span aria-hidden="true">&rarr;</span>
           </Link>
         ) : meta ? (
           <span
             className={
               accent === "danger"
-                ? "rounded-md bg-white/70 px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--vf-danger)]"
+                ? "rounded-md bg-[var(--vf-surface-elevated)] px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--vf-danger)]"
                 : "rounded-md bg-[var(--vf-success-soft)] px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--vf-tertiary)]"
             }
           >
@@ -324,8 +324,8 @@ function QuickActionLink({
     iconTone === "success"
       ? "bg-[var(--vf-success-soft)] text-[var(--vf-tertiary)]"
       : iconTone === "secondary"
-        ? "bg-[color-mix(in_srgb,var(--vf-secondary)_12%,white)] text-[var(--vf-secondary)]"
-        : "bg-[color-mix(in_srgb,var(--vf-primary)_10%,white)] text-[var(--vf-primary)]";
+        ? "bg-[var(--vf-secondary-light)] text-[var(--vf-secondary)]"
+        : "bg-[var(--vf-primary-light)] text-[var(--vf-primary)]";
 
   return (
     <Link

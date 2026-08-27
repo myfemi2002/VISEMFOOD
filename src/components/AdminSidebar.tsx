@@ -24,14 +24,14 @@ export function AdminSidebar({
   ).length;
 
   return (
-    <aside className="flex h-full min-h-[100dvh] flex-col border-r border-[var(--vf-border-soft)] bg-[color-mix(in_srgb,var(--vf-surface)_90%,white)] shadow-[0_8px_24px_rgba(27,28,23,0.04)]">
+    <aside className="flex h-full min-h-[100dvh] flex-col border-r border-[var(--vf-border-soft)] bg-[color-mix(in_srgb,var(--vf-surface-card)_92%,var(--vf-surface)_8%)] shadow-[var(--vf-shadow-soft)]">
       <div className="border-b border-[var(--vf-border-soft)] px-6 pb-5 pt-7">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--vf-primary)] text-white shadow-[var(--vf-shadow-soft)]">
             <span className="material-symbols-rounded text-[22px]">restaurant</span>
           </div>
           <div>
-            <p className="heading-display text-3xl font-bold leading-none text-[var(--vf-primary)]">VISEMFOOD</p>
+            <p className="heading-display text-3xl font-bold leading-none text-[var(--vf-secondary)]">VISEMFOOD</p>
             <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">
               Admin Suite
             </p>
@@ -61,7 +61,7 @@ export function AdminSidebar({
               onClick={onNavigate}
               className={
                 isActive
-                  ? "flex w-full items-center justify-between rounded-xl bg-[color-mix(in_srgb,var(--vf-primary)_10%,white)] px-4 py-3 text-left text-sm font-bold text-[var(--vf-primary)] shadow-[0_2px_10px_rgba(164,55,22,0.08)]"
+                  ? "flex w-full items-center justify-between rounded-xl bg-[var(--vf-primary-light)] px-4 py-3 text-left text-sm font-bold text-[var(--vf-primary)] shadow-[var(--vf-shadow-soft)]"
                   : "flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-medium text-[var(--vf-text-soft)] transition-colors hover:bg-[var(--vf-surface-muted)] hover:text-[var(--vf-text)]"
               }
             >
@@ -80,8 +80,8 @@ export function AdminSidebar({
         })}
       </nav>
 
-      <div className="border-t border-[var(--vf-border-soft)] bg-[color-mix(in_srgb,var(--vf-surface)_94%,white)] p-4">
-        <div className="rounded-[calc(var(--vf-radius-md)+2px)] border border-[var(--vf-border-soft)] bg-white/85 p-4">
+      <div className="border-t border-[var(--vf-border-soft)] bg-[var(--vf-surface)] p-4">
+        <div className="rounded-[calc(var(--vf-radius-md)+2px)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] p-4">
           <p className="text-sm font-bold text-[var(--vf-text)]">{user?.name ?? "Admin"}</p>
           <p className="mt-1 text-[11px] uppercase tracking-[0.12em] text-[var(--vf-text-soft)]">
             {user?.role ?? "Operations"}

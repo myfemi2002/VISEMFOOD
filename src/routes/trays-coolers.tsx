@@ -247,8 +247,8 @@ function TraysCoolersPage() {
   return (
     <main className="section-gap pt-8 sm:pt-10 lg:pt-12">
       <section>
-        <div className="page-shell relative overflow-hidden rounded-[calc(var(--vf-radius-lg)+0.3rem)] border border-[var(--vf-border-soft)] bg-white/75 px-6 py-10 shadow-[var(--vf-shadow-soft)] sm:px-8 sm:py-12 lg:px-10">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(77,99,40,0.12),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(164,55,22,0.12),transparent_32%)]" />
+        <div className="page-shell relative overflow-hidden rounded-[calc(var(--vf-radius-lg)+0.3rem)] border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-strong)] px-6 py-10 shadow-[var(--vf-shadow-soft)] sm:px-8 sm:py-12 lg:px-10">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(126,154,84,0.12),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(107,69,48,0.12),transparent_32%)]" />
           <div className="relative grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.48fr)] xl:items-end">
             <div className="max-w-4xl">
               <div className="inline-flex items-center gap-2 rounded-full bg-[color-mix(in_srgb,var(--vf-tertiary)_12%,white)] px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-tertiary)]">
@@ -358,7 +358,7 @@ function TraysCoolersPage() {
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-                  <div className="absolute left-5 top-5 rounded-full bg-[color-mix(in_srgb,var(--vf-tertiary)_82%,black)] px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-white">
+                  <div className="absolute left-5 top-5 rounded-full bg-[var(--vf-primary)] px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-white">
                     {featuredOffering.badge}
                   </div>
                   <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
@@ -402,7 +402,7 @@ function TraysCoolersPage() {
                       <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--vf-text-soft)]">
                         Starting from
                       </p>
-                      <p className="mt-2 text-3xl font-bold text-[var(--vf-primary)]">
+                      <p className="mt-2 text-3xl font-bold text-[var(--vf-secondary)]">
                         {currency.format(featuredOffering.price)}
                       </p>
                     </div>
@@ -437,7 +437,7 @@ function TraysCoolersPage() {
                             {offering.name}
                           </h3>
                         </div>
-                        <span className="rounded-full bg-[color-mix(in_srgb,var(--vf-primary)_12%,white)] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--vf-primary)]">
+                        <span className="rounded-full bg-[var(--vf-primary-light)] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--vf-primary)]">
                           {offering.badge}
                         </span>
                       </div>
@@ -565,7 +565,7 @@ function TraysCoolersPage() {
                           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--vf-text-soft)]">
                             Starting from
                           </p>
-                          <p className="mt-1 text-2xl font-bold text-[var(--vf-primary)]">
+                          <p className="mt-1 text-2xl font-bold text-[var(--vf-secondary)]">
                             {currency.format(offering.price)}
                           </p>
                         </div>
@@ -591,7 +591,7 @@ function TraysCoolersPage() {
             className="overflow-hidden rounded-[calc(var(--vf-radius-lg)+0.25rem)] border border-[var(--vf-footer-line)] px-6 py-8 text-white shadow-[var(--vf-shadow-float)] sm:px-8 sm:py-10 lg:px-10"
             style={{
               background:
-                "radial-gradient(circle at top right, rgba(164, 55, 22, 0.28), transparent 30%), radial-gradient(circle at bottom left, rgba(77, 99, 40, 0.22), transparent 36%), linear-gradient(180deg, var(--vf-footer-bg-soft), var(--vf-footer-bg))",
+                "radial-gradient(circle at top right, rgba(107, 69, 48, 0.28), transparent 30%), radial-gradient(circle at bottom left, rgba(126, 154, 84, 0.22), transparent 36%), linear-gradient(180deg, var(--vf-footer-bg-soft), var(--vf-footer-bg))",
             }}
           >
             <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
@@ -611,7 +611,10 @@ function TraysCoolersPage() {
                 <Link to="/catering/inquiry" className="btn-primary w-full sm:w-auto">
                   Request Catering Proposal
                 </Link>
-                <Link to="/contact" className="btn-secondary w-full border-white/20 text-white hover:bg-white/10 sm:w-auto">
+                <Link
+                  to="/contact"
+                  className="btn-secondary w-full border-[var(--vf-dark-border)] text-[var(--vf-on-dark)] hover:bg-[var(--vf-footer-hover)] sm:w-auto"
+                >
                   Contact VISEMFOOD
                 </Link>
               </div>

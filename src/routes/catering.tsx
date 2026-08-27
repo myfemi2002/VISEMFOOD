@@ -13,10 +13,25 @@ const heroImage =
 const trustStats = [
   { value: "500+", label: "Bespoke Galas & Weddings" },
   { value: "100%", label: "Authentic Heritage Recipes" },
-  { value: "5★", label: "Executive Hospitality" },
+  { value: "5-Star", label: "Executive Hospitality" },
 ] as const;
 
-const experienceCards = [
+type CateringService = "Bespoke Catering" | "Private Chef" | "Signature Trays";
+
+type ExperienceCard = {
+  id: string;
+  title: string;
+  eventType: string;
+  service: CateringService;
+  image: string;
+  description: string;
+  bullets: string[];
+  cta: string;
+  badge?: string;
+  featured?: boolean;
+};
+
+const experienceCards: readonly ExperienceCard[] = [
   {
     id: "corporate",
     title: "Corporate Galas",
@@ -108,7 +123,8 @@ const cateringSchema = z.object({
   specialNotes: z.string().optional(),
 });
 
-type CateringValues = z.infer<typeof cateringSchema>;
+type CateringFormValues = z.input<typeof cateringSchema>;
+type CateringValues = z.output<typeof cateringSchema>;
 
 type SubmissionSummary = CateringValues & {
   estimateMin: number;
@@ -156,7 +172,7 @@ function getDefaultEventDate() {
 function CateringPage() {
   const [submitted, setSubmitted] = useState<SubmissionSummary | null>(null);
 
-  const form = useForm<CateringValues>({
+  const form = useForm<CateringFormValues, unknown, CateringValues>({
     resolver: zodResolver(cateringSchema),
     defaultValues: {
       eventType: "Wedding",
@@ -182,7 +198,7 @@ function CateringPage() {
     document.getElementById("catering-inquiry")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function primeInquiry(card: (typeof experienceCards)[number]) {
+  function primeInquiry(card: ExperienceCard) {
     form.setValue("eventType", card.eventType, { shouldDirty: true, shouldTouch: true });
     form.setValue("preferredService", card.service, { shouldDirty: true, shouldTouch: true });
     if (submitted) {
@@ -236,13 +252,13 @@ function CateringPage() {
 
             <div className="relative z-10 grid min-h-[38rem] items-center gap-8 px-5 py-8 sm:px-7 sm:py-10 lg:min-h-[48rem] lg:grid-cols-12 lg:px-10 lg:py-12 xl:px-12">
               <div className="lg:col-span-7 xl:col-span-6">
-                <div className="inline-flex items-center gap-2 rounded-full border border-[var(--vf-border-soft)] bg-[color-mix(in_srgb,var(--vf-surface)_90%,transparent)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--vf-primary)] backdrop-blur-sm">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-strong)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--vf-primary)] backdrop-blur-sm">
                   <span className="inline-flex h-2 w-2 rounded-full bg-[var(--vf-primary)]" />
                   Premium Events
                 </div>
 
                 <h1 className="heading-display mt-5 max-w-[15ch] text-5xl font-bold leading-[1.08] text-[var(--vf-text)] sm:text-6xl lg:text-[4rem]">
-                  Bespoke Catering & <span className="text-[var(--vf-primary)] italic font-normal">Premium Hospitality</span>
+                  Bespoke Catering & <span className="text-[var(--vf-secondary)] italic font-normal">Premium Hospitality</span>
                 </h1>
                 <p className="mt-5 max-w-2xl text-base leading-8 text-soft sm:text-lg sm:leading-9">
                   Elevating your most significant moments by bringing the heart, warmth, and vibrant flavors of authentic African culinary heritage to the table. Exquisite presentation meets uncompromising taste.
@@ -350,7 +366,7 @@ function CateringPage() {
 
       <section id="catering-inquiry" className="pb-6 sm:pb-10">
         <div className="page-shell grid gap-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)] lg:items-start">
-          <div className="rounded-[calc(var(--vf-radius-lg)+0.5rem)] border border-[var(--vf-border-soft)] bg-[color-mix(in_srgb,var(--vf-surface-muted)_78%,white)] p-5 shadow-[var(--vf-shadow-soft)] sm:p-7 lg:p-10">
+          <div className="rounded-[calc(var(--vf-radius-lg)+0.5rem)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-strong)] p-5 shadow-[var(--vf-shadow-soft)] sm:p-7 lg:p-10">
             <h2 className="heading-display text-4xl font-bold text-[var(--vf-text)] sm:text-5xl">Party & Event Inquiry</h2>
             <p className="mt-3 text-sm leading-7 text-soft sm:text-base">
               Please provide details about your upcoming event, and our curation team will be in touch within 24 hours.
@@ -358,7 +374,7 @@ function CateringPage() {
 
             {submitted ? (
               <div className="mt-8 rounded-[var(--vf-radius-lg)] border border-[color:var(--vf-primary)] bg-[var(--vf-surface-card)] p-6 text-center shadow-[var(--vf-shadow-soft)] sm:p-8">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--vf-primary)_12%,white)] text-[var(--vf-primary)]">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--vf-primary-light)] text-[var(--vf-primary)]">
                   <span className="material-symbols-rounded text-4xl">check_circle</span>
                 </div>
                 <h3 className="heading-display mt-5 text-3xl font-bold text-[var(--vf-text)]">
@@ -369,7 +385,7 @@ function CateringPage() {
                   <strong className="font-mono text-[var(--vf-primary)]">{submitted.reference}</strong>. Our event director will review your menu requirements and reach out directly.
                 </p>
 
-                <div className="mx-auto mt-6 max-w-xl rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[color-mix(in_srgb,var(--vf-surface-muted)_68%,white)] p-4 text-left text-sm text-soft">
+                <div className="mx-auto mt-6 max-w-xl rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-card)] p-4 text-left text-sm text-soft">
                   <div className="flex items-center justify-between gap-4 border-b border-[var(--vf-border-soft)] pb-3">
                     <span className="font-medium">Event</span>
                     <span className="font-semibold text-[var(--vf-text)]">
@@ -378,7 +394,7 @@ function CateringPage() {
                   </div>
                   <div className="mt-3 flex items-center justify-between gap-4 border-b border-[var(--vf-border-soft)] pb-3">
                     <span className="font-medium">Service Model</span>
-                    <span className="font-semibold text-[var(--vf-primary)]">{submitted.preferredService}</span>
+                    <span className="font-semibold text-[var(--vf-secondary)]">{submitted.preferredService}</span>
                   </div>
                   <div className="mt-3 flex items-center justify-between gap-4">
                     <span className="font-medium">Estimated Catering Range</span>
@@ -617,7 +633,7 @@ function CateringPage() {
               <div className="mt-8 grid gap-7">
                 {standards.map((standard) => (
                   <div key={standard.title} className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--vf-primary)_12%,white)] text-[var(--vf-primary)] shadow-sm">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--vf-primary-light)] text-[var(--vf-primary)] shadow-sm">
                       <span className="material-symbols-rounded">{standard.icon}</span>
                     </div>
                     <div>
@@ -628,7 +644,7 @@ function CateringPage() {
                 ))}
               </div>
 
-              <div className="mt-8 rounded-[var(--vf-radius-lg)] border border-[var(--vf-border-soft)] bg-[color-mix(in_srgb,var(--vf-primary)_8%,white)] p-5">
+              <div className="mt-8 rounded-[var(--vf-radius-lg)] border border-[var(--vf-border-soft)] bg-[var(--vf-primary-light)] p-5">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--vf-primary)]">
                   Direct Event Concierge
                 </p>

@@ -43,7 +43,7 @@ function ProductDetailPage() {
         <div className="space-y-5 sm:space-y-6">
           <StatusChip tone="olive">{product.category}</StatusChip>
           <h1 className="heading-display text-4xl font-bold sm:text-5xl">{product.name}</h1>
-          <p className="text-2xl font-bold text-[var(--vf-primary)]">NGN {product.price.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-[var(--vf-secondary)]">NGN {product.price.toLocaleString()}</p>
           <p className="text-base leading-8 text-soft">{product.description}</p>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="card-surface p-5">

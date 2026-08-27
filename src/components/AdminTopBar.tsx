@@ -68,7 +68,7 @@ export function AdminTopBar({
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[var(--vf-border-soft)] bg-[color-mix(in_srgb,var(--vf-surface)_90%,white)] backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-[var(--vf-border-soft)] bg-[var(--vf-overlay-strong)] backdrop-blur-md">
       <div className="flex min-h-16 items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3 sm:gap-6">
           <button
@@ -79,7 +79,7 @@ export function AdminTopBar({
               closePanels();
               onOpenNav();
             }}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--vf-border-soft)] bg-white/80 text-[var(--vf-text-soft)] transition-colors hover:bg-[var(--vf-surface-muted)] hover:text-[var(--vf-primary)] lg:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] text-[var(--vf-text-soft)] transition-colors hover:bg-[var(--vf-primary-light)] hover:text-[var(--vf-primary)] lg:hidden"
           >
             <span className="material-symbols-rounded">{isNavOpen ? "close" : "menu"}</span>
           </button>
@@ -94,7 +94,7 @@ export function AdminTopBar({
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search orders, customers, dishes..."
-              className="h-11 w-[18rem] rounded-xl border border-[var(--vf-border-soft)] bg-white pl-10 pr-10 text-sm text-[var(--vf-text)] outline-none transition-all placeholder:text-[var(--vf-text-soft)]/55 focus:border-[var(--vf-primary)] focus:ring-2 focus:ring-[color-mix(in_srgb,var(--vf-primary)_12%,white)] md:w-[21rem]"
+              className="field h-11 w-[18rem] pl-10 pr-10 text-sm md:w-[21rem]"
             />
             {searchQuery ? (
               <button
@@ -102,7 +102,7 @@ export function AdminTopBar({
                 onClick={() => setSearchQuery("")}
                 className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full px-1.5 py-1 text-xs text-[var(--vf-text-soft)] transition-colors hover:bg-[var(--vf-surface-muted)] hover:text-[var(--vf-text)]"
               >
-                ✕
+                <span className="material-symbols-rounded text-[18px]">close</span>
               </button>
             ) : null}
           </label>
@@ -125,10 +125,10 @@ export function AdminTopBar({
             </button>
 
             {showNotifications ? (
-              <div className="absolute right-0 mt-3 w-[20rem] rounded-[calc(var(--vf-radius-lg)-2px)] border border-[var(--vf-border-soft)] bg-white p-4 shadow-[var(--vf-shadow-float)]">
+              <div className="absolute right-0 mt-3 w-[20rem] rounded-[calc(var(--vf-radius-lg)-2px)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] p-4 shadow-[var(--vf-shadow-float)]">
                 <div className="mb-3 flex items-center justify-between border-b border-[var(--vf-border-soft)] pb-3">
                   <span className="text-sm font-semibold text-[var(--vf-text)]">Notifications</span>
-                  <span className="rounded-full bg-[color-mix(in_srgb,var(--vf-primary)_12%,white)] px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--vf-primary)]">
+                  <span className="rounded-full bg-[var(--vf-primary-light)] px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--vf-primary)]">
                     2 New
                   </span>
                 </div>
@@ -138,7 +138,7 @@ export function AdminTopBar({
                       key={item.id}
                       className={
                         item.unread
-                          ? "rounded-xl bg-[color-mix(in_srgb,var(--vf-primary)_8%,white)] p-3"
+                          ? "rounded-xl bg-[var(--vf-primary-light)] p-3"
                           : "rounded-xl bg-[var(--vf-surface)] p-3"
                       }
                     >
@@ -171,7 +171,7 @@ export function AdminTopBar({
             </button>
 
             {showMessages ? (
-              <div className="absolute right-0 mt-3 w-[19rem] rounded-[calc(var(--vf-radius-lg)-2px)] border border-[var(--vf-border-soft)] bg-white p-4 shadow-[var(--vf-shadow-float)]">
+              <div className="absolute right-0 mt-3 w-[19rem] rounded-[calc(var(--vf-radius-lg)-2px)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] p-4 shadow-[var(--vf-shadow-float)]">
                 <div className="mb-3 flex items-center justify-between border-b border-[var(--vf-border-soft)] pb-3">
                   <span className="text-sm font-semibold text-[var(--vf-text)]">Live Dispatch Comms</span>
                   <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--vf-tertiary)]">
@@ -218,7 +218,7 @@ export function AdminTopBar({
             </button>
 
             {showProfileMenu ? (
-              <div className="absolute right-0 mt-3 w-60 rounded-[calc(var(--vf-radius-lg)-2px)] border border-[var(--vf-border-soft)] bg-white p-2 shadow-[var(--vf-shadow-float)]">
+              <div className="absolute right-0 mt-3 w-60 rounded-[calc(var(--vf-radius-lg)-2px)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] p-2 shadow-[var(--vf-shadow-float)]">
                 <div className="mb-1 border-b border-[var(--vf-border-soft)] px-3 py-3">
                   <p className="text-sm font-bold text-[var(--vf-text)]">{user?.name ?? "Admin"}</p>
                   <p className="mt-1 text-[11px] uppercase tracking-[0.08em] text-[var(--vf-text-soft)]">

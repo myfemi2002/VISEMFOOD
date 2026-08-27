@@ -38,7 +38,7 @@ export function SiteFooter() {
                   href={item.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="footer-link inline-flex min-h-11 items-center rounded-full border border-[var(--vf-footer-line)] px-4 text-sm font-medium transition hover:bg-white/8"
+                  className="footer-link inline-flex min-h-11 items-center rounded-full border border-[var(--vf-footer-line)] px-4 text-sm font-medium transition hover:bg-[var(--vf-footer-hover)]"
                 >
                   {item.label}
                 </a>

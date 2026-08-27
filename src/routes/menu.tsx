@@ -101,7 +101,7 @@ function MenuPage() {
       <section>
         <div className="page-shell">
           <div className="max-w-4xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[color-mix(in_srgb,var(--vf-primary)_14%,white)] px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-primary)]">
+            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--vf-primary-light)] px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-primary)]">
               <span className="material-symbols-rounded text-base">restaurant</span>
               Our Menu
             </div>
@@ -117,7 +117,7 @@ function MenuPage() {
               {assurances.map((item) => (
                 <span
                   key={item}
-                  className="rounded-full border border-[var(--vf-border-soft)] bg-[color-mix(in_srgb,var(--vf-surface-card)_88%,white)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--vf-text-soft)]"
+                  className="rounded-full border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--vf-text-soft)]"
                 >
                   {item}
                 </span>
@@ -174,7 +174,7 @@ function MenuPage() {
                       onClick={() => setQuickFilter(filter.id)}
                       className={
                         active
-                          ? "inline-flex items-center gap-2 rounded-full bg-[var(--vf-text)] px-4 py-2 text-xs font-semibold text-white"
+                          ? "inline-flex items-center gap-2 rounded-full bg-[var(--vf-primary)] px-4 py-2 text-xs font-semibold text-white"
                           : "inline-flex items-center gap-2 rounded-full border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-strong)] px-4 py-2 text-xs font-semibold text-[var(--vf-text-soft)] transition-colors hover:border-[var(--vf-primary)] hover:text-[var(--vf-primary)]"
                       }
                     >
@@ -206,13 +206,13 @@ function MenuPage() {
                 })}
               </div>
 
-              <div className="mt-4 flex flex-col gap-3 rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[color-mix(in_srgb,var(--vf-surface-muted)_52%,white)] px-4 py-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+              <div className="mt-4 flex flex-col gap-3 rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-strong)] px-4 py-4 text-sm sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">
                     Currently Browsing
                   </p>
                   <p className="mt-2 font-semibold text-[var(--vf-text)]">
-                    {activeCategoryLabel} • {activeQuickFilter.label}
+                    {activeCategoryLabel} / {activeQuickFilter.label}
                   </p>
                   <p className="mt-2 leading-7 text-soft">
                     {query.trim()
@@ -250,7 +250,7 @@ function MenuPage() {
                   : "Image-led dishes designed to make browsing fast, warm, and appetite-building."}
               </p>
             </div>
-            <div className="inline-flex items-center rounded-full border border-[var(--vf-border-soft)] bg-[color-mix(in_srgb,var(--vf-surface-card)_88%,white)] px-4 py-2 text-sm font-semibold text-[var(--vf-text)]">
+            <div className="inline-flex items-center rounded-full border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] px-4 py-2 text-sm font-semibold text-[var(--vf-text)]">
               {filtered.length} dish{filtered.length === 1 ? "" : "es"}
             </div>
           </div>

@@ -172,7 +172,11 @@ function OurStoryPage() {
             <Link to="/menu" className="btn-primary w-full sm:w-auto">
               Explore The Menu
             </Link>
-            <button type="button" onClick={scrollToFounderVision} className="btn-ghost w-full border border-white/30 bg-white/12 text-white hover:bg-white/18 sm:w-auto">
+            <button
+              type="button"
+              onClick={scrollToFounderVision}
+              className="btn-ghost w-full border border-[var(--vf-dark-border)] bg-white/12 text-white hover:bg-white/18 sm:w-auto"
+            >
               Read Our Story
             </button>
           </div>
@@ -275,7 +279,7 @@ function OurStoryPage() {
                         <p className="mt-3 text-sm leading-7 text-soft">{item.summary}</p>
 
                         {isSelected ? (
-                          <div className="mt-4 rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[color-mix(in_srgb,var(--vf-primary)_8%,white)] p-4">
+                          <div className="mt-4 rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-primary-light)] p-4">
                             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--vf-primary)]">
                               Behind the Milestone
                             </p>
@@ -326,11 +330,11 @@ function OurStoryPage() {
                   onClick={() => setActiveStandardTab(item.id)}
                   className={`rounded-[calc(var(--vf-radius-lg)+0.1rem)] border p-6 text-left transition sm:p-7 ${
                     active
-                      ? "border-[var(--vf-primary)] bg-[color-mix(in_srgb,var(--vf-surface-card)_94%,white)] shadow-[var(--vf-shadow-float)]"
-                      : "border-[var(--vf-border-soft)] bg-[color-mix(in_srgb,var(--vf-surface-muted)_52%,white)] hover:bg-[var(--vf-surface-card)]"
+                      ? "border-[var(--vf-primary)] bg-[var(--vf-surface-elevated)] shadow-[var(--vf-shadow-float)]"
+                      : "border-[var(--vf-border-soft)] bg-[var(--vf-surface-strong)] hover:bg-[var(--vf-surface-card)]"
                   }`}
                 >
-                  <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--vf-primary)_12%,white)] text-[var(--vf-primary)]">
+                  <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-[var(--vf-primary-light)] text-[var(--vf-primary)]">
                     <span className="material-symbols-rounded text-3xl">{item.icon}</span>
                   </div>
                   <h3 className="heading-display mt-6 text-3xl font-bold text-[var(--vf-text)]">{item.title}</h3>

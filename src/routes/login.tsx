@@ -67,19 +67,19 @@ function LoginPage() {
       <div className="page-shell">
         <div className="grid gap-8 xl:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] xl:items-center">
           <section className="max-w-xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[color-mix(in_srgb,var(--vf-primary)_10%,white)] px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-primary)]">
+            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--vf-primary-light)] px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-primary)]">
               <span className="material-symbols-rounded text-base">shield_lock</span>
               Protected Admin Access
             </div>
 
-            <h1 className="heading-display mt-5 text-5xl font-bold leading-[1.04] text-[var(--vf-primary)] sm:text-6xl lg:text-7xl">
+            <h1 className="heading-display mt-5 text-5xl font-bold leading-[1.04] text-[var(--vf-secondary)] sm:text-6xl lg:text-7xl">
               Login to the VISEMFOOD admin suite.
             </h1>
             <p className="mt-5 max-w-lg text-base leading-8 text-soft sm:text-lg sm:leading-9">
               Access orders, catering inquiries, analytics, and menu controls from one refined operations dashboard.
             </p>
 
-            <div className="mt-8 rounded-[calc(var(--vf-radius-lg)-2px)] border border-[var(--vf-border-soft)] bg-white/85 p-6 shadow-[var(--vf-shadow-soft)]">
+            <div className="mt-8 rounded-[calc(var(--vf-radius-lg)-2px)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] p-6 shadow-[var(--vf-shadow-soft)]">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">Demo Credentials</p>
               <div className="mt-4 space-y-3 text-sm text-[var(--vf-text)]">
                 <p>

@@ -56,7 +56,7 @@ function AdminLayout() {
   }
 
   return (
-    <main className="min-h-screen bg-[color-mix(in_srgb,var(--vf-surface)_90%,white)]">
+    <main className="min-h-screen bg-[var(--vf-surface)]">
       <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:block lg:w-64 xl:w-72">
         <AdminSidebar onLogout={handleLogout} />
       </div>
@@ -66,10 +66,10 @@ function AdminLayout() {
           <button
             type="button"
             aria-label="Close admin navigation overlay"
-            className="fixed inset-0 z-40 bg-[rgba(27,28,23,0.48)] backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-[var(--vf-backdrop)] backdrop-blur-sm"
             onClick={() => setIsNavOpen(false)}
           />
-          <aside className="fixed inset-y-0 left-0 z-50 w-[18.5rem] max-w-[calc(100vw-1rem)] overflow-y-auto bg-[var(--vf-surface)] shadow-[0_18px_42px_rgba(27,28,23,0.2)]">
+          <aside className="fixed inset-y-0 left-0 z-50 w-[18.5rem] max-w-[calc(100vw-1rem)] overflow-y-auto bg-[var(--vf-surface)] shadow-[var(--vf-shadow-float)]">
             <AdminSidebar onNavigate={() => setIsNavOpen(false)} onLogout={handleLogout} />
           </aside>
         </div>

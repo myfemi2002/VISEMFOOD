@@ -45,7 +45,8 @@ const inquirySchema = z.object({
   message: z.string().min(5, "Please tell us a bit more about your request."),
 });
 
-type ContactValues = z.infer<typeof inquirySchema>;
+type ContactFormValues = z.input<typeof inquirySchema>;
+type ContactValues = z.output<typeof inquirySchema>;
 
 export const Route = createFileRoute("/contact")({
   head: () =>
@@ -64,7 +65,7 @@ function ContactPage() {
   const [showEventDetails, setShowEventDetails] = useState(false);
   const [shareUrl, setShareUrl] = useState("https://visemfood.example/contact");
 
-  const form = useForm<ContactValues>({
+  const form = useForm<ContactFormValues, unknown, ContactValues>({
     resolver: zodResolver(inquirySchema),
     defaultValues: {
       fullName: "",
@@ -149,7 +150,7 @@ function ContactPage() {
     <>
       <main className="pb-12 pt-8 sm:pt-10 lg:pt-12">
         <section className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-[color-mix(in_srgb,var(--vf-surface)_88%,white)]" />
+          <div className="absolute inset-0 bg-[var(--vf-surface-strong)]" />
           <div
             aria-hidden="true"
             className="absolute inset-0 opacity-45"
@@ -158,12 +159,12 @@ function ContactPage() {
 
           <div className="page-shell relative grid gap-10 py-8 sm:py-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-14 lg:py-14">
             <div className="max-w-xl">
-              <div className="inline-flex items-center gap-2 rounded-full bg-[color-mix(in_srgb,var(--vf-primary)_10%,white)] px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-primary)]">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[var(--vf-primary-light)] px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-primary)]">
                 <span className="material-symbols-rounded text-base">auto_awesome</span>
                 Direct Hospitality Desk
               </div>
 
-              <h1 className="heading-display mt-5 text-5xl font-bold leading-[1.05] text-[var(--vf-primary)] sm:text-6xl lg:text-7xl">
+              <h1 className="heading-display mt-5 text-5xl font-bold leading-[1.05] text-[var(--vf-secondary)] sm:text-6xl lg:text-7xl">
                 Get in Touch
               </h1>
               <p className="mt-5 max-w-lg text-base leading-8 text-soft sm:text-lg sm:leading-9">
@@ -190,7 +191,7 @@ function ContactPage() {
                   className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/5 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-4 rounded-[calc(var(--vf-radius-md)+2px)] border border-white/50 bg-white/88 px-4 py-3 backdrop-blur-md">
+                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-4 rounded-[calc(var(--vf-radius-md)+2px)] border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-elevated)] px-4 py-3 backdrop-blur-md">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-[var(--vf-text)]">Main Kitchen & Hospitality Desk</p>
                     <p className="truncate text-xs uppercase tracking-[0.12em] text-[var(--vf-text-soft)]">{supportingLocation}</p>
@@ -204,7 +205,7 @@ function ContactPage() {
           </div>
         </section>
 
-        <section className="mt-10 bg-[color-mix(in_srgb,var(--vf-surface-muted)_62%,white)] py-12 sm:py-14 lg:py-18">
+        <section className="mt-10 bg-[var(--vf-surface-muted)] py-12 sm:py-14 lg:py-18">
           <div className="page-shell">
             <div className="grid gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-10">
               <div className="space-y-8 lg:col-span-5">
@@ -271,14 +272,14 @@ function ContactPage() {
                     <button
                       type="button"
                       onClick={() => setShowShareModal(true)}
-                      className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--vf-primary)_10%,white)] text-[var(--vf-primary)] transition-all hover:bg-[var(--vf-primary)] hover:text-white"
+                      className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--vf-primary-light)] text-[var(--vf-primary)] transition-all hover:bg-[var(--vf-primary)] hover:text-white"
                       aria-label="Share VISEMFOOD"
                     >
                       <span className="material-symbols-rounded">share</span>
                     </button>
                     <Link
                       to="/our-story"
-                      className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--vf-primary)_10%,white)] text-[var(--vf-primary)] transition-all hover:bg-[var(--vf-primary)] hover:text-white"
+                      className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--vf-primary-light)] text-[var(--vf-primary)] transition-all hover:bg-[var(--vf-primary)] hover:text-white"
                       aria-label="Read our story"
                     >
                       <span className="material-symbols-rounded">public</span>
@@ -297,7 +298,7 @@ function ContactPage() {
                     className="absolute inset-2 h-[calc(100%-1rem)] w-[calc(100%-1rem)] rounded-[calc(var(--vf-radius-lg)-6px)] border-0"
                   />
 
-                  <div className="pointer-events-none absolute inset-x-6 top-6 rounded-[calc(var(--vf-radius-md)+2px)] border border-white/70 bg-white/90 px-4 py-3 shadow-[var(--vf-shadow-soft)] backdrop-blur-md sm:max-w-sm">
+                  <div className="pointer-events-none absolute inset-x-6 top-6 rounded-[calc(var(--vf-radius-md)+2px)] border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-elevated)] px-4 py-3 shadow-[var(--vf-shadow-soft)] backdrop-blur-md sm:max-w-sm">
                     <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-primary)]">Visit or coordinate pickup</p>
                     <p className="mt-2 text-sm leading-6 text-soft sm:text-base">
                       Our hospitality team supports direct order questions, catering planning, and event-ready coordination from the main kitchen.
@@ -305,12 +306,12 @@ function ContactPage() {
                   </div>
 
                   <div className="pointer-events-none absolute inset-x-6 bottom-6 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-[calc(var(--vf-radius-md)+2px)] border border-white/70 bg-white/90 px-4 py-3 shadow-[var(--vf-shadow-soft)] backdrop-blur-md">
+                    <div className="rounded-[calc(var(--vf-radius-md)+2px)] border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-elevated)] px-4 py-3 shadow-[var(--vf-shadow-soft)] backdrop-blur-md">
                       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">Call or email</p>
                       <p className="mt-1 text-sm font-bold text-[var(--vf-text)] sm:text-base">{siteMeta.phone}</p>
                       <p className="mt-1 text-sm text-soft">{siteMeta.email}</p>
                     </div>
-                    <div className="rounded-[calc(var(--vf-radius-md)+2px)] border border-white/70 bg-white/90 px-4 py-3 shadow-[var(--vf-shadow-soft)] backdrop-blur-md">
+                    <div className="rounded-[calc(var(--vf-radius-md)+2px)] border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-elevated)] px-4 py-3 shadow-[var(--vf-shadow-soft)] backdrop-blur-md">
                       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">Service base</p>
                       <p className="mt-1 text-sm font-bold text-[var(--vf-text)] sm:text-base">{primaryLocation}</p>
                       <p className="mt-1 text-sm text-soft">{supportingLocation}</p>
@@ -348,7 +349,7 @@ function ContactPage() {
                   <h3 className="heading-display mt-5 text-3xl font-bold text-[var(--vf-text)]">Inquiry Received!</h3>
                   <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-soft sm:text-base">
                     Thank you. Your inquiry reference is{" "}
-                    <span className="rounded-md border border-[var(--vf-border-soft)] bg-white px-2 py-1 font-bold text-[var(--vf-primary)]">
+                    <span className="rounded-md border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] px-2 py-1 font-bold text-[var(--vf-primary)]">
                       {submittedRef}
                     </span>
                     . Our hospitality team will respond during business hours.
@@ -498,8 +499,8 @@ function ContactPage() {
       </main>
 
       {showShareModal ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="relative w-full max-w-md rounded-[calc(var(--vf-radius-lg)+0.2rem)] border border-[var(--vf-border-soft)] bg-white p-6 shadow-[0_24px_60px_rgba(0,0,0,0.24)] sm:p-8">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--vf-backdrop)] p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-md rounded-[calc(var(--vf-radius-lg)+0.2rem)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] p-6 shadow-[var(--vf-shadow-float)] sm:p-8">
             <button
               type="button"
               onClick={() => setShowShareModal(false)}
@@ -509,7 +510,7 @@ function ContactPage() {
               <span className="material-symbols-rounded">close</span>
             </button>
 
-            <h2 className="heading-display text-3xl font-bold text-[var(--vf-primary)]">Share VISEMFOOD</h2>
+            <h2 className="heading-display text-3xl font-bold text-[var(--vf-secondary)]">Share VISEMFOOD</h2>
             <p className="mt-2 text-sm leading-7 text-soft">
               Share authentic African catering and refined hospitality with your friends, family, or event planners.
             </p>
