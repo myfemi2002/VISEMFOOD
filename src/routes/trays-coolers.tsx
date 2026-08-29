@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { QuantityStepper } from "@/components/QuantityStepper";
+import { useSiteData } from "@/contexts/site-data-context";
 import { buildMeta } from "@/lib/meta";
-import { products, trayPackages } from "@/data/mock";
 import { useCart } from "@/contexts/cart-context";
+import { fallbackTrayPackages } from "@/lib/visemfood-api";
 
 type OfferingFilter = "all" | "bowls" | "trays" | "coolers" | "hosting";
 
@@ -35,23 +36,47 @@ export const Route = createFileRoute("/trays-coolers")({
       title: "Bowls, Trays & Coolers | VISEMFOOD",
       description:
         "Explore premium VISEMFOOD bowls, signature trays, event coolers, and hosting-ready packages with responsive quantity controls.",
-      image: trayPackages[0]?.image,
+      image: fallbackTrayPackages[0]?.image,
     }),
   component: TraysCoolersPage,
 });
 
 function TraysCoolersPage() {
   const { bulkQuantities, setBulkQuantity } = useCart();
+  const { products, trayPackages } = useSiteData();
   const [activeFilter, setActiveFilter] = useState<OfferingFilter>("all");
   const [query, setQuery] = useState("");
+  const featuredCardRef = useRef<HTMLElement | null>(null);
+  const [featuredRailHeight, setFeaturedRailHeight] = useState<number | null>(null);
 
   const offerings = useMemo<BulkOffering[]>(() => {
-    const signatureBowl = products.find((product) => product.slug === "signature-jollof-rice");
-    const egusiBowl = products.find((product) => product.slug === "egusi-soup-bowl");
-    const smallChops = products.find((product) => product.slug === "cocktail-small-chops-box");
-    const grilledPlatter = products.find((product) => product.slug === "grilled-chicken-platter");
-    const signatureTray = trayPackages.find((item) => item.type === "Tray") ?? trayPackages[0];
-    const eventCooler = trayPackages.find((item) => item.type === "Cooler") ?? trayPackages[1] ?? trayPackages[0];
+    const bowlProducts = products.filter(
+      (product) =>
+        product.productType === "bowl" || /bowl/i.test(product.slug) || /bowl/i.test(product.servingSize),
+    );
+    const hostingProducts = products.filter(
+      (product) =>
+        product.productType === "hosting_pack" ||
+        /small-chops|hosting|platter/i.test(product.slug) ||
+        /small chops|hosting|platter/i.test(product.name),
+    );
+    const signatureBowl = products.find((product) => product.slug === "signature-jollof-rice") ?? bowlProducts[0];
+    const egusiBowl =
+      products.find((product) => product.slug === "egusi-soup-bowl") ??
+      bowlProducts.find((product) => product.id !== signatureBowl?.id);
+    const smallChops =
+      products.find((product) => product.slug === "cocktail-small-chops-box") ??
+      hostingProducts.find((product) => /small[- ]?chops/i.test(product.slug) || /small chops/i.test(product.name)) ??
+      hostingProducts[0];
+    const grilledPlatter =
+      products.find((product) => product.slug === "grilled-chicken-platter") ??
+      hostingProducts.find((product) => product.id !== smallChops?.id);
+    const signatureTray =
+      trayPackages.find((item) => item.productType === "tray" || item.type === "Tray") ?? trayPackages[0];
+    const eventCooler =
+      trayPackages.find((item) => item.productType === "cooler" || item.type === "Cooler") ??
+      trayPackages[1] ??
+      trayPackages[0];
 
     const result: BulkOffering[] = [];
 
@@ -164,7 +189,7 @@ function TraysCoolersPage() {
     }
 
     return result;
-  }, []);
+  }, [products, trayPackages]);
 
   const filterOptions: Array<{ id: OfferingFilter; label: string }> = [
     { id: "all", label: "All Offerings" },
@@ -219,6 +244,45 @@ function TraysCoolersPage() {
     featuredOffering !== undefined &&
     (activeFilter === "all" || activeFilter === "trays" || activeFilter === "coolers" || activeFilter === "hosting");
 
+  useEffect(() => {
+    if (!showFeaturedLayout || !featuredOffering) {
+      setFeaturedRailHeight(null);
+      return;
+    }
+
+    const node = featuredCardRef.current;
+
+    if (!node) {
+      return;
+    }
+
+    const updateHeight = () => {
+      setFeaturedRailHeight(Math.round(node.getBoundingClientRect().height));
+    };
+
+    updateHeight();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", updateHeight);
+
+      return () => {
+        window.removeEventListener("resize", updateHeight);
+      };
+    }
+
+    const observer = new ResizeObserver(() => {
+      updateHeight();
+    });
+
+    observer.observe(node);
+    window.addEventListener("resize", updateHeight);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateHeight);
+    };
+  }, [featuredOffering, showFeaturedLayout]);
+
   function resetFilters() {
     setActiveFilter("all");
     setQuery("");
@@ -245,78 +309,17 @@ function TraysCoolersPage() {
   }
 
   return (
-    <main className="section-gap pt-8 sm:pt-10 lg:pt-12">
+    <main className="pb-10 pt-6 sm:pt-8 lg:pt-10">
       <section>
-        <div className="page-shell relative overflow-hidden rounded-[calc(var(--vf-radius-lg)+0.3rem)] border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-strong)] px-6 py-10 shadow-[var(--vf-shadow-soft)] sm:px-8 sm:py-12 lg:px-10">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(126,154,84,0.12),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(107,69,48,0.12),transparent_32%)]" />
-          <div className="relative grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.48fr)] xl:items-end">
-            <div className="max-w-4xl">
-              <div className="inline-flex items-center gap-2 rounded-full bg-[color-mix(in_srgb,var(--vf-tertiary)_12%,white)] px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-tertiary)]">
-                <span className="material-symbols-rounded text-base">celebration</span>
-                Event Catering Simplified
-              </div>
-
-              <h1 className="heading-display mt-5 text-5xl font-bold leading-[1.05] text-[var(--vf-text)] sm:text-6xl lg:text-7xl">
-                Bowls, trays and coolers that elevate every gathering.
-              </h1>
-              <p className="mt-5 max-w-3xl text-base leading-8 text-soft sm:text-lg sm:leading-9">
-                From intimate family dinners to office lunches and large celebrations, VISEMFOOD packages African favorites into formats that are easy to compare, easy to request, and designed to look generous on every table.
-              </p>
-
-              <div className="mt-8 flex flex-wrap gap-3">
-                {filterOptions.map((option) => {
-                  const count = counts[option.id];
-                  const active = activeFilter === option.id;
-
-                  return (
-                    <button
-                      key={option.id}
-                      type="button"
-                      onClick={() => setActiveFilter(option.id)}
-                      className={
-                        active
-                          ? "btn-primary rounded-full px-5 py-3"
-                          : "btn-ghost rounded-full px-5 py-3"
-                      }
-                    >
-                      {option.label} ({count})
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <aside className="floating-surface p-5 sm:p-6">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-primary)]">
-                Order Planning Notes
-              </p>
-              <div className="mt-4 space-y-4 text-sm leading-7 text-soft">
-                <p>Save quantities locally with the stepper as you compare bowls, trays, coolers and hosting packs.</p>
-                <p>Product-backed items take you to the menu detail route, while larger packages route into the catering inquiry flow.</p>
-              </div>
-              <div className="mt-5 flex flex-col gap-3">
-                <Link to="/delivery" className="btn-ghost w-full">
-                  Delivery Information
-                </Link>
-                <Link to="/catering/inquiry" className="btn-secondary w-full">
-                  Request Catering
-                </Link>
-              </div>
-            </aside>
-          </div>
-        </div>
-      </section>
-
-      <section className="mt-8">
         <div className="page-shell">
           <div className="card-surface p-4 sm:p-5">
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1.65fr)_auto] lg:items-center">
               <label className="relative block">
-                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--vf-text-soft)]">
-                  <span className="material-symbols-rounded text-xl">search</span>
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex w-11 items-center justify-center text-[var(--vf-text-soft)]">
+                  <span className="material-symbols-rounded text-[1.15rem]">search</span>
                 </span>
                 <input
-                  className="field pl-12"
+                  className="field pl-4 pr-12"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Search bowls, packages, serving sizes, or hosting notes"
@@ -348,8 +351,8 @@ function TraysCoolersPage() {
               </p>
             </div>
 
-            <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(300px,0.85fr)]">
-              <article className="card-surface overflow-hidden">
+            <div className="mt-8 grid items-start gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(300px,0.85fr)]">
+              <article ref={featuredCardRef} className="card-surface self-start overflow-hidden">
                 <div className="relative overflow-hidden">
                   <img
                     src={featuredOffering.image}
@@ -418,9 +421,16 @@ function TraysCoolersPage() {
                 </div>
               </article>
 
-              <div className="flex flex-col gap-6">
+              <div
+                className="featured-side-scroll flex min-h-0 min-w-0 flex-col gap-6"
+                style={
+                  featuredRailHeight
+                    ? ({ "--vf-featured-side-height": `${featuredRailHeight}px` } as CSSProperties)
+                    : undefined
+                }
+              >
                 {sideStack.map((offering) => (
-                  <article key={offering.id} className="card-surface overflow-hidden">
+                  <article key={offering.id} className="card-surface shrink-0 overflow-hidden">
                     <img
                       src={offering.image}
                       alt={offering.name}

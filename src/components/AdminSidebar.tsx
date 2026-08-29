@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { cateringRequests } from "@/data/mock";
 import { useAdminAuth } from "@/contexts/admin-auth-context";
+import { useAdminSummary } from "@/contexts/admin-summary-context";
 
 const adminLinks = [
   { to: "/admin", label: "Dashboard", icon: "dashboard" },
@@ -19,9 +19,8 @@ export function AdminSidebar({
 }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const { user } = useAdminAuth();
-  const pendingInquiries = cateringRequests.filter(
-    (request) => request.status === "New" || request.status === "Quoted",
-  ).length;
+  const { dashboard } = useAdminSummary();
+  const pendingInquiries = dashboard?.stats.cateringNew ?? 0;
 
   return (
     <aside className="flex h-full min-h-[100dvh] flex-col border-r border-[var(--vf-border-soft)] bg-[color-mix(in_srgb,var(--vf-surface-card)_92%,var(--vf-surface)_8%)] shadow-[var(--vf-shadow-soft)]">

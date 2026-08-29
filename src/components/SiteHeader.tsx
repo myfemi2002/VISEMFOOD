@@ -25,15 +25,18 @@ export function SiteHeader() {
       <header className="surface-overlay border-soft sticky top-0 z-50 border-b backdrop-blur-xl">
         <div className="page-shell flex items-center justify-between gap-3 py-3 md:py-4">
           <div className="flex items-center gap-3">
-            <Link to="/" className="heading-display text-2xl font-bold text-[var(--vf-secondary)] sm:text-3xl">
+            <Link
+              to="/"
+              className="heading-display text-[1.9rem] font-bold leading-none text-[var(--vf-secondary)] sm:text-[2.45rem]"
+            >
               VISEMFOOD
             </Link>
-            <p className="hidden text-xs font-semibold uppercase tracking-[0.2em] text-[var(--vf-text-soft)] xl:block">
+            <p className="hidden text-[0.72rem] font-semibold uppercase tracking-[0.15em] text-[var(--vf-text-soft)] xl:block">
               Authentic African Food
             </p>
           </div>
 
-          <nav className="hidden items-center gap-1 text-sm font-semibold text-[var(--vf-text-soft)] lg:flex">
+          <nav className="hidden items-center gap-1 text-[0.94rem] font-semibold text-[var(--vf-text-soft)] lg:flex">
             {nav.map((item) => (
               <Link
                 key={item.to}
@@ -52,7 +55,7 @@ export function SiteHeader() {
           </div>
 
           <div className="flex items-center gap-2 lg:hidden">
-            <Link to="/menu" className="btn-primary rounded-full px-4 text-sm">
+            <Link to="/menu" className="btn-primary rounded-full px-4 text-[0.94rem]">
               Order Now
             </Link>
             <button
@@ -79,7 +82,7 @@ export function SiteHeader() {
           <aside className="drawer-panel floating-surface">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="heading-display text-3xl font-bold text-[var(--vf-secondary)]">VISEMFOOD</p>
+                <p className="heading-display text-[2rem] font-bold text-[var(--vf-secondary)]">VISEMFOOD</p>
                 <p className="mt-2 text-sm text-soft">Freshly prepared meals, trays, and catering.</p>
               </div>
               <button

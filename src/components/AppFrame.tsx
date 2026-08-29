@@ -1,17 +1,23 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Toaster } from "sonner";
+import { AdminSummaryProvider } from "@/contexts/admin-summary-context";
 import { AdminAuthProvider } from "@/contexts/admin-auth-context";
 import { CartProvider, useCart } from "@/contexts/cart-context";
+import { SiteDataProvider } from "@/contexts/site-data-context";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 
 export function AppFrame({ children }: { children: React.ReactNode }) {
   return (
     <AdminAuthProvider>
-      <CartProvider>
-        <AppChrome>{children}</AppChrome>
-        <Toaster richColors position="top-right" />
-      </CartProvider>
+      <AdminSummaryProvider>
+        <SiteDataProvider>
+          <CartProvider>
+            <AppChrome>{children}</AppChrome>
+            <Toaster richColors position="top-right" />
+          </CartProvider>
+        </SiteDataProvider>
+      </AdminSummaryProvider>
     </AdminAuthProvider>
   );
 }

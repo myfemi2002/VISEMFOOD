@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { siteMeta } from "@/data/mock";
+import { useSiteData } from "@/contexts/site-data-context";
 
 const quickLinks = [
   { to: "/", label: "Home" },
@@ -10,25 +10,28 @@ const quickLinks = [
   { to: "/contact", label: "Contact" },
 ] as const;
 
-const socialLinks = [
-  { label: "Instagram", href: "https://instagram.com" },
-  { label: "Facebook", href: "https://facebook.com" },
-  { label: "WhatsApp", href: `https://wa.me/${siteMeta.phone.replace(/\D/g, "")}` },
-] as const;
-
 export function SiteFooter() {
+  const { siteMeta } = useSiteData();
+  const whatsappNumber =
+    siteMeta.whatsappContactNumber || siteMeta.whatsappOrderNumber || siteMeta.phone.replace(/\D/g, "");
+  const socialLinks = [
+    { label: "Instagram", href: siteMeta.socialLinks.instagram || "https://instagram.com" },
+    { label: "Facebook", href: siteMeta.socialLinks.facebook || "https://facebook.com" },
+    { label: "WhatsApp", href: siteMeta.socialLinks.whatsapp || `https://wa.me/${whatsappNumber}` },
+  ] as const;
+
   return (
     <footer className="footer-shell mt-20 border-t border-[var(--vf-footer-line)]">
       <div className="page-shell relative py-16 sm:py-18 lg:py-20">
         <div className="footer-grid">
           <div className="footer-brand space-y-5">
             <div>
-              <h2 className="heading-display text-4xl font-bold sm:text-5xl">VISEMFOOD</h2>
-              <p className="mt-3 text-xs font-bold uppercase tracking-[0.26em] text-[var(--vf-footer-accent)]">
+              <h2 className="heading-display text-[2.5rem] font-bold sm:text-[3.2rem]">{siteMeta.name}</h2>
+              <p className="mt-3 text-[0.72rem] font-bold uppercase tracking-[0.18em] text-[var(--vf-footer-accent)]">
                 Authentic African Food
               </p>
             </div>
-            <p className="footer-muted max-w-md text-sm leading-8 sm:text-base">
+            <p className="footer-muted max-w-md text-sm leading-7 sm:text-base">
               Authentic African meals prepared with care for individuals, families, gatherings and special occasions.
             </p>
             <div className="flex flex-wrap gap-3 pt-1">
@@ -47,7 +50,7 @@ export function SiteFooter() {
           </div>
 
           <div className="space-y-5">
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-[var(--vf-footer-accent)]">
+            <p className="text-[0.72rem] font-bold uppercase tracking-[0.18em] text-[var(--vf-footer-accent)]">
               Quick Links
             </p>
             <ul className="space-y-3 text-sm">
@@ -62,7 +65,7 @@ export function SiteFooter() {
           </div>
 
           <div className="space-y-5">
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-[var(--vf-footer-accent)]">
+            <p className="text-[0.72rem] font-bold uppercase tracking-[0.18em] text-[var(--vf-footer-accent)]">
               Ordering
             </p>
             <ul className="space-y-3 text-sm">
@@ -79,7 +82,7 @@ export function SiteFooter() {
           </div>
 
           <div className="space-y-5">
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-[var(--vf-footer-accent)]">
+            <p className="text-[0.72rem] font-bold uppercase tracking-[0.18em] text-[var(--vf-footer-accent)]">
               Contact
             </p>
             <ul className="space-y-4 text-sm">
@@ -106,7 +109,7 @@ export function SiteFooter() {
               <li className="flex items-start gap-3">
                 <span className="material-symbols-rounded footer-muted mt-0.5 text-base">chat</span>
                 <a
-                  href={`https://wa.me/${siteMeta.phone.replace(/\D/g, "")}`}
+                  href={`https://wa.me/${whatsappNumber}`}
                   target="_blank"
                   rel="noreferrer"
                   className="footer-link break-words"

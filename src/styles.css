@@ -82,6 +82,10 @@ body,
   min-height: 100%;
 }
 
+html {
+  font-size: 15.5px;
+}
+
 html,
 body {
   overflow-x: clip;
@@ -90,6 +94,7 @@ body {
 body {
   margin: 0;
   font-family: var(--font-sans);
+  line-height: 1.5;
   color: var(--vf-text);
   background:
     radial-gradient(circle at top left, rgba(107, 69, 48, 0.12), transparent 32%),
@@ -176,7 +181,8 @@ button {
 
 .heading-display {
   font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
+  line-height: 1.04;
 }
 
 .text-soft {
@@ -213,6 +219,7 @@ button {
   padding: 0.875rem 1.25rem;
   min-height: 3rem;
   font-weight: 600;
+  font-size: 0.96rem;
   text-align: center;
   line-height: 1.2;
   transition:
@@ -348,9 +355,9 @@ button {
 
 .mobile-table-label {
   color: var(--vf-text-soft);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -376,8 +383,8 @@ button {
 .data-table th {
   color: var(--vf-text-soft);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  font-size: 0.72rem;
 }
 
 .material-symbols-rounded {
@@ -392,9 +399,9 @@ button {
   display: inline-flex;
   border-radius: 9999px;
   padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -506,6 +513,43 @@ button {
   z-index: 70;
 }
 
+.featured-side-scroll {
+  min-width: 0;
+}
+
+@media (min-width: 1280px) {
+  .featured-side-scroll {
+    height: var(--vf-featured-side-height, auto);
+    overflow-y: scroll;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    padding-right: 0.35rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--vf-primary) color-mix(in srgb, var(--vf-surface-strong) 86%, white);
+  }
+
+  .featured-side-scroll::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .featured-side-scroll::-webkit-scrollbar-track {
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--vf-surface-strong) 86%, white);
+  }
+
+  .featured-side-scroll::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--vf-primary-light), var(--vf-primary));
+    background-clip: padding-box;
+  }
+
+  .featured-side-scroll::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--vf-primary), var(--vf-primary-hover));
+    background-clip: padding-box;
+  }
+}
+
 .mobile-action-bar {
   position: fixed;
   left: 0;
@@ -519,9 +563,9 @@ button {
 
 .eyebrow {
   margin-bottom: 0.75rem;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--vf-tertiary);
 }
@@ -539,6 +583,10 @@ button {
 }
 
 @media (max-width: 767px) {
+  html {
+    font-size: 14.85px;
+  }
+
   .section-gap {
     padding-block: 2.5rem;
   }

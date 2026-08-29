@@ -134,55 +134,8 @@ function OurStoryPage() {
   const [selectedMilestone, setSelectedMilestone] = useState<number | null>(null);
   const [activeStandardTab, setActiveStandardTab] = useState(0);
 
-  function scrollToFounderVision() {
-    document.getElementById("founder-vision")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
   return (
     <main className="pb-6">
-      <section className="relative flex min-h-[620px] items-center justify-center overflow-hidden pt-16 sm:min-h-[700px] lg:min-h-[85vh]">
-        <div className="absolute inset-0">
-          <img
-            src={heroImage}
-            alt="Premium Nigerian dining scene that reflects VISEMFOOD heritage."
-            className="h-full w-full object-cover object-center"
-            loading="eager"
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(180deg, color-mix(in srgb, var(--vf-footer-bg) 82%, transparent) 0%, color-mix(in srgb, var(--vf-footer-bg) 44%, transparent) 42%, color-mix(in srgb, var(--vf-footer-bg) 86%, transparent) 100%)",
-            }}
-          />
-        </div>
-
-        <div className="page-shell relative z-10 pt-10 text-center text-white">
-          <p className="mx-auto inline-block border-b border-white/25 pb-1 text-xs font-semibold uppercase tracking-[0.26em] text-[var(--vf-footer-accent)] sm:text-sm">
-            Our Heritage
-          </p>
-          <h1 className="heading-display mx-auto mt-5 max-w-5xl text-5xl font-bold leading-[1.06] text-white sm:text-6xl lg:text-7xl">
-            An Invitation to the Hearth
-          </h1>
-          <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-white/84 sm:text-xl sm:leading-9">
-            Step into our story where tradition meets modern elegance, and every flavor carries the feeling of home.
-          </p>
-
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link to="/menu" className="btn-primary w-full sm:w-auto">
-              Explore The Menu
-            </Link>
-            <button
-              type="button"
-              onClick={scrollToFounderVision}
-              className="btn-ghost w-full border border-[var(--vf-dark-border)] bg-white/12 text-white hover:bg-white/18 sm:w-auto"
-            >
-              Read Our Story
-            </button>
-          </div>
-        </div>
-      </section>
-
       <section id="founder-vision" className="section-gap">
         <div className="page-shell grid gap-10 md:grid-cols-12 md:items-center lg:gap-14">
           <div className="relative z-10 md:col-span-5 md:-mr-6 lg:-mr-8">

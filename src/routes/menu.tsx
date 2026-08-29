@@ -1,33 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useDeferredValue, useMemo, useState } from "react";
 import { ProductCard } from "@/components/ProductCard";
+import { useSiteData } from "@/contexts/site-data-context";
 import { buildMeta } from "@/lib/meta";
-import { categoryFilters, products } from "@/data/mock";
+import { fallbackProducts, type Product } from "@/lib/visemfood-api";
 
-type CategoryId = (typeof categoryFilters)[number];
 type QuickFilter = "all" | "featured" | "available" | "limited" | "hosting";
 
-const categoryLabels: Record<CategoryId, string> = {
-  All: "All Items",
-  "Rice Dishes": "Rice Dishes",
-  Soups: "Soups & Bowls",
-  "Small Chops": "Small Chops & Bites",
-  Proteins: "Signature Proteins",
-  Desserts: "Sweet Finishes",
-};
+const allCategoryDescription = "Every bowl, platter, tray, cooler, and premium staple in the VISEMFOOD kitchen.";
 
-const categoryDescriptions: Record<CategoryId, string> = {
-  All: "Every bowl, platter, and premium staple in the VISEMFOOD kitchen.",
-  "Rice Dishes": "Signature jollof, celebration rice, and richly layered crowd favorites.",
-  Soups: "Comforting heritage bowls with warmth, depth, and satisfying pairings.",
-  "Small Chops": "Event-ready bites, cocktail-table favorites, and polished finger foods.",
-  Proteins: "Grilled, glazed, and hospitality-ready centerpieces for intimate or shared tables.",
-  Desserts: "Sweet finishes designed to feel warm, memorable, and indulgent.",
-};
-
-function isHostingReady(product: (typeof products)[number]) {
+function isHostingReady(product: Product) {
   const content = `${product.name} ${product.servingSize} ${product.tags?.join(" ") ?? ""}`.toLowerCase();
-  return ["party", "event", "shared", "platter", "box", "tray"].some((keyword) => content.includes(keyword));
+  return ["party", "event", "shared", "platter", "box", "tray", "cooler"].some((keyword) => content.includes(keyword));
 }
 
 export const Route = createFileRoute("/menu")({
@@ -36,20 +20,33 @@ export const Route = createFileRoute("/menu")({
       title: "Menu | VISEMFOOD",
       description:
         "Browse the VISEMFOOD premium African menu with refined search, category filtering, and direct ordering actions.",
-      image: products[0]?.image,
+      image: fallbackProducts[0]?.image,
     }),
   component: MenuPage,
 });
 
 function MenuPage() {
-  const [activeCategory, setActiveCategory] = useState<CategoryId>("All");
+  const { categories, products } = useSiteData();
+  const [activeCategory, setActiveCategory] = useState("all");
   const [query, setQuery] = useState("");
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   const deferredQuery = useDeferredValue(query);
 
+  const categoryFilters = useMemo(
+    () => [
+      { id: "all", label: "All Items", description: allCategoryDescription },
+      ...categories.map((category) => ({
+        id: category.slug,
+        label: category.name,
+        description: category.description,
+      })),
+    ],
+    [categories],
+  );
+
   const filtered = useMemo(() => {
     return products.filter((product) => {
-      const categoryMatch = activeCategory === "All" || product.category === activeCategory;
+      const categoryMatch = activeCategory === "all" || product.categorySlug === activeCategory;
       const queryMatch =
         deferredQuery.trim() === "" ||
         `${product.name} ${product.shortDescription} ${product.category} ${product.servingSize} ${product.tags?.join(" ") ?? ""}`
@@ -65,7 +62,7 @@ function MenuPage() {
 
       return categoryMatch && queryMatch && quickFilterMatch;
     });
-  }, [activeCategory, deferredQuery, quickFilter]);
+  }, [activeCategory, deferredQuery, products, quickFilter]);
 
   const counts = useMemo(
     () => ({
@@ -75,10 +72,9 @@ function MenuPage() {
       limited: products.filter((product) => product.availability === "Limited").length,
       hosting: products.filter((product) => isHostingReady(product)).length,
     }),
-    [],
+    [products],
   );
 
-  const assurances = ["Freshly Prepared", "Pickup & Delivery", "Catering Available"];
   const quickFilters: Array<{ id: QuickFilter; label: string; icon: string; count: number }> = [
     { id: "all", label: "All Items", icon: "grid_view", count: counts.all },
     { id: "featured", label: "Chef's Picks", icon: "auto_awesome", count: counts.featured },
@@ -87,149 +83,195 @@ function MenuPage() {
     { id: "hosting", label: "Hosting Ready", icon: "celebration", count: counts.hosting },
   ];
   const activeQuickFilter = quickFilters.find((filter) => filter.id === quickFilter) ?? quickFilters[0];
-  const activeCategoryLabel = categoryLabels[activeCategory];
-  const hasActiveFilters = activeCategory !== "All" || query.trim() !== "" || quickFilter !== "all";
+  const activeCategoryMeta = categoryFilters.find((category) => category.id === activeCategory) ?? categoryFilters[0];
+  const activeCategoryLabel = activeCategoryMeta.label;
+  const hasActiveFilters = activeCategory !== "all" || query.trim() !== "" || quickFilter !== "all";
+  const dishCountLabel = `${filtered.length} dish${filtered.length === 1 ? "" : "es"}`;
+  const browsingDescription = query.trim()
+    ? `Showing ${dishCountLabel} for "${query}".`
+    : activeCategoryMeta.description;
 
   function resetFilters() {
-    setActiveCategory("All");
+    setActiveCategory("all");
     setQuery("");
     setQuickFilter("all");
   }
 
   return (
-    <main className="pb-8 pt-8 sm:pt-10 lg:pt-12">
+    <main className="pb-8 pt-6 sm:pt-8 lg:pt-10">
       <section>
         <div className="page-shell">
-          <div className="max-w-4xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--vf-primary-light)] px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-primary)]">
-              <span className="material-symbols-rounded text-base">restaurant</span>
-              Our Menu
-            </div>
+          <div className="floating-surface relative overflow-hidden">
+            <div className="pointer-events-none absolute -left-10 top-5 h-28 w-28 rounded-full bg-[var(--vf-primary-light)] opacity-75 blur-3xl" />
+            <div className="pointer-events-none absolute right-6 top-0 h-36 w-36 rounded-full bg-[var(--vf-secondary-light)] opacity-55 blur-3xl" />
 
-            <h1 className="heading-display mt-5 text-5xl font-bold leading-[1.04] text-[var(--vf-text)] sm:text-6xl lg:text-7xl">
-              A refined menu of bowls, small chops, and celebration-ready favorites.
-            </h1>
-            <p className="mt-5 max-w-3xl text-base leading-8 text-soft sm:text-lg sm:leading-9">
-              Explore premium Nigerian dishes prepared for direct orders, intimate dinners, and larger gatherings. Search quickly, filter by category, and move from browsing to ordering without friction.
-            </p>
-
-            <div className="mt-7 flex flex-wrap gap-3">
-              {assurances.map((item) => (
-                <span
-                  key={item}
-                  className="rounded-full border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--vf-text-soft)]"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="mt-8 sm:mt-10">
-        <div className="page-shell">
-          <div className="card-surface overflow-hidden">
-            <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(220px,0.8fr)_auto] lg:items-center">
-              <label className="relative block">
-                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--vf-text-soft)]">
-                  <span className="material-symbols-rounded text-xl">search</span>
-                </span>
-                <input
-                  className="field pl-12"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search dishes, categories, serving sizes, or tags"
-                  aria-label="Search menu items"
-                />
-              </label>
-
-              <select
-                className="select-field"
-                value={activeCategory}
-                onChange={(event) => setActiveCategory(event.target.value as CategoryId)}
-                aria-label="Filter by category"
-              >
-                {categoryFilters.map((category) => (
-                  <option key={category} value={category}>
-                    {categoryLabels[category]}
-                  </option>
-                ))}
-              </select>
-
-              <button type="button" className="btn-primary w-full lg:w-auto" onClick={resetFilters}>
-                <span className="material-symbols-rounded text-base">refresh</span>
-                Reset
-              </button>
-            </div>
-
-            <div className="border-t border-[var(--vf-border-soft)] p-4 sm:p-5">
-              <div className="flex flex-wrap items-center gap-2">
-                {quickFilters.map((filter) => {
-                  const active = quickFilter === filter.id;
-                  return (
-                    <button
-                      key={filter.id}
-                      type="button"
-                      onClick={() => setQuickFilter(filter.id)}
-                      className={
-                        active
-                          ? "inline-flex items-center gap-2 rounded-full bg-[var(--vf-primary)] px-4 py-2 text-xs font-semibold text-white"
-                          : "inline-flex items-center gap-2 rounded-full border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-strong)] px-4 py-2 text-xs font-semibold text-[var(--vf-text-soft)] transition-colors hover:border-[var(--vf-primary)] hover:text-[var(--vf-primary)]"
-                      }
-                    >
-                      <span className="material-symbols-rounded text-sm">{filter.icon}</span>
-                      {filter.label}
-                      <span className={active ? "text-white/80" : "text-[var(--vf-text-soft)]/70"}>({filter.count})</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-                {categoryFilters.map((category) => {
-                  const active = activeCategory === category;
-                  return (
-                    <button
-                      key={category}
-                      type="button"
-                      onClick={() => setActiveCategory(category)}
-                      className={
-                        active
-                          ? "btn-primary shrink-0 rounded-full px-4 py-3"
-                          : "btn-ghost shrink-0 rounded-full px-4 py-3"
-                      }
-                    >
-                      {categoryLabels[category]}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="mt-4 flex flex-col gap-3 rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-strong)] px-4 py-4 text-sm sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">
-                    Currently Browsing
-                  </p>
-                  <p className="mt-2 font-semibold text-[var(--vf-text)]">
-                    {activeCategoryLabel} / {activeQuickFilter.label}
-                  </p>
-                  <p className="mt-2 leading-7 text-soft">
-                    {query.trim()
-                      ? `Showing ${filtered.length} dish${filtered.length === 1 ? "" : "es"} for "${query}".`
-                      : categoryDescriptions[activeCategory]}
+            <div className="relative p-4 sm:p-6 lg:p-7">
+              <div className="flex flex-col gap-5 border-b border-[var(--vf-border-soft)] pb-5 lg:flex-row lg:items-end lg:justify-between">
+                <div className="max-w-2xl">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--vf-primary)]">Curated Menu</p>
+                  <h1 className="heading-display mt-3 text-[2rem] font-bold text-[var(--vf-text)] sm:text-[2.35rem] lg:text-[2.65rem]">
+                    Browse the VISEMFOOD kitchen.
+                  </h1>
+                  <p className="mt-3 max-w-xl text-sm leading-7 text-soft sm:text-[0.98rem]">
+                    Search quickly, refine by collection, and move from craving to order without friction.
                   </p>
                 </div>
 
-                {hasActiveFilters ? (
-                  <button
-                    type="button"
-                    onClick={resetFilters}
-                    className="text-left font-semibold text-[var(--vf-primary)] hover:underline sm:text-right"
+                <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[20rem]">
+                  <div className="rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-elevated)] px-4 py-3 shadow-[var(--vf-shadow-soft)]">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">Showing</p>
+                    <p className="mt-1 text-sm font-semibold text-[var(--vf-text)]">{dishCountLabel}</p>
+                  </div>
+                  <div className="rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-elevated)] px-4 py-3 shadow-[var(--vf-shadow-soft)]">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">Active View</p>
+                    <p className="mt-1 text-sm font-semibold text-[var(--vf-text)]">{activeQuickFilter.label}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1.55fr)_minmax(240px,0.82fr)_auto] xl:items-end">
+                <label className="block">
+                  <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">
+                    Search The Kitchen
+                  </span>
+                  <div className="relative">
+                    <span className="pointer-events-none absolute inset-y-0 right-0 flex w-11 items-center justify-center text-[var(--vf-text-soft)]">
+                      <span className="material-symbols-rounded text-[1.15rem]">search</span>
+                    </span>
+                    <input
+                      className="field pl-4 pr-12"
+                      value={query}
+                      onChange={(event) => setQuery(event.target.value)}
+                      placeholder="Search dishes, categories, serving sizes, or tags"
+                      aria-label="Search menu items"
+                    />
+                  </div>
+                </label>
+
+                <label className="block">
+                  <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">
+                    Browse Collection
+                  </span>
+                  <select
+                    className="select-field"
+                    value={activeCategory}
+                    onChange={(event) => setActiveCategory(event.target.value)}
+                    aria-label="Filter by category"
                   >
-                    Clear Active Filters
-                  </button>
-                ) : null}
+                    {categoryFilters.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <button
+                  type="button"
+                  className="btn-ghost w-full rounded-[var(--vf-radius-md)] border-[var(--vf-border-strong)] bg-[var(--vf-surface-elevated)] xl:w-auto"
+                  onClick={resetFilters}
+                >
+                  <span className="material-symbols-rounded text-base">refresh</span>
+                  Reset Filters
+                </button>
+              </div>
+
+              <div className="mt-5 rounded-[calc(var(--vf-radius-md)+0.125rem)] border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-elevated)] p-4 shadow-[var(--vf-shadow-soft)]">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">Quick Filters</p>
+                    <p className="mt-1 text-sm text-soft">Fast ways to narrow the menu by readiness, hosting, and favorites.</p>
+                  </div>
+                  <span className="inline-flex w-fit items-center rounded-full bg-[var(--vf-primary-light)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--vf-primary)]">
+                    {quickFilters.length} views
+                  </span>
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {quickFilters.map((filter) => {
+                    const active = quickFilter === filter.id;
+                    return (
+                      <button
+                        key={filter.id}
+                        type="button"
+                        onClick={() => setQuickFilter(filter.id)}
+                        className={
+                          active
+                            ? "inline-flex items-center gap-2 rounded-full border border-[var(--vf-primary)] bg-[var(--vf-primary)] px-4 py-2.5 text-xs font-semibold text-white shadow-[var(--vf-shadow-soft)]"
+                            : "inline-flex items-center gap-2 rounded-full border border-[var(--vf-border-soft)] bg-[var(--vf-surface-card)] px-4 py-2.5 text-xs font-semibold text-[var(--vf-text-soft)] transition-all hover:-translate-y-0.5 hover:border-[var(--vf-primary)] hover:text-[var(--vf-primary)]"
+                        }
+                      >
+                        <span className="material-symbols-rounded text-sm">{filter.icon}</span>
+                        {filter.label}
+                        <span className={active ? "text-white/80" : "text-[var(--vf-text-soft)]/70"}>({filter.count})</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-[calc(var(--vf-radius-md)+0.125rem)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-card)] p-4 shadow-[var(--vf-shadow-soft)]">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">Collections</p>
+                    <p className="mt-1 text-sm text-soft">Choose a course, bowl, tray, or hosting format.</p>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+                  {categoryFilters.map((category) => {
+                    const active = activeCategory === category.id;
+                    return (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() => setActiveCategory(category.id)}
+                        className={
+                          active
+                            ? "inline-flex shrink-0 items-center rounded-full border border-[var(--vf-primary)] bg-[var(--vf-primary)] px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--vf-shadow-soft)]"
+                            : "inline-flex shrink-0 items-center rounded-full border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] px-4 py-2.5 text-sm font-semibold text-[var(--vf-text)] transition-all hover:-translate-y-0.5 hover:border-[var(--vf-primary)] hover:text-[var(--vf-primary)]"
+                        }
+                      >
+                        {category.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-[calc(var(--vf-radius-md)+0.125rem)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-strong)] px-4 py-4 shadow-[var(--vf-shadow-soft)] sm:px-5">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">Currently Browsing</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <span className="inline-flex items-center rounded-full bg-[var(--vf-overlay-elevated)] px-3 py-1 text-xs font-semibold text-[var(--vf-text)] shadow-[var(--vf-shadow-soft)]">
+                        {activeCategoryLabel}
+                      </span>
+                      <span className="inline-flex items-center rounded-full bg-[var(--vf-primary-light)] px-3 py-1 text-xs font-semibold text-[var(--vf-primary)]">
+                        {activeQuickFilter.label}
+                      </span>
+                      {query.trim() ? (
+                        <span className="inline-flex items-center rounded-full bg-[var(--vf-secondary-light)] px-3 py-1 text-xs font-semibold text-[var(--vf-secondary)]">
+                          "{query}"
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="mt-3 max-w-3xl text-sm leading-7 text-soft">{browsingDescription}</p>
+                  </div>
+
+                  {hasActiveFilters ? (
+                    <button
+                      type="button"
+                      onClick={resetFilters}
+                      className="inline-flex items-center gap-2 self-start rounded-full border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] px-4 py-2 text-sm font-semibold text-[var(--vf-primary)] transition-colors hover:border-[var(--vf-primary)]"
+                    >
+                      <span className="material-symbols-rounded text-base">close</span>
+                      Clear Filters
+                    </button>
+                  ) : (
+                    <span className="text-sm font-medium text-[var(--vf-text-muted)]">All collections are currently visible.</span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -251,7 +293,7 @@ function MenuPage() {
               </p>
             </div>
             <div className="inline-flex items-center rounded-full border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] px-4 py-2 text-sm font-semibold text-[var(--vf-text)]">
-              {filtered.length} dish{filtered.length === 1 ? "" : "es"}
+              {dishCountLabel}
             </div>
           </div>
 

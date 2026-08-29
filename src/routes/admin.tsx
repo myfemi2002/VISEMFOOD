@@ -1,5 +1,6 @@
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { AdminTopBar } from "@/components/AdminTopBar";
 import { useAdminAuth } from "@/contexts/admin-auth-context";
@@ -21,11 +22,21 @@ function AdminLayout() {
     window.location.replace(`/login?redirect=${redirect}`);
   }, [isAuthenticated, isHydrated]);
 
-  function handleLogout() {
-    logout();
-    setIsNavOpen(false);
-    if (typeof window !== "undefined") {
-      window.location.assign("/login?redirect=%2Fadmin");
+  async function handleLogout() {
+    try {
+      await logout();
+      toast.success("Logged out", {
+        description: "Your admin session has been closed securely.",
+      });
+    } catch {
+      toast.error("Logout incomplete", {
+        description: "The local session was cleared, but the server could not be reached.",
+      });
+    } finally {
+      setIsNavOpen(false);
+      if (typeof window !== "undefined") {
+        window.location.assign("/login?redirect=%2Fadmin");
+      }
     }
   }
 

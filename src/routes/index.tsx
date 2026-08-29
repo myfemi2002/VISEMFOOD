@@ -1,11 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { HeroMediaFrame } from "@/components/HeroMediaFrame";
 import { ProductCard } from "@/components/ProductCard";
 import { SectionHeading } from "@/components/SectionHeading";
-import { products, siteMeta, trayPackages } from "@/data/mock";
+import { useSiteData } from "@/contexts/site-data-context";
 import { buildMeta } from "@/lib/meta";
 
 const heroImage =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuAXIiOo1d4KnfGk1qfi1Zi51ywVFueVqbGqZyvCbGON2co7-QQcky16p242UFb7YnnQF1BkNUT4honwH2cbdagyQs2bIa_xjkyOKcYMG3hZ8ys4Rt4bN6_DHymMoGylxNAwLwPsEIQ_OlxE_n4U_YTyVNJ0dFe1M7NXlQJGaIICUoBmPMn-eCKi7CCJl-ZO2SPMbWyPDVQ7zzE-ymkJY1HIvEpUa5DYuL2pUMGMZ-BwTRMACG-6n6MV";
+// Paste a public YouTube, Facebook, or Instagram video URL here to replace the homepage hero image.
+const heroVideoUrl = "";
 const storyImage =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuApCXd_WmNeVEJRZpDuzJIyZ2g9BSmK8dy2BzLnax54Y9WDOcpIU1pcg_Q9_OY36dCgwTkseCkMLP6roc-E1dlTEQYmx1yXgvkWqSh8Z2mR5qXBq5bI76v4XtB76ggB60zFn73FSkQ5_H3AyJELswJqD-K_QDoFBNnPZ6e8QGUWSbYuwEZTaqIxUF9a5e2YDAe9ZQj8-Z_GAJWcJ4EoxnzB4egjbMi4C8EPDxKzF58ScxMavFXr3TZA";
 
@@ -31,7 +34,7 @@ const pillars = [
     title: "Seamless Ordering",
     body: "From direct orders to trays, coolers, and event catering, the platform keeps every next step clear and convenient.",
   },
-];
+] as const;
 
 const testimonials = [
   {
@@ -52,30 +55,7 @@ const testimonials = [
     quote:
       "VISEMFOOD gave us polished hospitality without losing the soul of the food. It felt thoughtful, modern, and deeply familiar all at once.",
   },
-];
-
-const orderMoments = [
-  {
-    icon: "schedule",
-    title: "Ordering Window",
-    body: `Place your order during ${siteMeta.hours} for smooth pickup, dispatch, and catering coordination.`,
-  },
-  {
-    icon: "delivery_dining",
-    title: "Pickup & Delivery",
-    body: "Choose the format that fits your day, from personal bowls to celebration trays and cooler-sized service.",
-  },
-  {
-    icon: "forum",
-    title: "WhatsApp Confirmation",
-    body: "Continue your order with a structured confirmation flow that keeps customer details and meal selections organized.",
-  },
-  {
-    icon: "location_on",
-    title: "Service Base",
-    body: `${siteMeta.address} with hospitality support for private, family, and corporate gatherings.`,
-  },
-];
+] as const;
 
 export const Route = createFileRoute("/")({
   head: () =>
@@ -89,9 +69,37 @@ export const Route = createFileRoute("/")({
 });
 
 function LandingPage() {
-  const featuredProducts = [...products.filter((product) => product.featured), ...products.filter((product) => !product.featured)].slice(0, 4);
-  const leadTray = trayPackages[0];
-  const leadCooler = trayPackages[1];
+  const { products, siteMeta, trayPackages } = useSiteData();
+  const featuredProducts = [
+    ...products.filter((product) => product.featured && product.productType !== "tray" && product.productType !== "cooler"),
+    ...products.filter((product) => !product.featured && product.productType !== "tray" && product.productType !== "cooler"),
+  ].slice(0, 4);
+  const leadTray = trayPackages.find((item) => item.type === "Tray") ?? trayPackages[0];
+  const leadCooler = trayPackages.find((item) => item.type === "Cooler") ?? trayPackages[1] ?? trayPackages[0];
+  const heroProduct = featuredProducts[0] ?? products[0];
+
+  const orderMoments = [
+    {
+      icon: "schedule",
+      title: "Ordering Window",
+      body: `Place your order during ${siteMeta.hours} for smooth pickup, dispatch, and catering coordination.`,
+    },
+    {
+      icon: "delivery_dining",
+      title: "Pickup & Delivery",
+      body: "Choose the format that fits your day, from personal bowls to celebration trays and cooler-sized service.",
+    },
+    {
+      icon: "forum",
+      title: "WhatsApp Confirmation",
+      body: "Continue your order with a structured confirmation flow that keeps customer details and meal selections organized.",
+    },
+    {
+      icon: "location_on",
+      title: "Service Base",
+      body: `${siteMeta.address} with hospitality support for private, family, and corporate gatherings.`,
+    },
+  ];
 
   const experiences = [
     {
@@ -100,7 +108,7 @@ function LandingPage() {
       body: "Explore polished bowls, soups, rice dishes, and proteins designed for quick direct ordering without compromising on flavor or presentation.",
       href: "/menu" as const,
       cta: "Explore Menu",
-      image: products[0]?.image ?? heroImage,
+      image: heroProduct?.image ?? heroImage,
       dark: true,
       detail: "Bowls, plates, and ready-to-order favorites",
     },
@@ -140,11 +148,12 @@ function LandingPage() {
             </div>
 
             <div className="space-y-4">
-              <h1 className="heading-display max-w-4xl text-5xl font-bold leading-[1.02] text-[var(--vf-text)] sm:text-6xl lg:text-7xl xl:text-[5.3rem]">
+              <h1 className="heading-display max-w-4xl text-[3rem] font-bold leading-[1.02] text-[var(--vf-text)] sm:text-[3.9rem] lg:text-[4.7rem] xl:text-[5rem]">
                 Rich flavors, <span className="italic text-[var(--vf-secondary)]">elevated</span> for every occasion.
               </h1>
               <p className="max-w-2xl text-base leading-8 text-soft sm:text-lg sm:leading-9">
-                VISEMFOOD brings authentic African meals into a refined, modern ordering experience for personal dining, family gatherings, gifting, and premium event service.
+                VISEMFOOD brings authentic African meals into a refined, modern ordering experience for personal dining,
+                family gatherings, gifting, and premium event service.
               </p>
             </div>
 
@@ -158,13 +167,13 @@ function LandingPage() {
               </Link>
             </div>
 
-            <div className="grid gap-4 rounded-[var(--vf-radius-lg)] border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-strong)] p-4 shadow-[var(--vf-shadow-soft)] sm:grid-cols-3 sm:p-5">
+            <div className="grid w-full gap-4 rounded-[var(--vf-radius-lg)] border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-strong)] p-4 shadow-[var(--vf-shadow-soft)] sm:w-auto sm:self-start sm:grid-cols-3 sm:p-5">
               {[
                 { value: "100%", label: "Authentic Flavor" },
                 { value: "500+", label: "Gatherings Served" },
                 { value: "4.9", label: "Guest Rating" },
               ].map((item) => (
-                <div key={item.label} className="space-y-1">
+                <div key={item.label} className="space-y-1 sm:min-w-[10rem]">
                   <p className="heading-display text-3xl font-bold text-[var(--vf-text)]">{item.value}</p>
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">
                     {item.label}
@@ -188,30 +197,11 @@ function LandingPage() {
           <div className="relative">
             <div className="floating-surface overflow-hidden p-3 sm:p-4">
               <div className="overflow-hidden rounded-[calc(var(--vf-radius-lg)+0.25rem)]">
-                <img
-                  src={heroImage}
-                  alt="Elegant African cuisine spread prepared for premium hospitality"
-                  className="h-[360px] w-full object-cover sm:h-[460px] lg:h-[600px]"
+                <HeroMediaFrame
+                  videoUrl={heroVideoUrl}
+                  imageSrc={heroImage}
+                  imageAlt="Elegant African cuisine spread prepared for premium hospitality"
                 />
-              </div>
-            </div>
-
-            <div className="hidden sm:flex absolute right-5 top-5 items-center gap-2 rounded-full border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-strong)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--vf-text)]">
-              <span className="material-symbols-rounded text-base text-[var(--vf-primary)]">verified</span>
-              Fresh daily dispatches
-            </div>
-
-            <div className="card-surface absolute -bottom-6 left-4 right-4 p-4 sm:left-8 sm:right-auto sm:max-w-sm sm:p-5 lg:-left-8 lg:bottom-10">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--vf-surface-muted)] text-[var(--vf-primary)]">
-                  <span className="material-symbols-rounded">workspace_premium</span>
-                </div>
-                <div className="space-y-1">
-                  <p className="heading-display text-2xl font-bold text-[var(--vf-text)]">Award-winning hospitality</p>
-                  <p className="text-sm leading-7 text-soft">
-                    From home-style comfort to polished event service, every order is built to feel thoughtful and memorable.
-                  </p>
-                </div>
               </div>
             </div>
           </div>
@@ -245,18 +235,29 @@ function LandingPage() {
             {experiences.map((experience) => (
               <article
                 key={experience.title}
-                className={experience.dark ? "dark-surface-shell overflow-hidden rounded-[var(--vf-radius-lg)] shadow-[var(--vf-shadow-float)]" : "card-surface overflow-hidden"}
+                className={
+                  experience.dark
+                    ? "dark-surface-shell overflow-hidden rounded-[var(--vf-radius-lg)] shadow-[var(--vf-shadow-float)]"
+                    : "card-surface overflow-hidden"
+                }
               >
                 <div className="relative aspect-[16/11] overflow-hidden">
-                  <img
-                    src={experience.image}
-                    alt={experience.title}
-                    className="h-full w-full object-cover"
-                    loading="lazy"
+                  <img src={experience.image} alt={experience.title} className="h-full w-full object-cover" loading="lazy" />
+                  <div
+                    className={
+                      experience.dark
+                        ? "absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"
+                        : "absolute inset-0 bg-gradient-to-t from-black/40 via-black/5 to-transparent"
+                    }
                   />
-                  <div className={experience.dark ? "absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" : "absolute inset-0 bg-gradient-to-t from-black/40 via-black/5 to-transparent"} />
                   <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-                    <p className={experience.dark ? "text-xs font-bold uppercase tracking-[0.18em] text-[var(--vf-footer-accent)]" : "text-xs font-bold uppercase tracking-[0.18em] text-white/90"}>
+                    <p
+                      className={
+                        experience.dark
+                          ? "text-xs font-bold uppercase tracking-[0.18em] text-[var(--vf-footer-accent)]"
+                          : "text-xs font-bold uppercase tracking-[0.18em] text-white/90"
+                      }
+                    >
                       {experience.eyebrow}
                     </p>
                     <p className="mt-2 max-w-xs text-sm font-medium text-white/90">{experience.detail}</p>
@@ -338,10 +339,7 @@ function LandingPage() {
                 { icon: "volunteer_activism", label: "Hospitality-led service" },
                 { icon: "public", label: "Cultural pride, modern finish" },
               ].map((item) => (
-                <div
-                  key={item.label}
-                  className="rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-strong)] p-4"
-                >
+                <div key={item.label} className="rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-strong)] p-4">
                   <span className="material-symbols-rounded text-[var(--vf-primary)]">{item.icon}</span>
                   <p className="mt-3 text-sm font-semibold text-[var(--vf-text)]">{item.label}</p>
                 </div>

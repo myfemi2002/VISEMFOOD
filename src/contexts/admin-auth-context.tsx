@@ -1,15 +1,15 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-
-type AdminUser = {
-  name: string;
-  role: string;
-  email: string;
-  avatar: string;
-};
+import { ApiError } from "@/lib/api";
+import {
+  fetchCurrentAdminUser,
+  loginAdmin,
+  logoutAdmin,
+  type AdminUser,
+} from "@/lib/visemfood-api";
 
 type LoginResult =
   | { ok: true }
-  | { ok: false; error: string };
+  | { ok: false; error: string; status?: number };
 
 type AdminAuthContextValue = {
   user: AdminUser | null;
@@ -19,24 +19,14 @@ type AdminAuthContextValue = {
     email: string;
     password: string;
   };
-  login: (credentials: { email: string; password: string }) => LoginResult;
-  logout: () => void;
+  login: (credentials: { email: string; password: string }) => Promise<LoginResult>;
+  logout: () => Promise<void>;
 };
-
-const STORAGE_KEY = "visemfood-admin-session";
 
 const DEMO_CREDENTIALS = {
-  email: "admin@visemfood.com",
-  password: "visemfood-admin",
+  email: "admin@visemfood.test",
+  password: "Password12345",
 } as const;
-
-const DEMO_USER: AdminUser = {
-  name: "Chef Femi",
-  role: "Executive Chef & GM",
-  email: DEMO_CREDENTIALS.email,
-  avatar:
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuBmGiASDgy8y7ji0e4tUa4YFbps2iyR-c876docx6UYPGkC5DDzhkDjJgE7N7Zb9YnCLwC2l5j7TNOhfW0Z1QqLF7kF5J5iRyME5zngh_2kDv5vhpM-aHpOPHmjHVhnT_-ha77bhFgrOg1qDt8M9NBJBAIwqW5BSlBak5pLxDC0-uZUgc5OZHtG4Vn0r6mgdILkgn96ui3dbfjj7hF3vTt_OQlUVvJoBZZzlU95bN1MR5YO-NDYJ15v",
-};
 
 const AdminAuthContext = createContext<AdminAuthContextValue | null>(null);
 
@@ -45,33 +35,36 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
+    let cancelled = false;
 
-    if (!stored) {
-      setIsHydrated(true);
-      return;
+    async function hydrateSession() {
+      try {
+        const nextUser = await fetchCurrentAdminUser();
+
+        if (!cancelled) {
+          setUser(nextUser);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          if (error instanceof ApiError && [401, 419].includes(error.status)) {
+            setUser(null);
+          } else {
+            setUser(null);
+          }
+        }
+      } finally {
+        if (!cancelled) {
+          setIsHydrated(true);
+        }
+      }
     }
 
-    try {
-      const parsed = JSON.parse(stored) as AdminUser | null;
-      setUser(parsed?.email ? parsed : null);
-    } catch {
-      setUser(null);
-    } finally {
-      setIsHydrated(true);
-    }
+    void hydrateSession();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-
-    if (!user) {
-      window.localStorage.removeItem(STORAGE_KEY);
-      return;
-    }
-
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-  }, [isHydrated, user]);
 
   const value = useMemo<AdminAuthContextValue>(
     () => ({
@@ -79,23 +72,30 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
       isAuthenticated: Boolean(user),
       isHydrated,
       demoCredentials: DEMO_CREDENTIALS,
-      login: ({ email, password }) => {
-        const normalizedEmail = email.trim().toLowerCase();
-
-        if (
-          normalizedEmail !== DEMO_CREDENTIALS.email ||
-          password !== DEMO_CREDENTIALS.password
-        ) {
+      login: async ({ email, password }) => {
+        try {
+          const result = await loginAdmin({
+            email: email.trim().toLowerCase(),
+            password,
+          });
+          setUser(result.user);
+          return { ok: true };
+        } catch (error) {
           return {
             ok: false,
-            error: "Use the admin demo credentials shown below the form.",
+            error:
+              error instanceof Error
+                ? error.message
+                : "Unable to sign in right now. Please try again shortly.",
+            status: error instanceof ApiError ? error.status : undefined,
           };
         }
-
-        setUser(DEMO_USER);
-        return { ok: true };
       },
-      logout: () => {
+      logout: async () => {
+        try {
+          await logoutAdmin();
+        } catch {}
+
         setUser(null);
       },
     }),

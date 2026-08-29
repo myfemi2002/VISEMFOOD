@@ -45,8 +45,8 @@ function LoginPage() {
     window.location.replace(redirectTarget);
   }, [isAuthenticated, isHydrated, redirectTarget]);
 
-  const submit = form.handleSubmit((values) => {
-    const result = login(values);
+  const submit = form.handleSubmit(async (values) => {
+    const result = await login(values);
 
     if (!result.ok) {
       form.setError("root", {
@@ -72,7 +72,7 @@ function LoginPage() {
               Protected Admin Access
             </div>
 
-            <h1 className="heading-display mt-5 text-5xl font-bold leading-[1.04] text-[var(--vf-secondary)] sm:text-6xl lg:text-7xl">
+            <h1 className="heading-display mt-5 text-[3rem] font-bold leading-[1.04] text-[var(--vf-secondary)] sm:text-[3.8rem] lg:text-[4.6rem]">
               Login to the VISEMFOOD admin suite.
             </h1>
             <p className="mt-5 max-w-lg text-base leading-8 text-soft sm:text-lg sm:leading-9">
@@ -80,7 +80,7 @@ function LoginPage() {
             </p>
 
             <div className="mt-8 rounded-[calc(var(--vf-radius-lg)-2px)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] p-6 shadow-[var(--vf-shadow-soft)]">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">Demo Credentials</p>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">Seeded Admin Credentials</p>
               <div className="mt-4 space-y-3 text-sm text-[var(--vf-text)]">
                 <p>
                   <span className="font-semibold text-[var(--vf-primary)]">Email:</span> {demoCredentials.email}
@@ -97,7 +97,7 @@ function LoginPage() {
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-primary)]">Admin Sign In</p>
               <h2 className="heading-display mt-3 text-4xl font-bold text-[var(--vf-text)]">Operations dashboard access</h2>
               <p className="mt-3 text-sm leading-7 text-soft sm:text-base">
-                Use the admin credentials to enter the protected dashboard. This first pass stores session state locally for the demo flow.
+                Sign in with the seeded administrator account or your live admin credentials from the Laravel backend.
               </p>
             </div>
 
@@ -130,7 +130,7 @@ function LoginPage() {
                   disabled={form.formState.isSubmitting || !isHydrated}
                   className="btn-primary w-full rounded-full disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
                 >
-                  <span>Enter Admin Suite</span>
+                  <span>{form.formState.isSubmitting ? "Signing In..." : "Enter Admin Suite"}</span>
                   <span className="material-symbols-rounded text-base">arrow_forward</span>
                 </button>
 

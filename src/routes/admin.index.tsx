@@ -1,7 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { StatusChip } from "@/components/StatusChip";
+import { useAdminSummary } from "@/contexts/admin-summary-context";
+import { getErrorMessage } from "@/lib/api";
 import { buildMeta } from "@/lib/meta";
-import { analytics, bulkOrders, cateringRequests, products } from "@/data/mock";
+import {
+  fallbackAdminCateringInquiries,
+  fallbackAdminOrders,
+  fallbackProducts,
+  fetchAdminOrders,
+  getOrderTone,
+  type AdminOrder,
+} from "@/lib/visemfood-api";
 
 type Period = "Today" | "This Week" | "This Month";
 
@@ -15,32 +25,80 @@ export const Route = createFileRoute("/admin/")({
 });
 
 function AdminDashboardPage() {
+  const { dashboard, error: dashboardError } = useAdminSummary();
   const [selectedPeriod, setSelectedPeriod] = useState<Period>("Today");
+  const [orders, setOrders] = useState<AdminOrder[]>(fallbackAdminOrders);
+  const [ordersError, setOrdersError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadOrders() {
+      try {
+        const result = await fetchAdminOrders({ perPage: 100 });
+
+        if (!cancelled) {
+          setOrders(result.items);
+          setOrdersError(null);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setOrdersError(getErrorMessage(error, "Unable to load the latest order queue."));
+        }
+      }
+    }
+
+    void loadOrders();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     month: "long",
     day: "numeric",
     year: "numeric",
-  }).format(new Date("2026-08-23"));
+  }).format(new Date());
+
+  const filteredOrders = useMemo(() => {
+    const now = new Date();
+
+    return orders.filter((order) => {
+      const referenceDate = order.orderedAt ?? order.createdAt ?? order.preferredFulfillmentAt;
+
+      if (!referenceDate) {
+        return selectedPeriod === "This Month";
+      }
+
+      const orderDate = new Date(referenceDate);
+
+      if (Number.isNaN(orderDate.getTime())) {
+        return false;
+      }
+
+      if (selectedPeriod === "Today") {
+        return orderDate.toDateString() === now.toDateString();
+      }
+
+      if (selectedPeriod === "This Week") {
+        const daysDifference = (now.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24);
+        return daysDifference >= 0 && daysDifference <= 7;
+      }
+
+      return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
+    });
+  }, [orders, selectedPeriod]);
 
   const metrics = useMemo(() => {
-    const baseRevenue = analytics.revenueThisMonth;
-    const todayRevenue = Math.round(baseRevenue / 18);
-    const weekRevenue = Math.round(baseRevenue / 3.4);
-    const revenue =
-      selectedPeriod === "Today" ? todayRevenue : selectedPeriod === "This Week" ? weekRevenue : baseRevenue;
-
-    const orders =
-      selectedPeriod === "Today"
-        ? Math.max(12, Math.round(analytics.ordersThisWeek / 3))
-        : selectedPeriod === "This Week"
-          ? analytics.ordersThisWeek
-          : analytics.ordersThisWeek * 4;
+    const revenueSource = filteredOrders;
+    const revenue = revenueSource.reduce((sum, order) => sum + order.total, 0);
+    const orderCount = filteredOrders.length;
 
     return {
       revenue,
-      orders,
+      orders: orderCount,
       orderLabel:
         selectedPeriod === "Today"
           ? "Orders Today"
@@ -48,20 +106,31 @@ function AdminDashboardPage() {
             ? "Orders This Week"
             : "Orders This Month",
     };
-  }, [selectedPeriod]);
+  }, [filteredOrders, orders, selectedPeriod]);
 
-  const pendingCateringCount = cateringRequests.filter(
-    (request) => request.status === "New" || request.status === "Quoted",
-  ).length;
-  const activeTraysCount = bulkOrders
-    .filter((order) => order.status !== "Delivered")
-    .reduce((sum, order) => sum + order.quantity, 0);
-  const lowStockCount = products.filter((product) => product.availability !== "Available").length;
+  const pendingCateringCount =
+    dashboard?.stats.cateringNew ??
+    fallbackAdminCateringInquiries.filter((request) =>
+      ["new", "contacted", "quoted"].includes(request.statusValue),
+    ).length;
 
-  const liveOrders = bulkOrders.slice(0, 3);
+  const activeOrderCount = orders.filter((order) => !["completed", "cancelled"].includes(order.status)).length;
+  const lowStockCount =
+    dashboard?.stats.productsTotal != null && dashboard.stats.productsAvailable != null
+      ? Math.max(dashboard.stats.productsTotal - dashboard.stats.productsAvailable, 0)
+      : fallbackProducts.filter((product) => product.availability !== "Available").length;
+  const liveOrders = dashboard?.recentOrders.length ? dashboard.recentOrders : orders.slice(0, 3);
+  const unreadMessages = dashboard?.stats.contactUnread ?? 0;
+  const latestMessage = dashboard?.recentContactMessages[0] ?? null;
 
   return (
     <section className="mx-auto max-w-[1280px] space-y-8 pb-8">
+      {dashboardError || ordersError ? (
+        <div className="card-surface border border-[var(--vf-warning-border)] bg-[var(--vf-warning-soft)] p-4 text-sm text-[var(--vf-text)]">
+          {dashboardError ?? ordersError}
+        </div>
+      ) : null}
+
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="heading-display text-5xl font-bold tracking-tight text-[var(--vf-secondary)]">Overview</h1>
@@ -89,9 +158,9 @@ function AdminDashboardPage() {
         <AdminMetricCard
           icon="payments"
           accent="success"
-          label="Total Sales"
+          label="Estimated Sales"
           value={`NGN ${metrics.revenue.toLocaleString()}`}
-          meta="+12%"
+          meta={selectedPeriod}
         />
         <AdminMetricCard
           icon="event"
@@ -104,17 +173,17 @@ function AdminDashboardPage() {
         <AdminMetricCard
           icon="inventory_2"
           accent="muted"
-          label="Active Bulk Orders"
-          value={`${activeTraysCount} Trays & Coolers`}
+          label="Active Orders"
+          value={`${activeOrderCount} Records`}
           linkTo="/admin/bulk-orders"
           linkLabel="Queue View"
         />
         <AdminMetricCard
           icon="warning"
           accent="danger"
-          label="Low Stock Alerts"
+          label="Low Availability"
           value={`${lowStockCount} Items`}
-          meta="Restock Needed"
+          meta="Review Catalog"
         />
       </div>
 
@@ -124,64 +193,52 @@ function AdminDashboardPage() {
             <div>
               <h2 className="text-lg font-bold text-[var(--vf-text)]">Live Orders</h2>
               <p className="mt-1 text-xs uppercase tracking-[0.1em] text-[var(--vf-text-soft)]">
-                Active preparation tickets and scheduled pickups
+                Active WhatsApp checkouts, preparation tickets and scheduled fulfilment
               </p>
             </div>
             <Link
               to="/admin/bulk-orders"
               className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-[0.12em] text-[var(--vf-primary)]"
             >
-              View All Queue
+              View Full Queue
               <span className="material-symbols-rounded text-[16px]">arrow_forward</span>
             </Link>
           </div>
 
           <div className="divide-y divide-[var(--vf-border-soft)]">
-            {liveOrders.map((order) => {
-              const isCooler = /cooler/i.test(order.packageName);
-              const badgeTone =
-                order.status === "Delivered"
-                  ? "success"
-                  : order.status === "Prep"
-                    ? "warning"
-                    : "neutral";
-
-              return (
-                <div
-                  key={order.id}
-                  className="flex flex-col gap-4 p-5 transition-colors hover:bg-[var(--vf-surface-strong)] sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[var(--vf-border-soft)] bg-[var(--vf-surface)] text-[var(--vf-primary)]">
-                      <span className="material-symbols-rounded text-[22px]">
-                        {isCooler ? "local_shipping" : "storefront"}
+            {liveOrders.map((order) => (
+              <div
+                key={order.orderNumber}
+                className="flex flex-col gap-4 p-5 transition-colors hover:bg-[var(--vf-surface-strong)] sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[var(--vf-border-soft)] bg-[var(--vf-surface)] text-[var(--vf-primary)]">
+                    <span className="material-symbols-rounded text-[22px]">
+                      {order.deliveryType === "delivery" ? "local_shipping" : "storefront"}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-bold text-[var(--vf-primary)]">{order.orderNumber}</span>
+                      <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--vf-text)]">
+                        / {order.customer}
                       </span>
                     </div>
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-bold text-[var(--vf-primary)]">{order.id}</span>
-                        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--vf-text)]">
-                          / {order.customer}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-sm leading-6 text-soft">
-                        {order.quantity} x {order.packageName}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-5 sm:justify-end">
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-[var(--vf-text)]">NGN {order.total.toLocaleString()}</p>
-                      <p className="mt-1 text-[11px] uppercase tracking-[0.08em] text-[var(--vf-text-soft)]">
-                        Due: {order.eventDate}
-                      </p>
-                    </div>
-                    <StatusBadge tone={badgeTone}>{order.status}</StatusBadge>
+                    <p className="mt-1 text-sm leading-6 text-soft">{order.leadItemLabel}</p>
                   </div>
                 </div>
-              );
-            })}
+
+                <div className="flex items-center justify-between gap-5 sm:justify-end">
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-[var(--vf-text)]">NGN {order.total.toLocaleString()}</p>
+                    <p className="mt-1 text-[11px] uppercase tracking-[0.08em] text-[var(--vf-text-soft)]">
+                      Due: {formatDateLabel(order.preferredFulfillmentAt ?? order.createdAt)}
+                    </p>
+                  </div>
+                  <StatusBadge tone={getOrderTone(order.status)}>{order.statusLabel}</StatusBadge>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -194,19 +251,19 @@ function AdminDashboardPage() {
             <div className="mt-4 space-y-3">
               <QuickActionLink
                 to="/admin/bulk-orders"
-                icon="add"
+                icon="receipt_long"
                 iconTone="primary"
-                title="Create Manual Order"
+                title="Review WhatsApp Order Queue"
               />
               <QuickActionLink
                 to="/admin/analytics"
-                icon="download"
+                icon="insights"
                 iconTone="secondary"
-                title="Download Kitchen Prep List"
+                title="Open Performance Snapshot"
               />
               <QuickActionLink
                 to="/admin/catalog"
-                icon="edit_calendar"
+                icon="inventory"
                 iconTone="success"
                 title="Update Menu Stock & Prices"
               />
@@ -217,14 +274,18 @@ function AdminDashboardPage() {
             <div className="absolute right-[-2.5rem] top-[-2.5rem] h-28 w-28 rounded-full bg-white/10" />
             <div className="relative flex items-start gap-3.5">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15">
-                <span className="material-symbols-rounded text-[20px]">campaign</span>
+                <span className="material-symbols-rounded text-[20px]">mail</span>
               </div>
               <div>
-                <h3 className="text-sm font-bold uppercase tracking-[0.1em]">Weekend Catering Surge</h3>
+                <h3 className="text-sm font-bold uppercase tracking-[0.1em]">Unread Contact Messages</h3>
                 <p className="mt-1.5 text-sm leading-6 text-white/90">
-                  Expect higher preparation volume this weekend for major wedding and family gathering requests.
-                  Review prep lists, staffing, and cooler inventory early.
+                  {unreadMessages} customer inquiries are waiting for a response from the hospitality desk.
                 </p>
+                {latestMessage ? (
+                  <p className="mt-3 text-xs uppercase tracking-[0.08em] text-white/70">
+                    Latest: {latestMessage.name} / {latestMessage.subject}
+                  </p>
+                ) : null}
               </div>
             </div>
           </div>
@@ -244,6 +305,24 @@ function AdminDashboardPage() {
       </div>
     </section>
   );
+}
+
+function formatDateLabel(value: string | null) {
+  if (!value) {
+    return "To be scheduled";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
 }
 
 function AdminMetricCard({
@@ -278,7 +357,9 @@ function AdminMetricCard({
       : "border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)]";
 
   return (
-    <div className={`flex flex-col justify-between rounded-[calc(var(--vf-radius-lg)-2px)] border p-6 shadow-[var(--vf-shadow-soft)] ${wrapperClass}`}>
+    <div
+      className={`flex flex-col justify-between rounded-[calc(var(--vf-radius-lg)-2px)] border p-6 shadow-[var(--vf-shadow-soft)] ${wrapperClass}`}
+    >
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className={`flex h-11 w-11 items-center justify-center rounded-full ${iconClass}`}>
           <span className="material-symbols-rounded text-[22px]">{icon}</span>
@@ -302,7 +383,9 @@ function AdminMetricCard({
       </div>
 
       <div>
-        <p className={`text-sm ${accent === "danger" ? "font-semibold text-[var(--vf-danger)]" : "font-medium text-soft"}`}>{label}</p>
+        <p className={`text-sm ${accent === "danger" ? "font-semibold text-[var(--vf-danger)]" : "font-medium text-soft"}`}>
+          {label}
+        </p>
         <h2 className="heading-display mt-1 text-4xl font-bold leading-tight text-[var(--vf-text)]">{value}</h2>
       </div>
     </div>
@@ -349,15 +432,8 @@ function StatusBadge({
   tone,
   children,
 }: {
-  tone: "success" | "warning" | "neutral";
+  tone: "success" | "warning" | "neutral" | "danger";
   children: React.ReactNode;
 }) {
-  const className =
-    tone === "success"
-      ? "bg-[var(--vf-success-soft)] text-[var(--vf-tertiary)]"
-      : tone === "warning"
-        ? "bg-[var(--vf-warning-soft)] text-[var(--vf-warning)]"
-        : "bg-[var(--vf-secondary-soft)] text-[var(--vf-secondary)]";
-
-  return <span className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.08em] ${className}`}>{children}</span>;
+  return <StatusChip tone={tone}>{children}</StatusChip>;
 }

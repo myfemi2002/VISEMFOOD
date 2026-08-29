@@ -4,25 +4,13 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useSiteData } from "@/contexts/site-data-context";
+import { ApiError, getErrorMessage } from "@/lib/api";
 import { buildMeta } from "@/lib/meta";
-import { siteMeta } from "@/data/mock";
+import { submitContactMessage } from "@/lib/visemfood-api";
 
 const heroImage =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuDoVifgQDTMXHqWMVeWf_wSsof1wBHM6aTEg6eGu1-sQEasnhN6_ce-ffR42P0_rjJukhdY6HVgktGTqZ0ivoeI-hOiyLA_ANydB4s6gCJR1BZVPdug9Q9fxXz_rLIN4e3So0arZWUlfYshUOxe7aR92p-L32qtNv3GcIVCwkQUg5uwIkKwa9g6LBsk5RayipGqI4_7ylJUFz8oMAyFS2WNmCUV3RQQJxojxTCYC7d9roQmaiVBstb-";
-
-const [hoursDays, hoursRange] = siteMeta.hours.split(",").map((part) => part.trim());
-const addressSegments = siteMeta.address.split(",").map((part) => part.trim());
-
-const operatingHours = [
-  {
-    days: hoursRange ? hoursDays : "Business Hours",
-    hours: hoursRange || siteMeta.hours,
-  },
-  {
-    days: "Private Events",
-    hours: "By inquiry",
-  },
-] as const;
 
 const subjectOptions = [
   "General Inquiry",
@@ -59,6 +47,7 @@ export const Route = createFileRoute("/contact")({
 });
 
 function ContactPage() {
+  const { siteMeta } = useSiteData();
   const [submittedRef, setSubmittedRef] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -98,28 +87,80 @@ function ContactPage() {
 
   const whatsappShareHref = `https://wa.me/?text=${encodeURIComponent(`Check out VISEMFOOD: ${shareUrl}`)}`;
   const emailShareHref = `mailto:?subject=${encodeURIComponent("VISEMFOOD Premium African Catering")}&body=${encodeURIComponent(`Take a look at VISEMFOOD: ${shareUrl}`)}`;
+  const [hoursDays, hoursRange] = siteMeta.hours.split(",").map((part) => part.trim());
+  const addressSegments = siteMeta.address.split(",").map((part) => part.trim());
+  const operatingHours = [
+    {
+      days: hoursRange ? hoursDays : "Business Hours",
+      hours: hoursRange || siteMeta.hours,
+    },
+    {
+      days: "Private Events",
+      hours: "By inquiry",
+    },
+  ] as const;
   const primaryLocation = addressSegments[0] ?? siteMeta.address;
   const supportingLocation = addressSegments.slice(1).join(", ") || "Lagos, Nigeria";
   const phoneHref = `tel:${siteMeta.phone.replace(/[^\d+]/g, "")}`;
 
-  const submit = form.handleSubmit(async () => {
-    const reference = `VF-${Math.floor(100000 + Math.random() * 900000)}`;
+  const submit = form.handleSubmit(async (values) => {
+    try {
+      const result = await submitContactMessage({
+        name: values.fullName,
+        email: values.email,
+        subject: values.subject,
+        event_date: values.eventDate || null,
+        guest_count: values.guestCount ?? null,
+        message: values.message,
+      });
 
-    await new Promise((resolve) => setTimeout(resolve, 650));
+      setSubmittedRef(result.data.referenceNumber);
+      setShowEventDetails(false);
+      toast.success("Inquiry received", {
+        description: `${result.message} Reference ${result.data.referenceNumber}.`,
+      });
+      form.reset({
+        fullName: "",
+        email: "",
+        subject: "General Inquiry",
+        eventDate: "",
+        guestCount: undefined,
+        message: "",
+      });
+    } catch (error) {
+      if (error instanceof ApiError && error.errors) {
+        const fieldMap: Record<string, keyof ContactValues> = {
+          name: "fullName",
+          event_date: "eventDate",
+          guest_count: "guestCount",
+        };
+        const needsEventDetails = "event_date" in error.errors || "guest_count" in error.errors;
 
-    setSubmittedRef(reference);
-    setShowEventDetails(false);
-    toast.success("Inquiry received", {
-      description: `Reference ${reference}. This mock flow is ready for real persistence later.`,
-    });
-    form.reset({
-      fullName: "",
-      email: "",
-      subject: "General Inquiry",
-      eventDate: "",
-      guestCount: undefined,
-      message: "",
-    });
+        if (needsEventDetails) {
+          setShowEventDetails(true);
+        }
+
+        Object.entries(error.errors).forEach(([field, messages]) => {
+          const target = fieldMap[field] ?? (field as keyof ContactValues);
+          const message = messages[0];
+
+          if (!message) {
+            return;
+          }
+
+          if (["fullName", "email", "subject", "eventDate", "guestCount", "message"].includes(target)) {
+            form.setError(target as keyof ContactValues, {
+              type: "server",
+              message,
+            });
+          }
+        });
+      }
+
+      toast.error("Unable to send inquiry", {
+        description: getErrorMessage(error, "Please try again in a moment."),
+      });
+    }
   });
 
   async function handleCopyLink() {
@@ -164,7 +205,7 @@ function ContactPage() {
                 Direct Hospitality Desk
               </div>
 
-              <h1 className="heading-display mt-5 text-5xl font-bold leading-[1.05] text-[var(--vf-secondary)] sm:text-6xl lg:text-7xl">
+              <h1 className="heading-display mt-5 text-[3rem] font-bold leading-[1.05] text-[var(--vf-secondary)] sm:text-[3.8rem] lg:text-[4.6rem]">
                 Get in Touch
               </h1>
               <p className="mt-5 max-w-lg text-base leading-8 text-soft sm:text-lg sm:leading-9">
@@ -208,7 +249,7 @@ function ContactPage() {
         <section className="mt-10 bg-[var(--vf-surface-muted)] py-12 sm:py-14 lg:py-18">
           <div className="page-shell">
             <div className="grid gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-10">
-              <div className="space-y-8 lg:col-span-5">
+              <div className="space-y-8 lg:col-span-5 lg:h-full">
                 <div className="space-y-6">
                   <div>
                     <p className="heading-display text-4xl font-bold uppercase tracking-[0.06em] text-[var(--vf-primary)] sm:text-5xl">
@@ -288,8 +329,8 @@ function ContactPage() {
                 </div>
               </div>
 
-              <div className="lg:col-span-7">
-                <div className="card-surface relative min-h-[340px] overflow-hidden p-2 sm:min-h-[460px]">
+              <div className="lg:col-span-7 lg:h-full">
+                <div className="card-surface relative min-h-[340px] overflow-hidden p-2 sm:min-h-[460px] lg:h-full">
                   <iframe
                     title="VISEMFOOD location map"
                     src={`https://www.google.com/maps?q=${encodeURIComponent(siteMeta.address)}&output=embed`}

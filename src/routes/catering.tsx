@@ -4,17 +4,13 @@ import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { siteMeta } from "@/data/mock";
+import { useSiteData } from "@/contexts/site-data-context";
+import { ApiError, getErrorMessage } from "@/lib/api";
 import { buildMeta } from "@/lib/meta";
+import { submitCateringInquiry } from "@/lib/visemfood-api";
 
 const heroImage =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuDLr8dtm6vU1eWAJQ9B1fxlIVTIko1M5rPXtfvqe3lBRxI_Om-15whDZAAkXuX4pzaqx_7j8515ye7scMr_CNEPOQlj1SKGeHvFe2OE0BMenTCS44HGHPFd9accSXXpnT9aikoBTXMKYEI1-lqVfHj8QckSPtimiozj93r9zNEqWxwdZkFTMOXyN3aPUK7k7fx3j8DlBc_bQUPd3vzCuFJOkwGq_qxtv3RmVxT0Qi-ORwOK9avRyTQ3";
-
-const trustStats = [
-  { value: "500+", label: "Bespoke Galas & Weddings" },
-  { value: "100%", label: "Authentic Heritage Recipes" },
-  { value: "5-Star", label: "Executive Hospitality" },
-] as const;
 
 type CateringService = "Bespoke Catering" | "Private Chef" | "Signature Trays";
 
@@ -170,6 +166,7 @@ function getDefaultEventDate() {
 }
 
 function CateringPage() {
+  const { siteMeta } = useSiteData();
   const [submitted, setSubmitted] = useState<SubmissionSummary | null>(null);
 
   const form = useForm<CateringFormValues, unknown, CateringValues>({
@@ -207,86 +204,85 @@ function CateringPage() {
     scrollToInquiry();
   }
 
-  const submit = form.handleSubmit((values) => {
-    const totals = estimateFor(values.preferredService, values.guestCount);
-    const reference = `INQ-${Math.floor(1000 + Math.random() * 9000)}`;
+  const minimumEventDate = new Date().toISOString().slice(0, 10);
 
-    setSubmitted({
-      ...values,
-      estimateMin: totals.min,
-      estimateMax: totals.max,
-      reference,
-    });
+  const submit = form.handleSubmit(async (values) => {
+    try {
+      const totals = estimateFor(values.preferredService, values.guestCount);
+      const result = await submitCateringInquiry({
+        customer_name: values.fullName,
+        email: values.email,
+        phone: values.phone,
+        event_type: values.eventType,
+        event_date: values.eventDate,
+        number_of_guests: values.guestCount,
+        preferred_service: values.preferredService,
+        location: values.venueLocation,
+        requirements: values.specialNotes || null,
+      });
 
-    toast.success("Catering inquiry prepared", {
-      description: "This first pass is still mock-only, but the event brief has been captured in the page state.",
-    });
+      setSubmitted({
+        ...values,
+        estimateMin: totals.min,
+        estimateMax: totals.max,
+        reference: result.data.referenceNumber,
+      });
+
+      toast.success("Catering inquiry received", {
+        description: `${result.message} Reference ${result.data.referenceNumber}.`,
+      });
+    } catch (error) {
+      if (error instanceof ApiError && error.errors) {
+        const fieldMap: Record<string, keyof CateringValues> = {
+          customer_name: "fullName",
+          event_type: "eventType",
+          number_of_guests: "guestCount",
+          preferred_service: "preferredService",
+          event_date: "eventDate",
+          location: "venueLocation",
+          email: "email",
+          phone: "phone",
+          requirements: "specialNotes",
+          notes: "specialNotes",
+        };
+
+        Object.entries(error.errors).forEach(([field, messages]) => {
+          const target = fieldMap[field] ?? (field as keyof CateringValues);
+          const message = messages[0];
+
+          if (!message) {
+            return;
+          }
+
+          if (
+            [
+              "eventType",
+              "guestCount",
+              "preferredService",
+              "eventDate",
+              "venueLocation",
+              "fullName",
+              "email",
+              "phone",
+              "specialNotes",
+            ].includes(target)
+          ) {
+            form.setError(target as keyof CateringValues, {
+              type: "server",
+              message,
+            });
+          }
+        });
+      }
+
+      toast.error("Unable to submit inquiry", {
+        description: getErrorMessage(error, "Please review the details and try again."),
+      });
+    }
   });
 
   return (
     <main className="pb-8">
-      <section className="pt-5 sm:pt-6 lg:pt-8">
-        <div className="page-shell">
-          <div className="relative overflow-hidden rounded-[calc(var(--vf-radius-lg)+0.75rem)] border border-[var(--vf-border-soft)] shadow-[var(--vf-shadow-float)]">
-            <div className="absolute inset-0 overflow-hidden">
-              <img
-                src={heroImage}
-                alt="Lavish African feast laid out on an elegant wooden table bathed in warm lighting."
-                className="h-full w-full scale-105 object-cover object-center"
-              />
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(90deg, color-mix(in srgb, var(--vf-surface) 96%, transparent) 0%, color-mix(in srgb, var(--vf-surface) 76%, transparent) 48%, color-mix(in srgb, var(--vf-surface) 18%, transparent) 100%)",
-                }}
-              />
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(180deg, color-mix(in srgb, var(--vf-surface) 8%, transparent) 0%, transparent 55%, color-mix(in srgb, var(--vf-surface) 94%, transparent) 100%)",
-                }}
-              />
-            </div>
-
-            <div className="relative z-10 grid min-h-[38rem] items-center gap-8 px-5 py-8 sm:px-7 sm:py-10 lg:min-h-[48rem] lg:grid-cols-12 lg:px-10 lg:py-12 xl:px-12">
-              <div className="lg:col-span-7 xl:col-span-6">
-                <div className="inline-flex items-center gap-2 rounded-full border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-strong)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--vf-primary)] backdrop-blur-sm">
-                  <span className="inline-flex h-2 w-2 rounded-full bg-[var(--vf-primary)]" />
-                  Premium Events
-                </div>
-
-                <h1 className="heading-display mt-5 max-w-[15ch] text-5xl font-bold leading-[1.08] text-[var(--vf-text)] sm:text-6xl lg:text-[4rem]">
-                  Bespoke Catering & <span className="text-[var(--vf-secondary)] italic font-normal">Premium Hospitality</span>
-                </h1>
-                <p className="mt-5 max-w-2xl text-base leading-8 text-soft sm:text-lg sm:leading-9">
-                  Elevating your most significant moments by bringing the heart, warmth, and vibrant flavors of authentic African culinary heritage to the table. Exquisite presentation meets uncompromising taste.
-                </p>
-
-                <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                  <button type="button" onClick={scrollToInquiry} className="btn-primary w-full sm:w-auto">
-                    Start Your Inquiry
-                  </button>
-                  <Link to="/menu" className="btn-secondary w-full sm:w-auto">
-                    View Catering Menu
-                  </Link>
-                </div>
-
-                <div className="mt-8 grid max-w-xl grid-cols-3 gap-4 border-t border-[var(--vf-border-soft)] pt-6">
-                  {trustStats.map((stat) => (
-                    <div key={stat.label}>
-                      <p className="heading-display text-2xl font-bold text-[var(--vf-primary)] sm:text-3xl">{stat.value}</p>
-                      <p className="mt-1 text-xs font-medium leading-5 text-soft sm:text-sm">{stat.label}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section className="section-gap">
         <div className="page-shell relative">
           <div
@@ -504,7 +500,7 @@ function CateringPage() {
                     </label>
                     <input
                       type="date"
-                      min="2026-08-23"
+                      min={minimumEventDate}
                       className="field"
                       {...form.register("eventDate")}
                     />

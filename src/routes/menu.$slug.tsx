@@ -1,30 +1,50 @@
-import { Link, createFileRoute, notFound } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { QuantityStepper } from "@/components/QuantityStepper";
 import { StatusChip } from "@/components/StatusChip";
-import { buildMeta } from "@/lib/meta";
-import { products } from "@/data/mock";
+import { useSiteData } from "@/contexts/site-data-context";
 import { useCart } from "@/contexts/cart-context";
+import { buildMeta } from "@/lib/meta";
+import { getProductTone } from "@/lib/visemfood-api";
+
+function slugToTitle(slug: string) {
+  return slug
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
 
 export const Route = createFileRoute("/menu/$slug")({
-  head: ({ params }) => {
-    const product = products.find((item) => item.slug === params.slug);
-    return buildMeta({
-      title: `${product?.name ?? "Menu Item"} | VISEMFOOD`,
-      description: product?.description ?? "Premium VISEMFOOD menu item.",
-      image: product?.image,
-    });
-  },
+  head: ({ params }) =>
+    buildMeta({
+      title: `${slugToTitle(params.slug)} | VISEMFOOD`,
+      description: "Premium VISEMFOOD menu item with pricing, availability, and direct add-to-order actions.",
+    }),
   component: ProductDetailPage,
-  notFoundComponent: ProductNotFound,
 });
 
 function ProductDetailPage() {
   const { slug } = Route.useParams();
+  const { products, isLoading } = useSiteData();
   const product = products.find((item) => item.slug === slug);
   const { items, addItem, setItemQuantity } = useCart();
 
+  if (!product && isLoading) {
+    return (
+      <main className="section-gap">
+        <div className="page-shell">
+          <article className="card-surface space-y-4 p-6 sm:p-8">
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-[var(--vf-primary)]">Loading Menu Item</p>
+            <h1 className="heading-display text-3xl font-bold sm:text-4xl">Preparing the latest dish details.</h1>
+            <p className="text-soft">We’re checking the current VISEMFOOD catalog and availability for this item.</p>
+          </article>
+        </div>
+      </main>
+    );
+  }
+
   if (!product) {
-    throw notFound();
+    return <ProductNotFound />;
   }
 
   const existing = items.find((item) => item.slug === product.slug);
@@ -52,7 +72,9 @@ function ProductDetailPage() {
             </div>
             <div className="card-surface p-5">
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--vf-text-soft)]">Availability</p>
-              <p className="mt-3 text-soft">{product.availability}</p>
+              <div className="mt-3">
+                <StatusChip tone={getProductTone(product.availability)}>{product.availability}</StatusChip>
+              </div>
             </div>
           </div>
           <div className="card-surface flex flex-col gap-4 p-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
@@ -71,10 +93,7 @@ function ProductDetailPage() {
             >
               {isSoldOut ? "Unavailable" : "Add to cart"}
             </button>
-            <QuantityStepper
-              value={existing?.quantity ?? 0}
-              onChange={(value) => setItemQuantity(product.slug, value)}
-            />
+            <QuantityStepper value={existing?.quantity ?? 0} onChange={(value) => setItemQuantity(product.slug, value)} />
           </div>
         </div>
       </div>

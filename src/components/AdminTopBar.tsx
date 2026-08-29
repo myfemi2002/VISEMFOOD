@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useAdminAuth } from "@/contexts/admin-auth-context";
+import { getInitials } from "@/lib/visemfood-api";
 
 type NotificationItem = {
   id: string;
@@ -56,6 +57,7 @@ export function AdminTopBar({
   onLogout: () => void;
 }) {
   const { user } = useAdminAuth();
+  const initials = getInitials(user?.name ?? "Admin");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -203,11 +205,9 @@ export function AdminTopBar({
               className="flex items-center gap-2 rounded-full p-1 pr-2 transition-colors hover:bg-[var(--vf-surface-muted)] sm:gap-3 sm:pr-3"
               aria-label="Admin profile menu"
             >
-              <img
-                src={user?.avatar}
-                alt="Administrator profile"
-                className="h-9 w-9 rounded-full border border-[var(--vf-line)] object-cover"
-              />
+              <div className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--vf-line)] bg-[var(--vf-secondary)] text-sm font-bold text-white">
+                {initials}
+              </div>
               <span className="hidden text-left sm:block">
                 <span className="block text-xs font-semibold text-[var(--vf-text)]">{user?.name ?? "Admin"}</span>
                 <span className="block text-[11px] uppercase tracking-[0.08em] text-[var(--vf-text-soft)]">
