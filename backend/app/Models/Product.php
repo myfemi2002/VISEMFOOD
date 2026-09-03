@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
@@ -62,11 +63,26 @@ class Product extends Model
     {
         return $this->belongsToMany(MediaAsset::class, 'product_media')
             ->withPivot(['is_primary', 'sort_order'])
-            ->withTimestamps();
+            ->withTimestamps()
+            ->orderByPivot('sort_order');
     }
 
-    public function defaultVariant(): HasMany
+    public function primaryMedia(): BelongsToMany
     {
-        return $this->variants()->where('is_default', true);
+        return $this->belongsToMany(MediaAsset::class, 'product_media')
+            ->withPivot(['is_primary', 'sort_order'])
+            ->wherePivot('is_primary', true)
+            ->withTimestamps()
+            ->orderByPivot('sort_order');
+    }
+
+    public function defaultVariant(): HasOne
+    {
+        return $this->hasOne(ProductVariant::class)->where('is_default', true);
+    }
+
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
     }
 }

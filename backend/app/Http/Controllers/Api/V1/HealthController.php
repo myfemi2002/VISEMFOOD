@@ -11,8 +11,7 @@ class HealthController extends Controller
     public function __invoke(): JsonResponse
     {
         return ApiResponse::success('VISEMFOOD API is healthy.', [
-            'name' => config('app.name'),
-            'environment' => config('app.env'),
+            'status' => 'ok',
             'version' => 'v1',
             'timestamp' => now()->toIso8601String(),
         ]);

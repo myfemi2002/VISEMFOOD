@@ -227,6 +227,14 @@ export function AdminTopBar({
                 </div>
 
                 <Link
+                  to="/admin/categories"
+                  onClick={closePanels}
+                  className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-[var(--vf-text)] transition-colors hover:bg-[var(--vf-surface)]"
+                >
+                  <span className="material-symbols-rounded text-[18px] text-[var(--vf-primary)]">category</span>
+                  Manage Categories
+                </Link>
+                <Link
                   to="/admin/catalog"
                   onClick={closePanels}
                   className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-[var(--vf-text)] transition-colors hover:bg-[var(--vf-surface)]"
@@ -241,6 +249,14 @@ export function AdminTopBar({
                 >
                   <span className="material-symbols-rounded text-[18px] text-[var(--vf-primary)]">receipt_long</span>
                   View Kitchen Queue
+                </Link>
+                <Link
+                  to="/admin/settings"
+                  onClick={closePanels}
+                  className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-[var(--vf-text)] transition-colors hover:bg-[var(--vf-surface)]"
+                >
+                  <span className="material-symbols-rounded text-[18px] text-[var(--vf-primary)]">settings</span>
+                  Site Settings
                 </Link>
                 <button
                   type="button"

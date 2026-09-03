@@ -7,11 +7,11 @@ use App\Enums\ContactMessageStatus;
 use App\Enums\DeliveryType;
 use App\Enums\OrderStatus;
 use App\Models\CateringInquiry;
+use App\Models\CateringPackage;
 use App\Models\ContactMessage;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ReferenceCounter;
-use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -29,8 +29,9 @@ class OperationalSeeder extends Seeder
 
     private function seedOrders(?User $admin): void
     {
-        $tray = Product::query()->where('slug', 'large-jollof-party-tray')->first();
-        $cooler = Product::query()->where('slug', 'executive-cooler-pack')->first();
+        $currencyCode = config('visemfood.default_currency_code', 'USD');
+        $tray = Product::query()->where('slug', 'jollof-rice-party-tray')->first();
+        $cooler = Product::query()->where('slug', 'party-jollof-cooler')->first();
         $jollof = Product::query()->where('slug', 'signature-jollof-rice')->first();
 
         $orders = [
@@ -42,12 +43,12 @@ class OperationalSeeder extends Seeder
                 'delivery_type' => DeliveryType::Delivery,
                 'delivery_address' => 'Victoria Island, Lagos',
                 'preferred_fulfillment_at' => '2026-08-25 12:00:00',
-                'estimated_total' => 255000,
+                'estimated_total' => 405.00,
                 'status' => OrderStatus::Preparing,
                 'ordered_at' => '2026-08-22 10:00:00',
                 'confirmed_at' => '2026-08-22 12:00:00',
                 'items' => [
-                    ['product' => $tray, 'name' => 'Large Jollof Party Tray', 'variant' => 'Serves 12 - 18', 'qty' => 3, 'price' => 85000],
+                    ['product' => $tray, 'name' => 'Large Jollof Party Tray', 'variant' => 'Serves 12 - 18', 'qty' => 3, 'price' => 145.00],
                 ],
             ],
             [
@@ -58,12 +59,12 @@ class OperationalSeeder extends Seeder
                 'delivery_type' => DeliveryType::Pickup,
                 'delivery_address' => null,
                 'preferred_fulfillment_at' => '2026-08-26 15:00:00',
-                'estimated_total' => 240000,
+                'estimated_total' => 300.00,
                 'status' => OrderStatus::WhatsAppPending,
                 'ordered_at' => '2026-08-25 09:00:00',
                 'whatsapp_started_at' => '2026-08-25 09:05:00',
                 'items' => [
-                    ['product' => $cooler, 'name' => 'Executive Cooler Pack', 'variant' => 'Serves 18 - 25', 'qty' => 2, 'price' => 120000],
+                    ['product' => $cooler, 'name' => 'Executive Cooler Pack', 'variant' => 'Serves 18 - 25', 'qty' => 2, 'price' => 220.00],
                 ],
             ],
             [
@@ -74,14 +75,14 @@ class OperationalSeeder extends Seeder
                 'delivery_type' => DeliveryType::Delivery,
                 'delivery_address' => 'Ikoyi, Lagos',
                 'preferred_fulfillment_at' => '2026-08-27 11:00:00',
-                'estimated_total' => 340000,
-                'final_total' => 340000,
+                'estimated_total' => 540.00,
+                'final_total' => 540.00,
                 'status' => OrderStatus::Completed,
                 'ordered_at' => '2026-08-24 08:30:00',
                 'confirmed_at' => '2026-08-24 10:00:00',
                 'completed_at' => '2026-08-27 16:30:00',
                 'items' => [
-                    ['product' => $tray, 'name' => 'Large Jollof Party Tray', 'variant' => 'Serves 12 - 18', 'qty' => 4, 'price' => 85000],
+                    ['product' => $tray, 'name' => 'Large Jollof Party Tray', 'variant' => 'Serves 12 - 18', 'qty' => 4, 'price' => 145.00],
                 ],
             ],
             [
@@ -92,12 +93,12 @@ class OperationalSeeder extends Seeder
                 'delivery_type' => DeliveryType::Delivery,
                 'delivery_address' => 'Lekki, Lagos',
                 'preferred_fulfillment_at' => '2026-08-30 13:00:00',
-                'estimated_total' => 17000,
+                'estimated_total' => 50.00,
                 'status' => OrderStatus::Negotiating,
                 'ordered_at' => '2026-08-27 09:15:00',
                 'whatsapp_started_at' => '2026-08-27 09:20:00',
                 'items' => [
-                    ['product' => $jollof, 'name' => 'Signature Jollof Rice', 'variant' => 'Single bowl', 'qty' => 2, 'price' => 8500],
+                    ['product' => $jollof, 'name' => 'Signature Jollof Rice', 'variant' => 'Small bowl', 'qty' => 2, 'price' => 25.00],
                 ],
             ],
         ];
@@ -114,7 +115,7 @@ class OperationalSeeder extends Seeder
                     'delivery_type' => $orderData['delivery_type'],
                     'delivery_address' => $orderData['delivery_address'],
                     'preferred_fulfillment_at' => $orderData['preferred_fulfillment_at'],
-                    'currency_code' => 'NGN',
+                    'currency_code' => $currencyCode,
                     'subtotal' => $subtotal,
                     'delivery_fee' => 0,
                     'discount_amount' => 0,
@@ -147,9 +148,14 @@ class OperationalSeeder extends Seeder
 
     private function seedCatering(?User $admin): void
     {
+        $celebrationPackage = CateringPackage::query()->where('slug', 'celebration-catering-package')->first();
+        $premiumPackage = CateringPackage::query()->where('slug', 'premium-event-package')->first();
+        $essentialPackage = CateringPackage::query()->where('slug', 'essential-gathering-package')->first();
+
         $records = [
             [
                 'reference_number' => 'CAT-2026-000001',
+                'catering_package_id' => $premiumPackage?->id,
                 'customer_name' => 'Amina Yusuf',
                 'email' => 'amina@example.test',
                 'phone' => '+2348000005050',
@@ -157,25 +163,29 @@ class OperationalSeeder extends Seeder
                 'event_date' => '2026-09-12 14:00:00',
                 'number_of_guests' => 250,
                 'location' => 'Lekki, Lagos',
-                'budget' => 'NGN 4.5m - 5m',
+                'budget' => '$4,500 - $5,000',
+                'budget_amount' => 5000.00,
                 'requirements' => 'Premium rice, proteins, service support, and dessert station.',
                 'status' => CateringInquiryStatus::Quoted,
             ],
             [
                 'reference_number' => 'CAT-2026-000002',
+                'catering_package_id' => $celebrationPackage?->id,
                 'customer_name' => 'Deloitte Lagos',
                 'email' => 'corporate@example.test',
                 'phone' => '+2348000006060',
                 'event_type' => 'Corporate Lunch',
-                'event_date' => '2026-08-29 12:30:00',
+                'event_date' => '2026-09-29 12:30:00',
                 'number_of_guests' => 80,
                 'location' => 'Victoria Island, Lagos',
-                'budget' => 'NGN 1.2m - 1.5m',
+                'budget' => '$1,200 - $1,500',
+                'budget_amount' => 1500.00,
                 'requirements' => 'Executive lunch trays and drinks for a corporate team.',
                 'status' => CateringInquiryStatus::Confirmed,
             ],
             [
                 'reference_number' => 'CAT-2026-000003',
+                'catering_package_id' => $essentialPackage?->id,
                 'customer_name' => 'Tolu Adebayo',
                 'email' => 'tolu@example.test',
                 'phone' => '+2348000007070',
@@ -183,7 +193,8 @@ class OperationalSeeder extends Seeder
                 'event_date' => '2026-09-03 18:00:00',
                 'number_of_guests' => 35,
                 'location' => 'Ikoyi, Lagos',
-                'budget' => 'NGN 450k - 700k',
+                'budget' => '$450 - $700',
+                'budget_amount' => 700.00,
                 'requirements' => 'Small chops, rice tray, proteins, and dessert cups.',
                 'status' => CateringInquiryStatus::New,
             ],

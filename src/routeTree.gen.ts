@@ -22,7 +22,11 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as AdminBulkOrdersRouteImport } from './routes/admin.bulk-orders'
 import { Route as AdminCatalogRouteImport } from './routes/admin.catalog'
+import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
+import { Route as AdminCateringPackagesRouteImport } from './routes/admin.catering-packages'
 import { Route as AdminCateringRequestsRouteImport } from './routes/admin.catering-requests'
+import { Route as AdminMediaRouteImport } from './routes/admin.media'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as CateringInquiryRouteImport } from './routes/catering.inquiry'
 import { Route as MenuSlugRouteImport } from './routes/menu.$slug'
 
@@ -91,9 +95,29 @@ const AdminCatalogRoute = AdminCatalogRouteImport.update({
   path: '/catalog',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCateringPackagesRoute = AdminCateringPackagesRouteImport.update({
+  id: '/catering-packages',
+  path: '/catering-packages',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCateringRequestsRoute = AdminCateringRequestsRouteImport.update({
   id: '/catering-requests',
   path: '/catering-requests',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMediaRoute = AdminMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AdminRoute,
 } as any)
 const CateringInquiryRoute = CateringInquiryRouteImport.update({
@@ -120,7 +144,11 @@ export interface FileRoutesByFullPath {
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/bulk-orders': typeof AdminBulkOrdersRoute
   '/admin/catalog': typeof AdminCatalogRoute
+  '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/catering-packages': typeof AdminCateringPackagesRoute
   '/admin/catering-requests': typeof AdminCateringRequestsRoute
+  '/admin/media': typeof AdminMediaRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/catering/inquiry': typeof CateringInquiryRoute
   '/menu/$slug': typeof MenuSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -137,7 +165,11 @@ export interface FileRoutesByTo {
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/bulk-orders': typeof AdminBulkOrdersRoute
   '/admin/catalog': typeof AdminCatalogRoute
+  '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/catering-packages': typeof AdminCateringPackagesRoute
   '/admin/catering-requests': typeof AdminCateringRequestsRoute
+  '/admin/media': typeof AdminMediaRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/catering/inquiry': typeof CateringInquiryRoute
   '/menu/$slug': typeof MenuSlugRoute
   '/admin': typeof AdminIndexRoute
@@ -156,7 +188,11 @@ export interface FileRoutesById {
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/bulk-orders': typeof AdminBulkOrdersRoute
   '/admin/catalog': typeof AdminCatalogRoute
+  '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/catering-packages': typeof AdminCateringPackagesRoute
   '/admin/catering-requests': typeof AdminCateringRequestsRoute
+  '/admin/media': typeof AdminMediaRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/catering/inquiry': typeof CateringInquiryRoute
   '/menu/$slug': typeof MenuSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -176,7 +212,11 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/bulk-orders'
     | '/admin/catalog'
+    | '/admin/categories'
+    | '/admin/catering-packages'
     | '/admin/catering-requests'
+    | '/admin/media'
+    | '/admin/settings'
     | '/catering/inquiry'
     | '/menu/$slug'
     | '/admin/'
@@ -193,7 +233,11 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/bulk-orders'
     | '/admin/catalog'
+    | '/admin/categories'
+    | '/admin/catering-packages'
     | '/admin/catering-requests'
+    | '/admin/media'
+    | '/admin/settings'
     | '/catering/inquiry'
     | '/menu/$slug'
     | '/admin'
@@ -211,7 +255,11 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/bulk-orders'
     | '/admin/catalog'
+    | '/admin/categories'
+    | '/admin/catering-packages'
     | '/admin/catering-requests'
+    | '/admin/media'
+    | '/admin/settings'
     | '/catering/inquiry'
     | '/menu/$slug'
     | '/admin/'
@@ -322,11 +370,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCatalogRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/categories': {
+      id: '/admin/categories'
+      path: '/categories'
+      fullPath: '/admin/categories'
+      preLoaderRoute: typeof AdminCategoriesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/catering-packages': {
+      id: '/admin/catering-packages'
+      path: '/catering-packages'
+      fullPath: '/admin/catering-packages'
+      preLoaderRoute: typeof AdminCateringPackagesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/catering-requests': {
       id: '/admin/catering-requests'
       path: '/catering-requests'
       fullPath: '/admin/catering-requests'
       preLoaderRoute: typeof AdminCateringRequestsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/media': {
+      id: '/admin/media'
+      path: '/media'
+      fullPath: '/admin/media'
+      preLoaderRoute: typeof AdminMediaRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/catering/inquiry': {
@@ -350,7 +426,11 @@ interface AdminRouteChildren {
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
   AdminBulkOrdersRoute: typeof AdminBulkOrdersRoute
   AdminCatalogRoute: typeof AdminCatalogRoute
+  AdminCategoriesRoute: typeof AdminCategoriesRoute
+  AdminCateringPackagesRoute: typeof AdminCateringPackagesRoute
   AdminCateringRequestsRoute: typeof AdminCateringRequestsRoute
+  AdminMediaRoute: typeof AdminMediaRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -358,7 +438,11 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAnalyticsRoute: AdminAnalyticsRoute,
   AdminBulkOrdersRoute: AdminBulkOrdersRoute,
   AdminCatalogRoute: AdminCatalogRoute,
+  AdminCategoriesRoute: AdminCategoriesRoute,
+  AdminCateringPackagesRoute: AdminCateringPackagesRoute,
   AdminCateringRequestsRoute: AdminCateringRequestsRoute,
+  AdminMediaRoute: AdminMediaRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->longText('description')->nullable();
             $table->decimal('base_price', 12, 2)->default(0);
             $table->decimal('compare_price', 12, 2)->nullable();
-            $table->string('currency_code', 10)->default(config('visemfood.default_currency_code', 'NGN'));
+            $table->string('currency_code', 10)->default(config('visemfood.default_currency_code', 'USD'));
             $table->string('serving_size')->nullable();
             $table->string('status', 20)->default(PublicationStatus::Published->value)->index();
             $table->string('availability_status', 20)->default(ProductAvailabilityStatus::Available->value)->index();
@@ -43,7 +43,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->decimal('price', 12, 2);
             $table->decimal('compare_price', 12, 2)->nullable();
-            $table->string('currency_code', 10)->default(config('visemfood.default_currency_code', 'NGN'));
+            $table->string('currency_code', 10)->default(config('visemfood.default_currency_code', 'USD'));
             $table->string('availability_status', 20)->default(ProductAvailabilityStatus::Available->value)->index();
             $table->boolean('is_default')->default(false)->index();
             $table->unsignedInteger('sort_order')->default(0)->index();

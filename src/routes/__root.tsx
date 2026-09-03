@@ -6,6 +6,7 @@ import {
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { AppFrame } from "@/components/AppFrame";
+import { BRAND_ASSETS } from "@/lib/brand-assets";
 import appCss from "@/styles.css?url";
 
 export const Route = createRootRoute({
@@ -33,6 +34,15 @@ export const Route = createRootRoute({
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,0,0",
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        href: BRAND_ASSETS.mark,
+      },
+      {
+        rel: "apple-touch-icon",
+        href: BRAND_ASSETS.mark,
       },
     ],
   }),

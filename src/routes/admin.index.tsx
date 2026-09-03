@@ -3,11 +3,9 @@ import { useEffect, useMemo, useState } from "react";
 import { StatusChip } from "@/components/StatusChip";
 import { useAdminSummary } from "@/contexts/admin-summary-context";
 import { getErrorMessage } from "@/lib/api";
+import { formatCurrency } from "@/lib/currency";
 import { buildMeta } from "@/lib/meta";
 import {
-  fallbackAdminCateringInquiries,
-  fallbackAdminOrders,
-  fallbackProducts,
   fetchAdminOrders,
   getOrderTone,
   type AdminOrder,
@@ -27,13 +25,16 @@ export const Route = createFileRoute("/admin/")({
 function AdminDashboardPage() {
   const { dashboard, error: dashboardError } = useAdminSummary();
   const [selectedPeriod, setSelectedPeriod] = useState<Period>("Today");
-  const [orders, setOrders] = useState<AdminOrder[]>(fallbackAdminOrders);
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
   const [ordersError, setOrdersError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadOrders() {
+      setOrdersLoading(true);
+
       try {
         const result = await fetchAdminOrders({ perPage: 100 });
 
@@ -44,6 +45,10 @@ function AdminDashboardPage() {
       } catch (error) {
         if (!cancelled) {
           setOrdersError(getErrorMessage(error, "Unable to load the latest order queue."));
+        }
+      } finally {
+        if (!cancelled) {
+          setOrdersLoading(false);
         }
       }
     }
@@ -109,16 +114,13 @@ function AdminDashboardPage() {
   }, [filteredOrders, orders, selectedPeriod]);
 
   const pendingCateringCount =
-    dashboard?.stats.cateringNew ??
-    fallbackAdminCateringInquiries.filter((request) =>
-      ["new", "contacted", "quoted"].includes(request.statusValue),
-    ).length;
+    dashboard?.stats.cateringNew ?? 0;
 
   const activeOrderCount = orders.filter((order) => !["completed", "cancelled"].includes(order.status)).length;
   const lowStockCount =
     dashboard?.stats.productsTotal != null && dashboard.stats.productsAvailable != null
       ? Math.max(dashboard.stats.productsTotal - dashboard.stats.productsAvailable, 0)
-      : fallbackProducts.filter((product) => product.availability !== "Available").length;
+      : 0;
   const liveOrders = dashboard?.recentOrders.length ? dashboard.recentOrders : orders.slice(0, 3);
   const unreadMessages = dashboard?.stats.contactUnread ?? 0;
   const latestMessage = dashboard?.recentContactMessages[0] ?? null;
@@ -159,7 +161,7 @@ function AdminDashboardPage() {
           icon="payments"
           accent="success"
           label="Estimated Sales"
-          value={`NGN ${metrics.revenue.toLocaleString()}`}
+          value={formatCurrency(metrics.revenue)}
           meta={selectedPeriod}
         />
         <AdminMetricCard
@@ -206,6 +208,11 @@ function AdminDashboardPage() {
           </div>
 
           <div className="divide-y divide-[var(--vf-border-soft)]">
+            {liveOrders.length === 0 ? (
+              <div className="p-5 text-sm text-soft">
+                {ordersLoading ? "Loading live orders..." : "No live orders are available yet."}
+              </div>
+            ) : null}
             {liveOrders.map((order) => (
               <div
                 key={order.orderNumber}
@@ -230,7 +237,7 @@ function AdminDashboardPage() {
 
                 <div className="flex items-center justify-between gap-5 sm:justify-end">
                   <div className="text-right">
-                    <p className="text-sm font-bold text-[var(--vf-text)]">NGN {order.total.toLocaleString()}</p>
+                    <p className="text-sm font-bold text-[var(--vf-text)]">{formatCurrency(order.total)}</p>
                     <p className="mt-1 text-[11px] uppercase tracking-[0.08em] text-[var(--vf-text-soft)]">
                       Due: {formatDateLabel(order.preferredFulfillmentAt ?? order.createdAt)}
                     </p>

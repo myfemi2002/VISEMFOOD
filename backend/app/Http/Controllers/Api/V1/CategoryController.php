@@ -46,11 +46,20 @@ class CategoryController extends Controller
             ->firstOrFail();
 
         $products = Product::query()
-            ->with(['category.image', 'variants', 'media'])
+            ->with([
+                'category.image',
+                'variants' => fn ($query) => $query
+                    ->where('availability_status', '!=', ProductAvailabilityStatus::Unavailable->value)
+                    ->orderByDesc('is_default')
+                    ->orderBy('sort_order')
+                    ->orderBy('id'),
+                'primaryMedia',
+            ])
             ->where('category_id', $category->id)
             ->where('status', PublicationStatus::Published->value)
             ->where('available_for_order', true)
-            ->where('availability_status', '!=', ProductAvailabilityStatus::Unavailable->value);
+            ->where('availability_status', '!=', ProductAvailabilityStatus::Unavailable->value)
+            ->whereHas('variants', fn ($query) => $query->where('availability_status', '!=', ProductAvailabilityStatus::Unavailable->value));
 
         if ($search = trim((string) $request->query('search', ''))) {
             $products->where(function ($query) use ($search): void {

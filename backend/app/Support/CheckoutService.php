@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Enums\CategoryStatus;
 use App\Enums\OrderStatus;
 use App\Enums\ProductAvailabilityStatus;
 use App\Enums\PublicationStatus;
@@ -43,7 +44,7 @@ class CheckoutService
                 'delivery_address' => $payload['delivery_address'] ?? null,
                 'preferred_fulfillment_at' => $payload['preferred_fulfillment_at'] ?? null,
                 'customer_notes' => $payload['customer_notes'] ?? null,
-                'currency_code' => config('visemfood.default_currency_code', 'NGN'),
+                'currency_code' => config('visemfood.default_currency_code', 'USD'),
                 'subtotal' => $subtotal,
                 'delivery_fee' => $deliveryFee,
                 'discount_amount' => $discount,
@@ -100,24 +101,38 @@ class CheckoutService
         }
 
         return $items->map(function (array $item, int $index): array {
+            $productId = ! empty($item['product_id']) ? (int) $item['product_id'] : null;
             $slug = (string) ($item['slug'] ?? '');
             $quantity = (int) ($item['quantity'] ?? 0);
 
-            if ($slug === '' || $quantity < 1) {
+            if (($productId === null && $slug === '') || $quantity < 1) {
                 throw ValidationException::withMessages([
-                    "items.$index" => ['Each cart line must include a valid product slug and quantity.'],
+                    "items.$index" => ['Each cart line must include a valid product reference and quantity.'],
                 ]);
             }
 
-            $product = Product::query()
+            $productQuery = Product::query()
                 ->with(['variants' => fn ($query) => $query->orderByDesc('is_default')->orderBy('sort_order')])
-                ->where('slug', $slug)
                 ->where('status', PublicationStatus::Published->value)
-                ->first();
+                ->whereHas('category', fn ($query) => $query->where('status', CategoryStatus::Active->value));
+
+            if ($productId !== null) {
+                $productQuery->whereKey($productId);
+            } else {
+                $productQuery->where('slug', $slug);
+            }
+
+            $product = $productQuery->first();
 
             if ($product === null || ! $product->available_for_order) {
                 throw ValidationException::withMessages([
-                    "items.$index" => ["{$slug} is not currently available for ordering."],
+                    "items.$index" => [($slug !== '' ? $slug : "Product {$productId}") . ' is not currently available for ordering.'],
+                ]);
+            }
+
+            if ($slug !== '' && $product->slug !== $slug) {
+                throw ValidationException::withMessages([
+                    "items.$index.slug" => ['The selected product reference does not match the current product.'],
                 ]);
             }
 
@@ -141,6 +156,12 @@ class CheckoutService
 
             if ($variant === null) {
                 $variant = $product->variants->firstWhere('is_default', true) ?? $product->variants->first();
+            }
+
+            if ($variant?->availability_status === ProductAvailabilityStatus::Unavailable) {
+                throw ValidationException::withMessages([
+                    "items.$index.variant_id" => ["The selected option for {$product->name} is currently unavailable."],
+                ]);
             }
 
             $unitPrice = (float) ($variant?->price ?? $product->base_price);
@@ -212,7 +233,7 @@ class CheckoutService
             'Order Reference: '.$order->order_number,
             "Customer:\n{$order->customer_name}",
             "Items:\n{$itemsText}",
-            'Estimated Total: '.number_format((float) $order->estimated_total, 0),
+            'Estimated Total: '.config('visemfood.default_currency_symbol', '$').number_format((float) $order->estimated_total, 2),
             "Delivery:\n{$deliveryLine}",
             "Preferred Date:\n{$preferredDate}",
             'Please confirm availability and final pricing.',

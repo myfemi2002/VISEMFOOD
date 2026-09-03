@@ -1,22 +1,24 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { getErrorMessage } from "@/lib/api";
 import {
+  emptySiteMeta,
   fallbackCategories,
   fallbackProducts,
   fallbackSiteMeta,
-  fallbackTrayPackages,
   fetchPublicCatalog,
   type Category,
   type Product,
   type SiteMeta,
-  type TrayPackage,
 } from "@/lib/visemfood-api";
+import { ENABLE_MOCK_FALLBACK } from "@/lib/runtime-config";
+
+type SiteDataStatus = "loading" | "ready" | "error";
 
 type SiteDataContextValue = {
   siteMeta: SiteMeta;
   categories: Category[];
   products: Product[];
-  trayPackages: TrayPackage[];
+  status: SiteDataStatus;
   isLoading: boolean;
   hasLiveData: boolean;
   error: string | null;
@@ -26,25 +28,35 @@ type SiteDataContextValue = {
 const SiteDataContext = createContext<SiteDataContextValue | null>(null);
 
 export function SiteDataProvider({ children }: { children: React.ReactNode }) {
-  const [siteMeta, setSiteMeta] = useState<SiteMeta>(fallbackSiteMeta);
-  const [categories, setCategories] = useState<Category[]>(fallbackCategories);
-  const [products, setProducts] = useState<Product[]>(fallbackProducts);
-  const [trayPackages, setTrayPackages] = useState<TrayPackage[]>(fallbackTrayPackages);
+  const [siteMeta, setSiteMeta] = useState<SiteMeta>(ENABLE_MOCK_FALLBACK ? fallbackSiteMeta : emptySiteMeta);
+  const [categories, setCategories] = useState<Category[]>(ENABLE_MOCK_FALLBACK ? fallbackCategories : []);
+  const [products, setProducts] = useState<Product[]>(ENABLE_MOCK_FALLBACK ? fallbackProducts : []);
+  const [status, setStatus] = useState<SiteDataStatus>("loading");
   const [isLoading, setIsLoading] = useState(true);
   const [hasLiveData, setHasLiveData] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function refresh() {
+    setIsLoading(true);
+
     try {
       const next = await fetchPublicCatalog();
       setSiteMeta(next.siteMeta);
       setCategories(next.categories);
       setProducts(next.products);
-      setTrayPackages(next.trayPackages);
       setHasLiveData(true);
       setError(null);
+      setStatus("ready");
     } catch (nextError) {
+      if (!ENABLE_MOCK_FALLBACK) {
+        setSiteMeta(emptySiteMeta);
+        setCategories([]);
+        setProducts([]);
+      }
+
+      setHasLiveData(false);
       setError(getErrorMessage(nextError, "Unable to refresh the latest VISEMFOOD catalog right now."));
+      setStatus("error");
     } finally {
       setIsLoading(false);
     }
@@ -59,13 +71,13 @@ export function SiteDataProvider({ children }: { children: React.ReactNode }) {
       siteMeta,
       categories,
       products,
-      trayPackages,
+      status,
       isLoading,
       hasLiveData,
       error,
       refresh,
     }),
-    [categories, error, hasLiveData, isLoading, products, siteMeta, trayPackages],
+    [categories, error, hasLiveData, isLoading, products, siteMeta, status],
   );
 
   return <SiteDataContext.Provider value={value}>{children}</SiteDataContext.Provider>;

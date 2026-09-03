@@ -1,6 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { BrandLogo } from "@/components/BrandLogo";
 import { useCart } from "@/contexts/cart-context";
+import { useSiteData } from "@/contexts/site-data-context";
 
 const nav = [
   { to: "/", label: "Home" },
@@ -14,7 +16,10 @@ const nav = [
 export function SiteHeader() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const { cartCount } = useCart();
+  const { siteMeta } = useSiteData();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const brandName = siteMeta.name || "VISEMFOOD";
+  const brandTagline = siteMeta.tagline || "Freshly prepared meals, trays, and catering.";
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -24,16 +29,14 @@ export function SiteHeader() {
     <>
       <header className="surface-overlay border-soft sticky top-0 z-50 border-b backdrop-blur-xl">
         <div className="page-shell flex items-center justify-between gap-3 py-3 md:py-4">
-          <div className="flex items-center gap-3">
-            <Link
-              to="/"
-              className="heading-display text-[1.9rem] font-bold leading-none text-[var(--vf-secondary)] sm:text-[2.45rem]"
-            >
-              VISEMFOOD
+          <div className="flex min-w-0 items-center">
+            <Link to="/" aria-label={`${brandName} home`} title={brandName} className="inline-flex shrink-0 items-center">
+              <BrandLogo
+                variant="primary"
+                alt={`${brandName} logo`}
+                className="w-[10.75rem] min-[380px]:w-[11.75rem] sm:w-[12.5rem] lg:w-[13.5rem] xl:w-[14.5rem] drop-shadow-[0_8px_18px_rgba(107,69,48,0.12)]"
+              />
             </Link>
-            <p className="hidden text-[0.72rem] font-semibold uppercase tracking-[0.15em] text-[var(--vf-text-soft)] xl:block">
-              Authentic African Food
-            </p>
           </div>
 
           <nav className="hidden items-center gap-1 text-[0.94rem] font-semibold text-[var(--vf-text-soft)] lg:flex">
@@ -82,8 +85,12 @@ export function SiteHeader() {
           <aside className="drawer-panel floating-surface">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="heading-display text-[2rem] font-bold text-[var(--vf-secondary)]">VISEMFOOD</p>
-                <p className="mt-2 text-sm text-soft">Freshly prepared meals, trays, and catering.</p>
+                <BrandLogo
+                  variant="primary"
+                  alt={`${brandName} logo`}
+                  className="w-[11.5rem] sm:w-[12.75rem] drop-shadow-[0_8px_18px_rgba(107,69,48,0.12)]"
+                />
+                <p className="mt-2 text-sm text-soft">{brandTagline}</p>
               </div>
               <button
                 type="button"

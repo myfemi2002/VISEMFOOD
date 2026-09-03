@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\V1\Admin\AuthController as AdminAuthController;
-use App\Http\Controllers\Api\V1\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\V1\Admin\CateringInquiryController as AdminCateringInquiryController;
+use App\Http\Controllers\Api\V1\Admin\CateringPackageController as AdminCateringPackageController;
+use App\Http\Controllers\Api\V1\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\V1\Admin\ContactMessageController as AdminContactMessageController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\Admin\MediaController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Api\V1\Admin\ProductController as AdminProductControlle
 use App\Http\Controllers\Api\V1\Admin\SiteSettingController as AdminSiteSettingController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\CateringInquiryController;
+use App\Http\Controllers\Api\V1\CateringPackageController;
 use App\Http\Controllers\Api\V1\CheckoutController;
 use App\Http\Controllers\Api\V1\ContactMessageController;
 use App\Http\Controllers\Api\V1\HealthController;
@@ -29,6 +31,7 @@ Route::prefix('v1')->group(function (): void {
 
     Route::get('products', [ProductController::class, 'index']);
     Route::get('products/{slug}', [ProductController::class, 'show']);
+    Route::get('catering-packages', [CateringPackageController::class, 'index']);
 
     Route::middleware('throttle:public-forms')->group(function (): void {
         Route::post('contact', [ContactMessageController::class, 'store']);
@@ -52,8 +55,11 @@ Route::prefix('v1')->group(function (): void {
 
             Route::get('dashboard', DashboardController::class)->middleware('permission:dashboard.view');
 
+            Route::get('media', [MediaController::class, 'index'])->middleware('permission:media.manage');
             Route::get('media/specs', [MediaController::class, 'specs'])->middleware('permission:media.manage');
             Route::post('media', [MediaController::class, 'store'])->middleware('permission:media.manage');
+            Route::get('media/{mediaAsset}', [MediaController::class, 'show'])->middleware('permission:media.manage');
+            Route::delete('media/{mediaAsset}', [MediaController::class, 'destroy'])->middleware('permission:media.manage');
 
             Route::get('settings', [AdminSiteSettingController::class, 'show'])->middleware('permission:settings.manage');
             Route::put('settings', [AdminSiteSettingController::class, 'update'])->middleware('permission:settings.manage');
@@ -75,6 +81,12 @@ Route::prefix('v1')->group(function (): void {
             Route::get('orders/{order}', [AdminOrderController::class, 'show'])->middleware('permission:orders.view');
             Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->middleware('permission:orders.update');
             Route::patch('orders/{order}/pricing', [AdminOrderController::class, 'updatePricing'])->middleware('permission:orders.update');
+
+            Route::get('catering-packages', [AdminCateringPackageController::class, 'index'])->middleware('permission:catering_packages.view');
+            Route::post('catering-packages', [AdminCateringPackageController::class, 'store'])->middleware('permission:catering_packages.create');
+            Route::get('catering-packages/{cateringPackage}', [AdminCateringPackageController::class, 'show'])->middleware('permission:catering_packages.view');
+            Route::put('catering-packages/{cateringPackage}', [AdminCateringPackageController::class, 'update'])->middleware('permission:catering_packages.update');
+            Route::delete('catering-packages/{cateringPackage}', [AdminCateringPackageController::class, 'destroy'])->middleware('permission:catering_packages.delete');
 
             Route::get('catering-inquiries', [AdminCateringInquiryController::class, 'index'])->middleware('permission:catering.view');
             Route::get('catering-inquiries/{cateringInquiry}', [AdminCateringInquiryController::class, 'show'])->middleware('permission:catering.view');

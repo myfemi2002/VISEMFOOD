@@ -38,7 +38,7 @@ class PublicInquiryApiTest extends TestCase
             'event_date' => '2026-09-12 14:00:00',
             'number_of_guests' => 250,
             'location' => 'Lekki, Lagos',
-            'budget' => 'NGN 4.5m - 5m',
+            'budget' => '$4,500 - $5,000',
         ]);
 
         $response

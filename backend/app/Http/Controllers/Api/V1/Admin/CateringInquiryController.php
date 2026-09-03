@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use App\Enums\AdminSecurityEventType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Admin\CateringInquiryUpdateRequest;
-use App\Http\Resources\CateringInquiryResource;
+use App\Http\Resources\AdminCateringInquiryResource;
 use App\Models\CateringInquiry;
+use App\Support\AdminSecurityLogger;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,10 +17,14 @@ class CateringInquiryController extends Controller
     public function index(Request $request): JsonResponse
     {
         $inquiries = CateringInquiry::query()
-            ->with('assignedTo');
+            ->with(['assignedTo', 'cateringPackage.image']);
 
         if ($status = $request->query('status')) {
             $inquiries->where('status', $status);
+        }
+
+        if ($packageId = $request->query('catering_package_id')) {
+            $inquiries->where('catering_package_id', $packageId);
         }
 
         if ($search = trim((string) $request->query('search', ''))) {
@@ -28,7 +34,8 @@ class CateringInquiryController extends Controller
                     ->orWhere('customer_name', 'like', '%'.$search.'%')
                     ->orWhere('email', 'like', '%'.$search.'%')
                     ->orWhere('phone', 'like', '%'.$search.'%')
-                    ->orWhere('event_type', 'like', '%'.$search.'%');
+                    ->orWhere('event_type', 'like', '%'.$search.'%')
+                    ->orWhere('location', 'like', '%'.$search.'%');
             });
         }
 
@@ -50,38 +57,71 @@ class CateringInquiryController extends Controller
 
         return ApiResponse::paginated(
             $paginator,
-            CateringInquiryResource::collection($paginator->getCollection()),
+            AdminCateringInquiryResource::collection($paginator->getCollection()),
             'Catering inquiries fetched successfully.',
         );
     }
 
     public function show(CateringInquiry $cateringInquiry): JsonResponse
     {
-        $cateringInquiry->load('assignedTo');
+        $cateringInquiry->load(['assignedTo', 'cateringPackage.image']);
 
         return ApiResponse::success(
             'Catering inquiry fetched successfully.',
-            new CateringInquiryResource($cateringInquiry),
+            new AdminCateringInquiryResource($cateringInquiry),
         );
     }
 
     public function update(
         CateringInquiryUpdateRequest $request,
         CateringInquiry $cateringInquiry,
+        AdminSecurityLogger $securityLogger,
     ): JsonResponse {
         $validated = $request->validated();
+        $previousStatus = $cateringInquiry->status?->value ?? $cateringInquiry->status;
+        $previousNotes = $cateringInquiry->internal_notes;
+        $previousAssignee = $cateringInquiry->assigned_to_user_id;
 
         $cateringInquiry->update([
             'status' => $validated['status'],
             'assigned_to_user_id' => $validated['assigned_to_user_id'] ?? $cateringInquiry->assigned_to_user_id,
-            'internal_notes' => $validated['internal_notes'] ?? $cateringInquiry->internal_notes,
+            'internal_notes' => $validated['internal_notes'] ?? null,
         ]);
 
-        $cateringInquiry->load('assignedTo');
+        $cateringInquiry->load(['assignedTo', 'cateringPackage.image']);
+
+        if ($previousStatus !== ($cateringInquiry->status?->value ?? $cateringInquiry->status)) {
+            $securityLogger->log(
+                AdminSecurityEventType::CateringInquiryStatusChanged,
+                $request,
+                $request->user(),
+                meta: [
+                    'catering_inquiry_id' => $cateringInquiry->id,
+                    'reference_number' => $cateringInquiry->reference_number,
+                    'from' => $previousStatus,
+                    'to' => $cateringInquiry->status?->value ?? $cateringInquiry->status,
+                ],
+            );
+        }
+
+        if ($previousNotes !== $cateringInquiry->internal_notes || $previousAssignee !== $cateringInquiry->assigned_to_user_id) {
+            $securityLogger->log(
+                AdminSecurityEventType::CateringInquiryNotesUpdated,
+                $request,
+                $request->user(),
+                meta: [
+                    'catering_inquiry_id' => $cateringInquiry->id,
+                    'reference_number' => $cateringInquiry->reference_number,
+                    'assigned_to_user_id' => $cateringInquiry->assigned_to_user_id,
+                    'notes_changed' => $previousNotes !== $cateringInquiry->internal_notes,
+                    'assignee_changed' => $previousAssignee !== $cateringInquiry->assigned_to_user_id,
+                ],
+            );
+        }
 
         return ApiResponse::success(
             'Catering inquiry updated successfully.',
-            new CateringInquiryResource($cateringInquiry),
+            new AdminCateringInquiryResource($cateringInquiry),
         );
     }
 

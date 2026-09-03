@@ -40,6 +40,25 @@ export class ApiError extends Error {
   }
 }
 
+function getDefaultErrorMessage(status: number) {
+  switch (status) {
+    case 401:
+      return "Authentication is required to continue.";
+    case 403:
+      return "You are not authorized to perform this action.";
+    case 404:
+      return "The requested resource could not be found.";
+    case 419:
+      return "Your secure session has expired. Please refresh and try again.";
+    case 422:
+      return "Validation failed.";
+    case 429:
+      return "Too many requests. Please wait a moment and try again.";
+    default:
+      return status >= 500 ? "An unexpected server error occurred." : "The request could not be completed.";
+  }
+}
+
 function buildUrl(path: string) {
   return `${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
 }
@@ -165,7 +184,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   const payload = await readEnvelope<T>(response);
 
   if (!response.ok || payload?.success === false) {
-    throw new ApiError(payload?.message || "The request could not be completed.", {
+    throw new ApiError(payload?.message || getDefaultErrorMessage(response.status), {
       status: response.status,
       errors: payload?.errors,
       meta: payload?.meta,
@@ -181,7 +200,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
 
 export function getErrorMessage(error: unknown, fallback = "Something went wrong.") {
   if (error instanceof ApiError) {
-    return error.message;
+    return error.message || getDefaultErrorMessage(error.status);
   }
 
   if (error instanceof Error && error.message) {
@@ -189,4 +208,36 @@ export function getErrorMessage(error: unknown, fallback = "Something went wrong
   }
 
   return fallback;
+}
+
+export function isApiError(error: unknown): error is ApiError {
+  return error instanceof ApiError;
+}
+
+export function isAuthenticationError(error: unknown) {
+  return error instanceof ApiError && [401, 419].includes(error.status);
+}
+
+export function isAuthorizationError(error: unknown) {
+  return error instanceof ApiError && error.status === 403;
+}
+
+export function isNotFoundError(error: unknown) {
+  return error instanceof ApiError && error.status === 404;
+}
+
+export function isValidationError(error: unknown) {
+  return error instanceof ApiError && error.status === 422;
+}
+
+export function isRateLimitError(error: unknown) {
+  return error instanceof ApiError && error.status === 429;
+}
+
+export function isServerError(error: unknown) {
+  return error instanceof ApiError && error.status >= 500;
+}
+
+export function isNetworkError(error: unknown) {
+  return error instanceof ApiError && error.status === 0;
 }

@@ -3,6 +3,7 @@ import { HeroMediaFrame } from "@/components/HeroMediaFrame";
 import { ProductCard } from "@/components/ProductCard";
 import { SectionHeading } from "@/components/SectionHeading";
 import { useSiteData } from "@/contexts/site-data-context";
+import { formatCurrency } from "@/lib/currency";
 import { buildMeta } from "@/lib/meta";
 
 const heroImage =
@@ -11,12 +12,6 @@ const heroImage =
 const heroVideoUrl = "";
 const storyImage =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuApCXd_WmNeVEJRZpDuzJIyZ2g9BSmK8dy2BzLnax54Y9WDOcpIU1pcg_Q9_OY36dCgwTkseCkMLP6roc-E1dlTEQYmx1yXgvkWqSh8Z2mR5qXBq5bI76v4XtB76ggB60zFn73FSkQ5_H3AyJELswJqD-K_QDoFBNnPZ6e8QGUWSbYuwEZTaqIxUF9a5e2YDAe9ZQj8-Z_GAJWcJ4EoxnzB4egjbMi4C8EPDxKzF58ScxMavFXr3TZA";
-
-const formatNaira = new Intl.NumberFormat("en-NG", {
-  style: "currency",
-  currency: "NGN",
-  maximumFractionDigits: 0,
-});
 
 const pillars = [
   {
@@ -69,20 +64,24 @@ export const Route = createFileRoute("/")({
 });
 
 function LandingPage() {
-  const { products, siteMeta, trayPackages } = useSiteData();
+  const { products, siteMeta, status, error, refresh } = useSiteData();
   const featuredProducts = [
     ...products.filter((product) => product.featured && product.productType !== "tray" && product.productType !== "cooler"),
     ...products.filter((product) => !product.featured && product.productType !== "tray" && product.productType !== "cooler"),
   ].slice(0, 4);
-  const leadTray = trayPackages.find((item) => item.type === "Tray") ?? trayPackages[0];
-  const leadCooler = trayPackages.find((item) => item.type === "Cooler") ?? trayPackages[1] ?? trayPackages[0];
+  const leadTray = products.find((product) => product.productType === "tray" && product.featured) ?? products.find((product) => product.productType === "tray");
+  const leadCooler = products.find((product) => product.productType === "cooler" && product.featured) ?? products.find((product) => product.productType === "cooler");
   const heroProduct = featuredProducts[0] ?? products[0];
+  const isCatalogLoading = status === "loading" && products.length === 0;
+  const hasCatalogError = status === "error" && products.length === 0;
 
   const orderMoments = [
     {
       icon: "schedule",
       title: "Ordering Window",
-      body: `Place your order during ${siteMeta.hours} for smooth pickup, dispatch, and catering coordination.`,
+      body: siteMeta.hours
+        ? `Place your order during ${siteMeta.hours} for smooth pickup, dispatch, and catering coordination.`
+        : "Ordering hours will appear here once your live site settings are configured.",
     },
     {
       icon: "delivery_dining",
@@ -97,7 +96,9 @@ function LandingPage() {
     {
       icon: "location_on",
       title: "Service Base",
-      body: `${siteMeta.address} with hospitality support for private, family, and corporate gatherings.`,
+      body: siteMeta.address
+        ? `${siteMeta.address} with hospitality support for private, family, and corporate gatherings.`
+        : "Service location details will appear here once live site settings are available.",
     },
   ];
 
@@ -118,9 +119,11 @@ function LandingPage() {
       body: `${leadTray?.name ?? "Party trays"} and ${leadCooler?.name ?? "cooler packs"} make it easier to order for families, teams, birthdays, and celebration weekends.`,
       href: "/trays-coolers" as const,
       cta: "View Packages",
-      image: leadTray?.image ?? products[1]?.image ?? heroImage,
+      image: leadTray?.image ?? leadCooler?.image ?? products[1]?.image ?? heroImage,
       dark: false,
-      detail: `Starting from ${formatNaira.format(leadTray?.price ?? 0)}`,
+      detail: leadTray
+        ? `Starting from ${formatCurrency(leadTray.price, { currency: leadTray.currencyCode })}`
+        : "Packages update as soon as the live catalog is available.",
     },
     {
       eyebrow: "Catering & Events",
@@ -299,11 +302,37 @@ function LandingPage() {
             </div>
           </div>
 
-          <div className="site-grid mt-8 sm:mt-10 md:grid-cols-2 xl:grid-cols-4">
-            {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {isCatalogLoading ? (
+            <div className="card-surface mt-8 max-w-2xl p-8 text-center sm:mx-auto sm:p-10">
+              <h2 className="heading-display text-3xl font-bold text-[var(--vf-text)]">Loading featured dishes</h2>
+              <p className="mt-3 text-sm leading-7 text-soft sm:text-base">
+                We're checking the latest live menu highlights for the homepage.
+              </p>
+            </div>
+          ) : hasCatalogError ? (
+            <div className="card-surface mt-8 max-w-2xl p-8 text-center sm:mx-auto sm:p-10">
+              <h2 className="heading-display text-3xl font-bold text-[var(--vf-text)]">Unable to load featured dishes right now</h2>
+              <p className="mt-3 text-sm leading-7 text-soft sm:text-base">
+                {error ?? "The live VISEMFOOD menu is temporarily unavailable. Please try again."}
+              </p>
+              <button type="button" className="btn-primary mt-6 w-full sm:w-auto" onClick={() => void refresh()}>
+                Retry
+              </button>
+            </div>
+          ) : featuredProducts.length === 0 ? (
+            <div className="card-surface mt-8 max-w-2xl p-8 text-center sm:mx-auto sm:p-10">
+              <h2 className="heading-display text-3xl font-bold text-[var(--vf-text)]">Featured dishes will appear here soon</h2>
+              <p className="mt-3 text-sm leading-7 text-soft sm:text-base">
+                Add featured menu items in the live catalog to populate this section.
+              </p>
+            </div>
+          ) : (
+            <div className="site-grid mt-8 sm:mt-10 md:grid-cols-2 xl:grid-cols-4">
+              {featuredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

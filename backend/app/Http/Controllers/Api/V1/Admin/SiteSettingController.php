@@ -2,47 +2,64 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use App\Enums\AdminSecurityEventType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Admin\SiteSettingUpdateRequest;
-use App\Http\Resources\SiteSettingResource;
-use App\Models\SiteSetting;
+use App\Http\Resources\AdminSiteSettingResource;
+use App\Support\AdminSecurityLogger;
 use App\Support\ApiResponse;
+use App\Support\SiteSettingsService;
 use Illuminate\Http\JsonResponse;
 
 class SiteSettingController extends Controller
 {
-    public function show(): JsonResponse
+    public function show(SiteSettingsService $siteSettings): JsonResponse
     {
         return ApiResponse::success(
             'Site settings fetched successfully.',
-            new SiteSettingResource($this->settings()),
+            new AdminSiteSettingResource($siteSettings->getOrCreate()),
         );
     }
 
-    public function update(SiteSettingUpdateRequest $request): JsonResponse
+    public function update(
+        SiteSettingUpdateRequest $request,
+        SiteSettingsService $siteSettings,
+        AdminSecurityLogger $securityLogger,
+    ): JsonResponse
     {
-        $settings = $this->settings();
-        $settings->update($request->validated());
+        $settings = $siteSettings->getOrCreate();
+        $payload = $siteSettings->normalizeForUpdate($request->validated(), $settings);
+        $before = [
+            'business_name' => $settings->business_name,
+            'support_email' => $settings->support_email,
+            'support_phone' => $settings->support_phone,
+            'whatsapp_order_number' => $settings->whatsapp_order_number,
+            'business_hours' => $settings->business_hours,
+        ];
 
-        return ApiResponse::success(
-            'Settings updated successfully.',
-            new SiteSettingResource($settings->fresh()),
-        );
-    }
+        $settings->update($payload);
 
-    private function settings(): SiteSetting
-    {
-        /** @var SiteSetting $settings */
-        $settings = SiteSetting::query()->firstOrCreate(
-            ['singleton_key' => 'default'],
+        $securityLogger->log(
+            AdminSecurityEventType::SettingsUpdated,
+            $request,
+            $request->user(),
+            null,
             [
-                'business_name' => config('app.name', 'VISEMFOOD'),
-                'currency_code' => config('visemfood.default_currency_code', 'NGN'),
-                'currency_symbol' => config('visemfood.default_currency_symbol', 'NGN'),
-                'checkout_notice' => 'You will continue to WhatsApp to confirm availability, delivery details and final pricing with our team.',
+                'updated_fields' => array_keys($payload),
+                'before' => $before,
+                'after' => [
+                    'business_name' => $settings->business_name,
+                    'support_email' => $settings->support_email,
+                    'support_phone' => $settings->support_phone,
+                    'whatsapp_order_number' => $settings->whatsapp_order_number,
+                    'business_hours' => $settings->business_hours,
+                ],
             ],
         );
 
-        return $settings;
+        return ApiResponse::success(
+            'Settings updated successfully.',
+            new AdminSiteSettingResource($settings->fresh()),
+        );
     }
 }

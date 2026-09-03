@@ -1,215 +1,110 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useSiteData } from "@/contexts/site-data-context";
 import { ApiError, getErrorMessage } from "@/lib/api";
+import { formatCurrency } from "@/lib/currency";
 import { buildMeta } from "@/lib/meta";
-import { submitCateringInquiry } from "@/lib/visemfood-api";
+import { buildTelHref, getBusinessLocation, getBusinessWhatsAppHref, getOpeningHoursRows } from "@/lib/site-settings";
+import { fetchCateringPackages, submitCateringInquiry, type CateringPackage } from "@/lib/visemfood-api";
 
-const heroImage =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuDLr8dtm6vU1eWAJQ9B1fxlIVTIko1M5rPXtfvqe3lBRxI_Om-15whDZAAkXuX4pzaqx_7j8515ye7scMr_CNEPOQlj1SKGeHvFe2OE0BMenTCS44HGHPFd9accSXXpnT9aikoBTXMKYEI1-lqVfHj8QckSPtimiozj93r9zNEqWxwdZkFTMOXyN3aPUK7k7fx3j8DlBc_bQUPd3vzCuFJOkwGq_qxtv3RmVxT0Qi-ORwOK9avRyTQ3";
-
-type CateringService = "Bespoke Catering" | "Private Chef" | "Signature Trays";
-
-type ExperienceCard = {
-  id: string;
-  title: string;
-  eventType: string;
-  service: CateringService;
-  image: string;
-  description: string;
-  bullets: string[];
-  cta: string;
-  badge?: string;
-  featured?: boolean;
-};
-
-const experienceCards: readonly ExperienceCard[] = [
-  {
-    id: "corporate",
-    title: "Corporate Galas",
-    eventType: "Corporate Gala",
-    service: "Bespoke Catering" as const,
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBddU6WX5ISVlYTc5R-vK19MIRBtqlg2RXigGVaVpuGLYY84oK_alcKU9BvAWqRr02ERvwHA_JChJm6mTjHo_hMeTAMyHpR3cnCJZi-Z3PId7VK_e64xkS-Fioo-s0VCUgcOxorLg9d3gbd5YLfB9vBQIDAU9ExL7gy5AXx9VWgfuSsZ8pd0uSX15eB0MXuuYI8L6Pwb-6J4d9Z51oNo-nqYdfNFDtdwi2J3sy8spv6CeBH0HTk7ggS",
-    description:
-      "Professional, seamless service designed for high-stakes business gatherings where authentic African flavor meets polished modern presentation.",
-    bullets: ["Seated 3-course service or executive buffet", "Cocktail reception and pass-around canapes"],
-    cta: "Explore Corporate",
-  },
-  {
-    id: "celebrations",
-    title: "Social Celebrations",
-    eventType: "Wedding",
-    service: "Bespoke Catering" as const,
-    badge: "Most Requested",
-    featured: true,
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAjnXoFcqetSjchLhiXbSxOQ75Wfh7MCMk8KKaGlVQZ0KUYy1qOIZ7PNNvup1_3hDuOi_OF88JvTAsck2S6lmDAj5lCZ9y0J_pKwGu0VaB2LCNU2XzAHgWUo0hHc8OFRJQqTSfOrkXSV0dIr99yVIPRkbh7uEBMRH-L_81-QdVsU_ve8oQ0raYwnI2ppFU9KHO1lGmUjdsDZqe24MFzkR2WlPNEGiYEaqRG9WiDAv6rmgqLINCJyxzD",
-    description:
-      "Heartfelt, vibrant catering for weddings, anniversaries, and milestone gatherings where abundant hospitality becomes part of the memory.",
-    bullets: ["Live charcoal suya and plantain stations", "Family-style signature banquet service"],
-    cta: "Explore Celebrations",
-  },
-  {
-    id: "private-chef",
-    title: "Private Chef",
-    eventType: "Private Dining",
-    service: "Private Chef" as const,
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBvK2507xrFStNRPLUdxL8I4QCNgzq39Iygcu_gSgcNrhluDbrKSHi-q_8MZXAG4CKwEMmRHPd6PE_dBMxCjEYrcQ6rciIKaGDJWWDkGWJmUTdwu4_yu1b2z5VtzMqddaBDjV9qThN0OlwemW4-JuG6gwPBBzxBSJkNFF7MI9eCsjLpqIBJhVHmv-Zzuq72aaLTmdycMvf6iPeSU4rIXtfre0LnNRrsuntWUNQVhjxInsIYFfq8GnB7",
-    description:
-      "Intimate, highly personalized dining experiences for exclusive tables where culinary storytelling and bespoke menus take center stage.",
-    bullets: ["5-course contemporary tasting menu", "In-home chef prep, plating, and pairing support"],
-    cta: "Explore Private Dining",
-  },
-] as const;
-
-const serviceOptions = [
-  {
-    value: "Bespoke Catering",
-    label: "Bespoke Catering",
-    description: "Full-service event",
-  },
-  {
-    value: "Private Chef",
-    label: "Private Chef",
-    description: "Intimate dining",
-  },
-  {
-    value: "Signature Trays",
-    label: "Signature Trays",
-    description: "Drop-off service",
-  },
-] as const;
-
-const standards = [
-  {
-    icon: "auto_awesome",
-    title: "Authentic Heritage",
-    description:
-      "Recipes passed down through generations, celebrating true African flavors with firewood depth, warmth, and cultural memory.",
-  },
-  {
-    icon: "eco",
-    title: "Premium Sourcing",
-    description:
-      "We work with quality ingredients and dependable prep standards so the final table feels as refined as the promise behind it.",
-  },
-  {
-    icon: "workspace_premium",
-    title: "Bespoke Curation",
-    description:
-      "Every menu is shaped around your event, your guests, and the kind of impression you want VISEMFOOD to leave behind.",
-  },
-] as const;
+const heroImage = "https://lh3.googleusercontent.com/aida-public/AB6AXuDLr8dtm6vU1eWAJQ9B1fxlIVTIko1M5rPXtfvqe3lBRxI_Om-15whDZAAkXuX4pzaqx_7j8515ye7scMr_CNEPOQlj1SKGeHvFe2OE0BMenTCS44HGHPFd9accSXXpnT9aikoBTXMKYEI1-lqVfHj8QckSPtimiozj93r9zNEqWxwdZkFTMOXyN3aPUK7k7fx3j8DlBc_bQUPd3vzCuFJOkwGq_qxtv3RmVxT0Qi-ORwOK9avRyTQ3";
+const serviceOptions = ["Bespoke Catering", "Private Chef", "Signature Trays"] as const;
 
 const cateringSchema = z.object({
-  eventType: z.string().min(2, "Please select the event type."),
-  guestCount: z.coerce.number().min(5, "Guest count must be at least 5."),
-  preferredService: z.enum(["Bespoke Catering", "Private Chef", "Signature Trays"]),
+  packageId: z.string().trim(),
+  fullName: z.string().trim().min(2, "Please enter your full name."),
+  email: z.string().trim().email("Please enter a valid email address."),
+  phone: z.string().trim().min(7, "Please enter a reachable phone number."),
+  eventType: z.string().trim().min(2, "Please describe the event type."),
   eventDate: z.string().min(1, "Please choose the event date."),
-  venueLocation: z.string().min(2, "Please enter the venue location."),
-  fullName: z.string().min(2, "Please enter your full name."),
-  email: z.string().email("Please enter a valid email address."),
-  phone: z.string().min(7, "Please enter a reachable phone number."),
-  specialNotes: z.string().optional(),
+  guestCount: z.coerce.number().int().min(1, "Guest count must be at least 1.").max(5000, "Guest count is too high."),
+  preferredService: z.enum(serviceOptions),
+  venueLocation: z.string().trim().min(2, "Please enter the event location."),
+  budgetAmount: z.preprocess((value) => (value === "" || value == null ? undefined : Number(value)), z.number().min(0).max(1000000).optional()),
+  specialNotes: z.string().trim().max(5000, "Requirements are too long.").optional(),
 });
 
 type CateringFormValues = z.input<typeof cateringSchema>;
 type CateringValues = z.output<typeof cateringSchema>;
 
-type SubmissionSummary = CateringValues & {
-  estimateMin: number;
-  estimateMax: number;
-  reference: string;
+type InquiryReceipt = {
+  referenceNumber: string;
+  customerName: string;
+  packageName: string | null;
 };
 
 export const Route = createFileRoute("/catering")({
-  head: () =>
-    buildMeta({
-      title: "Catering | VISEMFOOD",
-      description:
-        "Discover bespoke VISEMFOOD catering for weddings, celebrations, corporate galas, and private chef experiences.",
-      image: heroImage,
-    }),
+  head: () => buildMeta({ title: "Catering | VISEMFOOD", description: "Live VISEMFOOD catering packages and inquiry flow.", image: heroImage }),
   component: CateringPage,
 });
 
-function rateForService(service: CateringValues["preferredService"]) {
-  switch (service) {
-    case "Private Chef":
-      return 145;
-    case "Signature Trays":
-      return 35;
-    default:
-      return 85;
-  }
-}
-
-function estimateFor(service: CateringValues["preferredService"], guests: number) {
-  const average = Math.max(guests, 0) * rateForService(service);
-  return {
-    min: Math.round(average * 0.9),
-    max: Math.round(average * 1.15),
-    average,
-  };
-}
-
-function getDefaultEventDate() {
-  const base = new Date();
-  base.setDate(base.getDate() + 30);
-  return base.toISOString().slice(0, 10);
-}
-
 function CateringPage() {
   const { siteMeta } = useSiteData();
-  const [submitted, setSubmitted] = useState<SubmissionSummary | null>(null);
-
+  const [packages, setPackages] = useState<CateringPackage[]>([]);
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState<InquiryReceipt | null>(null);
   const form = useForm<CateringFormValues, unknown, CateringValues>({
     resolver: zodResolver(cateringSchema),
     defaultValues: {
-      eventType: "Wedding",
-      guestCount: 150,
-      preferredService: "Bespoke Catering",
-      eventDate: getDefaultEventDate(),
-      venueLocation: "",
+      packageId: "",
       fullName: "",
       email: "",
       phone: "",
+      eventType: "Private Celebration",
+      eventDate: defaultEventDate(),
+      guestCount: 60,
+      preferredService: "Bespoke Catering",
+      venueLocation: "",
+      budgetAmount: undefined,
       specialNotes: "",
     },
   });
 
-  const guestCount = form.watch("guestCount");
-  const preferredService = form.watch("preferredService");
-  const estimate = useMemo(
-    () => estimateFor(preferredService, Number(guestCount) || 0),
-    [guestCount, preferredService],
-  );
+  const selectedPackageId = form.watch("packageId");
+  const selectedPackage = useMemo(() => packages.find((item) => String(item.id) === selectedPackageId) ?? null, [packages, selectedPackageId]);
+  const location = getBusinessLocation(siteMeta);
+  const phoneHref = buildTelHref(siteMeta.phone);
+  const whatsappHref = getBusinessWhatsAppHref(siteMeta, "Hello VISEMFOOD, I would like to discuss a catering event.");
+  const openingHours = getOpeningHoursRows(siteMeta.openingHours).filter((item) => item.isOpen).slice(0, 4);
 
-  function scrollToInquiry() {
+  useEffect(() => {
+    let cancelled = false;
+    async function loadPackages() {
+      setStatus("loading");
+      try {
+        const next = await fetchCateringPackages();
+        if (!cancelled) {
+          setPackages(next);
+          setLoadError(null);
+          setStatus("ready");
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setPackages([]);
+          setLoadError(getErrorMessage(error, "Unable to load catering packages right now."));
+          setStatus("error");
+        }
+      }
+    }
+    void loadPackages();
+    return () => {
+      cancelled = true;
+    };
+  }, []);  function choosePackage(cateringPackage: CateringPackage) {
+    form.setValue("packageId", String(cateringPackage.id), { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+    setSubmitted(null);
     document.getElementById("catering-inquiry")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function primeInquiry(card: ExperienceCard) {
-    form.setValue("eventType", card.eventType, { shouldDirty: true, shouldTouch: true });
-    form.setValue("preferredService", card.service, { shouldDirty: true, shouldTouch: true });
-    if (submitted) {
-      setSubmitted(null);
-    }
-    scrollToInquiry();
-  }
-
-  const minimumEventDate = new Date().toISOString().slice(0, 10);
-
   const submit = form.handleSubmit(async (values) => {
     try {
-      const totals = estimateFor(values.preferredService, values.guestCount);
       const result = await submitCateringInquiry({
+        catering_package_id: values.packageId ? Number(values.packageId) : null,
         customer_name: values.fullName,
         email: values.email,
         phone: values.phone,
@@ -218,451 +113,226 @@ function CateringPage() {
         number_of_guests: values.guestCount,
         preferred_service: values.preferredService,
         location: values.venueLocation,
+        budget_amount: values.budgetAmount ?? null,
         requirements: values.specialNotes || null,
       });
-
       setSubmitted({
-        ...values,
-        estimateMin: totals.min,
-        estimateMax: totals.max,
-        reference: result.data.referenceNumber,
+        referenceNumber: result.data.referenceNumber,
+        customerName: values.fullName,
+        packageName: result.data.packageName ?? selectedPackage?.name ?? null,
       });
-
-      toast.success("Catering inquiry received", {
+      toast.success("Catering request received", {
         description: `${result.message} Reference ${result.data.referenceNumber}.`,
+      });
+      form.reset({
+        packageId: values.packageId,
+        fullName: "",
+        email: "",
+        phone: "",
+        eventType: values.eventType,
+        eventDate: defaultEventDate(),
+        guestCount: values.guestCount,
+        preferredService: values.preferredService,
+        venueLocation: "",
+        budgetAmount: undefined,
+        specialNotes: "",
       });
     } catch (error) {
       if (error instanceof ApiError && error.errors) {
         const fieldMap: Record<string, keyof CateringValues> = {
+          catering_package_id: "packageId",
           customer_name: "fullName",
-          event_type: "eventType",
-          number_of_guests: "guestCount",
-          preferred_service: "preferredService",
-          event_date: "eventDate",
-          location: "venueLocation",
           email: "email",
           phone: "phone",
+          event_type: "eventType",
+          event_date: "eventDate",
+          number_of_guests: "guestCount",
+          preferred_service: "preferredService",
+          location: "venueLocation",
+          budget_amount: "budgetAmount",
           requirements: "specialNotes",
           notes: "specialNotes",
         };
-
         Object.entries(error.errors).forEach(([field, messages]) => {
-          const target = fieldMap[field] ?? (field as keyof CateringValues);
+          const target = fieldMap[field];
           const message = messages[0];
-
-          if (!message) {
-            return;
-          }
-
-          if (
-            [
-              "eventType",
-              "guestCount",
-              "preferredService",
-              "eventDate",
-              "venueLocation",
-              "fullName",
-              "email",
-              "phone",
-              "specialNotes",
-            ].includes(target)
-          ) {
-            form.setError(target as keyof CateringValues, {
-              type: "server",
-              message,
-            });
+          if (target && message) {
+            form.setError(target, { type: "server", message });
           }
         });
       }
-
-      toast.error("Unable to submit inquiry", {
+      toast.error("Unable to submit catering request", {
         description: getErrorMessage(error, "Please review the details and try again."),
       });
     }
   });
 
   return (
-    <main className="pb-8">
-      <section className="section-gap">
-        <div className="page-shell relative">
-          <div
-            className="pointer-events-none absolute -right-10 top-0 h-64 w-64 rounded-full blur-3xl"
-            style={{ background: "color-mix(in srgb, var(--vf-primary) 12%, transparent)" }}
-          />
-          <div
-            className="pointer-events-none absolute -bottom-10 -left-10 h-56 w-56 rounded-full blur-3xl"
-            style={{ background: "color-mix(in srgb, var(--vf-tertiary) 10%, transparent)" }}
-          />
-
-          <div className="relative z-10 mx-auto max-w-3xl text-center">
-            <h2 className="heading-display text-4xl font-bold text-[var(--vf-text)] sm:text-5xl">Curated Experiences</h2>
-            <p className="mt-4 text-base leading-8 text-soft sm:text-lg">
-              We tailor our exceptional culinary services to suit the scale, tone, and prestige of your event, ensuring every detail reflects our commitment to excellence.
+    <main className="pb-14 pt-8 sm:pt-10 lg:pt-12">
+      <section className="section-gap pt-0">
+        <div className="page-shell grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(340px,0.95fr)] lg:items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--vf-primary-light)] px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--vf-primary)]">
+              <span className="material-symbols-rounded text-base">workspace_premium</span>
+              Premium Events
+            </div>
+            <h1 className="heading-display mt-5 text-[3rem] font-bold leading-[0.98] text-[var(--vf-secondary)] sm:text-[4rem] lg:text-[5rem]">
+              Bespoke catering and warm hospitality for gatherings that matter.
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-8 text-soft sm:text-lg sm:leading-9">
+              Browse live VISEMFOOD catering packages, then send a real event brief to our team for availability, logistics, and final quotation follow-up.
             </p>
-            <div className="mx-auto mt-6 h-px w-24 bg-[var(--vf-primary)] opacity-60" />
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <button type="button" onClick={() => document.getElementById("catering-inquiry")?.scrollIntoView({ behavior: "smooth", block: "start" })} className="btn-primary w-full rounded-full sm:w-auto">
+                Start Your Inquiry
+              </button>
+              <Link to="/catering/inquiry" className="btn-ghost w-full rounded-full border border-[var(--vf-border-soft)] sm:w-auto">
+                Full Inquiry Form
+              </Link>
+            </div>
           </div>
-
-          <div className="relative z-10 mt-12 grid gap-6 lg:grid-cols-3 lg:items-start">
-            {experienceCards.map((card) => (
-              <article
-                key={card.id}
-                className={`card-surface flex h-full flex-col overflow-hidden transition-transform duration-300 hover:-translate-y-1 ${
-                  card.featured ? "lg:-translate-y-4 lg:border-[color:var(--vf-primary)]" : ""
-                }`}
-              >
-                <div className="relative h-72 overflow-hidden">
-                  {card.badge ? (
-                    <div className="absolute right-4 top-4 z-10 rounded-full bg-[var(--vf-primary)] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-white shadow-sm">
-                      {card.badge}
-                    </div>
-                  ) : null}
-                  <img
-                    src={card.image}
-                    alt={`${card.title} by VISEMFOOD.`}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
-                  />
-                  <div
-                    className="absolute inset-0"
-                    style={{
-                      background:
-                        "linear-gradient(180deg, color-mix(in srgb, var(--vf-footer-bg) 6%, transparent) 0%, color-mix(in srgb, var(--vf-footer-bg) 18%, transparent) 42%, color-mix(in srgb, var(--vf-footer-bg) 78%, transparent) 100%)",
-                    }}
-                  />
-                  <h3 className="heading-display absolute bottom-6 left-6 text-3xl font-bold text-white">{card.title}</h3>
-                </div>
-
-                <div className="flex grow flex-col justify-between p-6 sm:p-7">
-                  <div>
-                    <p className="text-sm leading-7 text-soft sm:text-[15px]">{card.description}</p>
-                    <div className="mt-6 space-y-3 text-xs text-[var(--vf-text-soft)] sm:text-sm">
-                      {card.bullets.map((bullet) => (
-                        <div key={bullet} className="flex items-start gap-2.5">
-                          <span className="material-symbols-rounded mt-0.5 text-base text-[var(--vf-tertiary)]">check_circle</span>
-                          <span>{bullet}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => primeInquiry(card)}
-                    className="mt-6 inline-flex items-center gap-2 border-t border-[var(--vf-border-soft)] pt-4 text-left text-sm font-bold text-[var(--vf-primary)] transition-all hover:gap-3"
-                  >
-                    <span>{card.cta}</span>
-                    <span className="material-symbols-rounded text-base">arrow_forward</span>
-                  </button>
-                </div>
-              </article>
-            ))}
+          <div className="overflow-hidden rounded-[calc(var(--vf-radius-lg)+0.15rem)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] shadow-[var(--vf-shadow-float)]">
+            <img src={heroImage} alt="VISEMFOOD catering presentation" className="h-[320px] w-full object-cover sm:h-[380px] lg:h-[460px]" />
           </div>
         </div>
       </section>
 
-      <section id="catering-inquiry" className="pb-6 sm:pb-10">
-        <div className="page-shell grid gap-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)] lg:items-start">
-          <div className="rounded-[calc(var(--vf-radius-lg)+0.5rem)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-strong)] p-5 shadow-[var(--vf-shadow-soft)] sm:p-7 lg:p-10">
-            <h2 className="heading-display text-4xl font-bold text-[var(--vf-text)] sm:text-5xl">Party & Event Inquiry</h2>
-            <p className="mt-3 text-sm leading-7 text-soft sm:text-base">
-              Please provide details about your upcoming event, and our curation team will be in touch within 24 hours.
-            </p>
-
-            {submitted ? (
-              <div className="mt-8 rounded-[var(--vf-radius-lg)] border border-[color:var(--vf-primary)] bg-[var(--vf-surface-card)] p-6 text-center shadow-[var(--vf-shadow-soft)] sm:p-8">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--vf-primary-light)] text-[var(--vf-primary)]">
-                  <span className="material-symbols-rounded text-4xl">check_circle</span>
-                </div>
-                <h3 className="heading-display mt-5 text-3xl font-bold text-[var(--vf-text)]">
-                  Inquiry Received with Distinction
-                </h3>
-                <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-soft">
-                  Thank you for entrusting VISEMFOOD. Your inquiry reference is{" "}
-                  <strong className="font-mono text-[var(--vf-primary)]">{submitted.reference}</strong>. Our event director will review your menu requirements and reach out directly.
-                </p>
-
-                <div className="mx-auto mt-6 max-w-xl rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-card)] p-4 text-left text-sm text-soft">
-                  <div className="flex items-center justify-between gap-4 border-b border-[var(--vf-border-soft)] pb-3">
-                    <span className="font-medium">Event</span>
-                    <span className="font-semibold text-[var(--vf-text)]">
-                      {submitted.eventType} ({submitted.guestCount} Guests)
-                    </span>
-                  </div>
-                  <div className="mt-3 flex items-center justify-between gap-4 border-b border-[var(--vf-border-soft)] pb-3">
-                    <span className="font-medium">Service Model</span>
-                    <span className="font-semibold text-[var(--vf-secondary)]">{submitted.preferredService}</span>
-                  </div>
-                  <div className="mt-3 flex items-center justify-between gap-4">
-                    <span className="font-medium">Estimated Catering Range</span>
-                    <span className="font-semibold text-[var(--vf-tertiary)]">
-                      ${submitted.estimateMin.toLocaleString()} - ${submitted.estimateMax.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-                  <button
-                    type="button"
-                    onClick={() => setSubmitted(null)}
-                    className="btn-primary w-full sm:w-auto"
-                  >
-                    Submit Another Inquiry
-                  </button>
-                  <Link to="/catering/inquiry" className="btn-secondary w-full sm:w-auto">
-                    Open Full Inquiry Route
-                  </Link>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={submit} className="mt-8 space-y-6">
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--vf-text)]">
-                      Nature of Event
-                    </label>
-                    <select className="select-field" {...form.register("eventType")}>
-                      <option value="Wedding">Wedding</option>
-                      <option value="Corporate Gala">Corporate Gala</option>
-                      <option value="Social Celebration">Social Celebration</option>
-                      <option value="Milestone Anniversary">Milestone Anniversary</option>
-                      <option value="Private Dining">Private Dining</option>
-                      <option value="Other">Other</option>
-                    </select>
-                    {form.formState.errors.eventType ? (
-                      <p className="form-error mt-2">{form.formState.errors.eventType.message}</p>
-                    ) : null}
-                  </div>
-
-                  <div>
-                    <div className="mb-2 flex items-center justify-between gap-3">
-                      <label className="block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--vf-text)]">
-                        Estimated Guest Count
-                      </label>
-                      <span className="text-xs font-medium text-[var(--vf-text-soft)]">
-                        Est. from ${estimate.min.toLocaleString()}
-                      </span>
-                    </div>
-                    <input type="number" min={5} max={2000} className="field" {...form.register("guestCount")} />
-                    {form.formState.errors.guestCount ? (
-                      <p className="form-error mt-2">{form.formState.errors.guestCount.message}</p>
-                    ) : null}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--vf-text)]">
-                    Preferred Service
-                  </label>
-                  <div className="grid gap-4 md:grid-cols-3">
-                    {serviceOptions.map((option) => {
-                      const active = preferredService === option.value;
-                      return (
-                        <button
-                          key={option.value}
-                          type="button"
-                          onClick={() =>
-                            form.setValue("preferredService", option.value, {
-                              shouldDirty: true,
-                              shouldTouch: true,
-                              shouldValidate: true,
-                            })
-                          }
-                          className={`relative rounded-[var(--vf-radius-md)] border p-4 text-left transition-all ${
-                            active
-                              ? "border-[color:var(--vf-primary)] bg-[var(--vf-surface-card)] ring-2 ring-[color:color-mix(in_srgb,var(--vf-primary)_24%,transparent)]"
-                              : "border-[var(--vf-border-soft)] bg-[var(--vf-surface-card)] hover:bg-[color-mix(in_srgb,var(--vf-surface-muted)_36%,white)]"
-                          }`}
-                        >
-                          <span className="block pr-6 text-sm font-bold text-[var(--vf-text)]">{option.label}</span>
-                          <span className="mt-1 block text-xs text-soft">{option.description}</span>
-                          <span
-                            className={`absolute right-4 top-4 flex h-4 w-4 items-center justify-center rounded-full border ${
-                              active
-                                ? "border-[color:var(--vf-primary)] bg-[var(--vf-primary)]"
-                                : "border-[var(--vf-outline)]"
-                            }`}
-                          >
-                            {active ? <span className="h-1.5 w-1.5 rounded-full bg-white" /> : null}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {form.formState.errors.preferredService ? (
-                    <p className="form-error mt-2">{form.formState.errors.preferredService.message}</p>
-                  ) : null}
-                </div>
-
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--vf-text)]">
-                      Event Date
-                    </label>
-                    <input
-                      type="date"
-                      min={minimumEventDate}
-                      className="field"
-                      {...form.register("eventDate")}
-                    />
-                    {form.formState.errors.eventDate ? (
-                      <p className="form-error mt-2">{form.formState.errors.eventDate.message}</p>
-                    ) : null}
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--vf-text)]">
-                      Venue Location
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="City, State or Venue Name"
-                      className="field"
-                      {...form.register("venueLocation")}
-                    />
-                    {form.formState.errors.venueLocation ? (
-                      <p className="form-error mt-2">{form.formState.errors.venueLocation.message}</p>
-                    ) : null}
-                  </div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--vf-text)]">
-                      Your Full Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Femi Adebayo"
-                      className="field"
-                      {...form.register("fullName")}
-                    />
-                    {form.formState.errors.fullName ? (
-                      <p className="form-error mt-2">{form.formState.errors.fullName.message}</p>
-                    ) : null}
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--vf-text)]">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      placeholder="host@domain.com"
-                      className="field"
-                      {...form.register("email")}
-                    />
-                    {form.formState.errors.email ? (
-                      <p className="form-error mt-2">{form.formState.errors.email.message}</p>
-                    ) : null}
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--vf-text)]">
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="+1 555 000 0000"
-                      className="field"
-                      {...form.register("phone")}
-                    />
-                    {form.formState.errors.phone ? (
-                      <p className="form-error mt-2">{form.formState.errors.phone.message}</p>
-                    ) : null}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--vf-text)]">
-                    Culinary Preferences or Special Notes
-                  </label>
-                  <textarea
-                    rows={3}
-                    placeholder="e.g. live charcoal suya bar, halal requirements, vegetarian swallows, or custom canapes."
-                    className="textarea-field"
-                    {...form.register("specialNotes")}
-                  />
-                </div>
-
-                <div className="rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-card)] p-4">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">
-                        Estimated Catering Range
-                      </p>
-                      <p className="mt-1 text-sm leading-7 text-soft">
-                        Based on {Number(guestCount) || 0} guests and {preferredService}.
-                      </p>
-                    </div>
-                    <div className="text-left sm:text-right">
-                      <p className="heading-display text-3xl font-bold text-[var(--vf-primary)]">
-                        ${estimate.min.toLocaleString()} - ${estimate.max.toLocaleString()}
-                      </p>
-                      <p className="text-xs text-[var(--vf-text-soft)]">Planning estimate only</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
-                  <button type="submit" className="btn-primary w-full sm:w-auto">
-                    Submit Inquiry
-                  </button>
-                  <Link to="/catering/inquiry" className="btn-ghost w-full sm:w-auto">
-                    Open Dedicated Inquiry Route
-                  </Link>
-                </div>
-              </form>
-            )}
+      <section className="section-gap pt-0">
+        <div className="page-shell space-y-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--vf-primary)]">Live Catering Packages</p>
+              <h2 className="heading-display mt-2 text-4xl font-bold text-[var(--vf-secondary)] sm:text-5xl">Use a package as your starting point</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-soft sm:text-base">
+                Packages below are managed from the Admin and priced in USD. Final pricing is confirmed after we review your real event requirements.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <span className="rounded-full bg-[var(--vf-primary-light)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--vf-primary)]">
+                {packages.length} live package{packages.length === 1 ? "" : "s"}
+              </span>
+              {whatsappHref ? (
+                <a href={whatsappHref} target="_blank" rel="noreferrer" className="btn-ghost rounded-full border border-[var(--vf-border-soft)] px-5">
+                  WhatsApp Concierge
+                </a>
+              ) : null}
+            </div>
           </div>
 
-          <aside className="lg:pl-4 xl:pl-8">
-            <div className="lg:border-l lg:border-[var(--vf-border-soft)] lg:pl-8 xl:pl-10">
-              <div>
-                <h2 className="heading-display text-3xl font-bold text-[var(--vf-text)] sm:text-4xl">
-                  The VISEMFOOD Standard
-                </h2>
-                <p className="mt-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--vf-text-soft)]">
-                  The guiding pillars of our craft
-                </p>
+          {status === "loading" ? <div className="card-surface p-6 text-sm text-soft">Loading catering packages...</div> : null}
+          {status === "error" ? (
+            <div className="card-surface border border-[var(--vf-warning-border)] bg-[var(--vf-warning-soft)] p-5 text-sm text-[var(--vf-text)]">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p>{loadError}</p>
+                <button type="button" className="btn-ghost w-full sm:w-auto" onClick={() => window.location.reload()}>
+                  Retry
+                </button>
               </div>
-
-              <div className="mt-8 grid gap-7">
-                {standards.map((standard) => (
-                  <div key={standard.title} className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--vf-primary-light)] text-[var(--vf-primary)] shadow-sm">
-                      <span className="material-symbols-rounded">{standard.icon}</span>
-                    </div>
-                    <div>
-                      <h3 className="text-base font-bold text-[var(--vf-text)]">{standard.title}</h3>
-                      <p className="mt-2 text-sm leading-7 text-soft">{standard.description}</p>
-                    </div>
+            </div>
+          ) : null}
+          {status === "ready" && packages.length === 0 ? (
+            <div className="card-surface p-8 text-center sm:p-10">
+              <h3 className="heading-display text-3xl font-bold text-[var(--vf-secondary)]">Custom catering is still available</h3>
+              <p className="mt-3 text-sm leading-7 text-soft sm:text-base">
+                No active packages are published right now, but you can still submit a custom inquiry below.
+              </p>
+            </div>
+          ) : null}
+          {status === "ready" && packages.length > 0 ? (
+            <div className="grid gap-6 xl:grid-cols-3">
+              {packages.map((cateringPackage) => (
+                <article key={cateringPackage.id} className={selectedPackage?.id === cateringPackage.id ? "overflow-hidden rounded-[calc(var(--vf-radius-lg)+0.15rem)] border border-[var(--vf-primary)] bg-[var(--vf-surface-elevated)] shadow-[var(--vf-shadow-float)]" : "overflow-hidden rounded-[calc(var(--vf-radius-lg)+0.15rem)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] shadow-[var(--vf-shadow-soft)]"}>
+                  <div className="aspect-[16/10] bg-[var(--vf-surface-muted)]">
+                    {cateringPackage.imageUrl ? <img src={cateringPackage.imageUrl} alt={cateringPackage.name} className="h-full w-full object-cover" loading="lazy" /> : <div className="flex h-full items-center justify-center text-[var(--vf-text-soft)]"><span className="material-symbols-rounded text-4xl">restaurant</span></div>}
                   </div>
-                ))}
+                  <div className="space-y-4 p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="heading-display text-3xl font-bold text-[var(--vf-secondary)]">{cateringPackage.name}</h3>
+                        <p className="mt-2 text-sm text-soft">{guestRange(cateringPackage.minimumGuests, cateringPackage.maximumGuests)}</p>
+                      </div>
+                      {cateringPackage.featured ? <span className="rounded-full bg-[var(--vf-primary)] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-white">Featured</span> : null}
+                    </div>
+                    <p className="text-sm leading-7 text-soft">{cateringPackage.shortDescription || cateringPackage.description || "Flexible event package details available on request."}</p>
+                    <p className="text-lg font-semibold text-[var(--vf-text)]">Starting from {formatCurrency(cateringPackage.startingPrice, { currency: cateringPackage.currencyCode })}</p>
+                    <button type="button" onClick={() => choosePackage(cateringPackage)} className="btn-primary w-full rounded-full">
+                      {selectedPackage?.id === cateringPackage.id ? "Selected for Inquiry" : "Request Package"}
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </section>      <section id="catering-inquiry" className="pb-6">
+        <div className="page-shell grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] xl:items-start">
+          <div className="card-surface p-5 sm:p-6 lg:p-7">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--vf-primary)]">Real Catering Inquiry</p>
+            <h2 className="heading-display mt-2 text-4xl font-bold text-[var(--vf-secondary)] sm:text-5xl">Share the event brief</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-soft sm:text-base">This form submits directly to the live VISEMFOOD catering inquiry API and appears in the Admin inbox with status tracking.</p>
+            {submitted ? <div className="mt-5 rounded-[var(--vf-radius-md)] border border-[var(--vf-success-border)] bg-[var(--vf-success-soft)] p-4 text-sm text-[var(--vf-text)]"><p className="font-semibold">Inquiry received for {submitted.customerName}.</p><p className="mt-2">Reference {submitted.referenceNumber}{submitted.packageName ? ` | Package: ${submitted.packageName}` : ""}</p></div> : null}
+            {selectedPackage ? <div className="mt-5 rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface)] p-4 text-sm text-soft"><p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--vf-primary)]">Selected Package</p><p className="mt-2 text-lg font-semibold text-[var(--vf-secondary)]">{selectedPackage.name}</p><p className="mt-1">Starting from {formatCurrency(selectedPackage.startingPrice, { currency: selectedPackage.currencyCode })} | {guestRange(selectedPackage.minimumGuests, selectedPackage.maximumGuests)}</p></div> : null}
+            <form onSubmit={submit} className="mt-6 space-y-5">
+              <div className="grid gap-5 md:grid-cols-2">
+                <Field label="Full Name" error={form.formState.errors.fullName?.message}><input className="field" {...form.register("fullName")} placeholder="Your full name" /></Field>
+                <Field label="Email Address" error={form.formState.errors.email?.message}><input className="field" type="email" {...form.register("email")} placeholder="hello@example.com" /></Field>
               </div>
-
-              <div className="mt-8 rounded-[var(--vf-radius-lg)] border border-[var(--vf-border-soft)] bg-[var(--vf-primary-light)] p-5">
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--vf-primary)]">
-                  Direct Event Concierge
-                </p>
-                <p className="mt-2 text-sm leading-7 text-soft">
-                  Planning on a tight schedule or need an immediate custom quotation?
-                </p>
-                <div className="mt-4 grid gap-3 text-sm">
-                  <a href={`mailto:${siteMeta.email}`} className="inline-flex items-center gap-2 font-semibold text-[var(--vf-primary)] hover:underline">
-                    <span className="material-symbols-rounded text-base">mail</span>
-                    {siteMeta.email}
-                  </a>
-                  <a href={`tel:${siteMeta.phone}`} className="inline-flex items-center gap-2 font-semibold text-[var(--vf-primary)] hover:underline">
-                    <span className="material-symbols-rounded text-base">call</span>
-                    {siteMeta.phone}
-                  </a>
-                  <p className="text-xs text-[var(--vf-text-soft)]">{siteMeta.hours}</p>
-                </div>
+              <div className="grid gap-5 md:grid-cols-2">
+                <Field label="Phone Number" error={form.formState.errors.phone?.message}><input className="field" {...form.register("phone")} placeholder="+1 555 010 2000" /></Field>
+                <Field label="Interested Package" error={form.formState.errors.packageId?.message}><select className="select-field" {...form.register("packageId")}><option value="">Custom request / not sure yet</option>{packages.map((cateringPackage) => <option key={cateringPackage.id} value={String(cateringPackage.id)}>{cateringPackage.name}</option>)}</select></Field>
               </div>
+              <div className="grid gap-5 md:grid-cols-2">
+                <Field label="Event Type" error={form.formState.errors.eventType?.message}><input className="field" {...form.register("eventType")} placeholder="Wedding reception" /></Field>
+                <Field label="Preferred Service" error={form.formState.errors.preferredService?.message}><select className="select-field" {...form.register("preferredService")}>{serviceOptions.map((option) => <option key={option} value={option}>{option}</option>)}</select></Field>
+              </div>
+              <div className="grid gap-5 md:grid-cols-3">
+                <Field label="Event Date" error={form.formState.errors.eventDate?.message}><input className="field" type="date" min={minimumEventDate()} {...form.register("eventDate")} /></Field>
+                <Field label="Guest Count" error={form.formState.errors.guestCount?.message}><input className="field" type="number" min={1} max={5000} {...form.register("guestCount")} /></Field>
+                <Field label="Estimated Budget (USD)" error={form.formState.errors.budgetAmount?.message}><input className="field" type="number" min={0} step="0.01" {...form.register("budgetAmount")} placeholder="1200.00" /></Field>
+              </div>
+              <Field label="Event Location" error={form.formState.errors.venueLocation?.message}><input className="field" {...form.register("venueLocation")} placeholder="Venue name or delivery area" /></Field>
+              <Field label="Requirements" error={form.formState.errors.specialNotes?.message}><textarea className="textarea-field" rows={5} {...form.register("specialNotes")} placeholder="Service style, dietary notes, venue logistics, or any detail that helps the team prepare." /></Field>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm leading-7 text-soft">Final pricing is confirmed by our team after we review your event size, service style, and logistics.</p>
+                <button type="submit" className="btn-primary w-full rounded-full sm:w-auto" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? "Sending Inquiry..." : "Submit Catering Request"}</button>
+              </div>
+            </form>
+          </div>
+          <aside className="space-y-5 xl:sticky xl:top-24">
+            <div className="card-surface p-5 sm:p-6">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--vf-primary)]">Contact & Concierge</p>
+              <div className="mt-4 space-y-4 text-sm text-soft">
+                <p><span className="font-semibold text-[var(--vf-text)]">Phone:</span> {phoneHref ? <a href={phoneHref} className="hover:text-[var(--vf-primary)]">{siteMeta.phone}</a> : "Phone pending"}</p>
+                <p><span className="font-semibold text-[var(--vf-text)]">Email:</span> {siteMeta.email ? <a href={`mailto:${siteMeta.email}`} className="hover:text-[var(--vf-primary)]">{siteMeta.email}</a> : "Email pending"}</p>
+                <p><span className="font-semibold text-[var(--vf-text)]">Location:</span> {location.primary}{location.secondary ? `, ${location.secondary}` : ""}</p>
+              </div>
+              <div className="mt-5 flex flex-col gap-3">{whatsappHref ? <a href={whatsappHref} target="_blank" rel="noreferrer" className="btn-primary w-full rounded-full">Continue on WhatsApp</a> : null}<Link to="/contact" className="btn-ghost w-full rounded-full border border-[var(--vf-border-soft)]">Visit Contact Page</Link></div>
+            </div>
+            <div className="card-surface p-5 sm:p-6">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--vf-primary)]">Operating Hours</p>
+              <div className="mt-4 space-y-3">{openingHours.length > 0 ? openingHours.map((item) => <div key={item.key} className="flex items-center justify-between gap-4 rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface)] px-4 py-3 text-sm"><span className="font-medium text-[var(--vf-text)]">{item.label}</span><span className="text-soft">{item.hours}</span></div>) : <div className="rounded-[var(--vf-radius-md)] border border-dashed border-[var(--vf-border-soft)] bg-[var(--vf-surface)] px-4 py-4 text-sm text-soft">Operating hours will appear here once they are configured in Site Settings.</div>}</div>
             </div>
           </aside>
         </div>
       </section>
     </main>
   );
+}
+
+function defaultEventDate() {
+  const date = new Date();
+  date.setDate(date.getDate() + 14);
+  return date.toISOString().slice(0, 10);
+}
+
+function minimumEventDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function guestRange(minimumGuests: number, maximumGuests: number | null) {
+  return maximumGuests && maximumGuests > minimumGuests ? `${minimumGuests} - ${maximumGuests} guests` : `${minimumGuests}+ guests`;
+}
+
+function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+  return <label className="block"><span className="mb-2 block text-sm font-semibold text-[var(--vf-text)]">{label}</span>{children}{error ? <span className="mt-2 block text-sm text-[var(--vf-danger)]">{error}</span> : null}</label>;
 }

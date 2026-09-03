@@ -6,6 +6,7 @@ import {
   logoutAdmin,
   type AdminUser,
 } from "@/lib/visemfood-api";
+import { DEMO_ADMIN_CREDENTIALS } from "@/lib/runtime-config";
 
 type LoginResult =
   | { ok: true }
@@ -18,15 +19,10 @@ type AdminAuthContextValue = {
   demoCredentials: {
     email: string;
     password: string;
-  };
+  } | null;
   login: (credentials: { email: string; password: string }) => Promise<LoginResult>;
   logout: () => Promise<void>;
 };
-
-const DEMO_CREDENTIALS = {
-  email: "admin@visemfood.test",
-  password: "Password12345",
-} as const;
 
 const AdminAuthContext = createContext<AdminAuthContextValue | null>(null);
 
@@ -71,7 +67,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
       user,
       isAuthenticated: Boolean(user),
       isHydrated,
-      demoCredentials: DEMO_CREDENTIALS,
+      demoCredentials: DEMO_ADMIN_CREDENTIALS,
       login: async ({ email, password }) => {
         try {
           const result = await loginAdmin({

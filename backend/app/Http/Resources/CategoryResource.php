@@ -17,13 +17,17 @@ class CategoryResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
-            'status' => $this->status?->value ?? $this->status,
             'sort_order' => $this->sort_order,
+            'image' => $this->whenLoaded('image', fn () => $this->image ? [
+                'id' => $this->image->id,
+                'url' => $this->image->url,
+                'alt_text' => $this->image->alt_text,
+                'width' => $this->image->width,
+                'height' => $this->image->height,
+                'variants' => $this->image->variants ?? [],
+            ] : null),
             'image_url' => $this->image?->url,
-            'image' => $this->whenLoaded('image', fn () => new MediaAssetResource($this->image)),
             'products_count' => $this->when(isset($this->products_count), (int) $this->products_count),
-            'created_at' => $this->created_at?->toIso8601String(),
-            'updated_at' => $this->updated_at?->toIso8601String(),
         ];
     }
 }

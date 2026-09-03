@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { BrandLogo } from "@/components/BrandLogo";
 import { buildMeta } from "@/lib/meta";
 import { useAdminAuth } from "@/contexts/admin-auth-context";
 
@@ -32,8 +33,8 @@ function LoginPage() {
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: demoCredentials.email,
-      password: demoCredentials.password,
+      email: demoCredentials?.email ?? "",
+      password: demoCredentials?.password ?? "",
     },
   });
 
@@ -67,7 +68,15 @@ function LoginPage() {
       <div className="page-shell">
         <div className="grid gap-8 xl:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] xl:items-center">
           <section className="max-w-xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--vf-primary-light)] px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-primary)]">
+            <Link
+              to="/"
+              aria-label="VISEMFOOD home"
+              className="inline-flex rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] px-4 py-3 shadow-[var(--vf-shadow-soft)]"
+            >
+              <BrandLogo variant="primary" className="w-[10.5rem] sm:w-[12rem]" />
+            </Link>
+
+            <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--vf-primary-light)] px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-primary)]">
               <span className="material-symbols-rounded text-base">shield_lock</span>
               Protected Admin Access
             </div>
@@ -79,17 +88,21 @@ function LoginPage() {
               Access orders, catering inquiries, analytics, and menu controls from one refined operations dashboard.
             </p>
 
-            <div className="mt-8 rounded-[calc(var(--vf-radius-lg)-2px)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] p-6 shadow-[var(--vf-shadow-soft)]">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">Seeded Admin Credentials</p>
-              <div className="mt-4 space-y-3 text-sm text-[var(--vf-text)]">
-                <p>
-                  <span className="font-semibold text-[var(--vf-primary)]">Email:</span> {demoCredentials.email}
+            {demoCredentials ? (
+              <div className="mt-8 rounded-[calc(var(--vf-radius-lg)-2px)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] p-6 shadow-[var(--vf-shadow-soft)]">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">
+                  Seeded Admin Credentials
                 </p>
-                <p>
-                  <span className="font-semibold text-[var(--vf-primary)]">Password:</span> {demoCredentials.password}
-                </p>
+                <div className="mt-4 space-y-3 text-sm text-[var(--vf-text)]">
+                  <p>
+                    <span className="font-semibold text-[var(--vf-primary)]">Email:</span> {demoCredentials.email}
+                  </p>
+                  <p>
+                    <span className="font-semibold text-[var(--vf-primary)]">Password:</span> {demoCredentials.password}
+                  </p>
+                </div>
               </div>
-            </div>
+            ) : null}
           </section>
 
           <section className="card-surface p-6 sm:p-8 lg:p-10">
@@ -97,7 +110,7 @@ function LoginPage() {
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-primary)]">Admin Sign In</p>
               <h2 className="heading-display mt-3 text-4xl font-bold text-[var(--vf-text)]">Operations dashboard access</h2>
               <p className="mt-3 text-sm leading-7 text-soft sm:text-base">
-                Sign in with the seeded administrator account or your live admin credentials from the Laravel backend.
+                Sign in with your live administrator credentials from the Laravel backend.
               </p>
             </div>
 

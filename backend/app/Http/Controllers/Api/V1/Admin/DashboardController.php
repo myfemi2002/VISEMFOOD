@@ -7,7 +7,7 @@ use App\Enums\OrderStatus;
 use App\Enums\ProductAvailabilityStatus;
 use App\Enums\PublicationStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\CateringInquiryResource;
+use App\Http\Resources\AdminCateringInquiryResource;
 use App\Http\Resources\ContactMessageResource;
 use App\Http\Resources\OrderResource;
 use App\Models\CateringInquiry;
@@ -28,7 +28,7 @@ class DashboardController extends Controller
             ->get();
 
         $recentCatering = CateringInquiry::query()
-            ->with('assignedTo')
+            ->with(['assignedTo', 'cateringPackage'])
             ->latest()
             ->limit(5)
             ->get();
@@ -65,7 +65,7 @@ class DashboardController extends Controller
                     ->count(),
             ],
             'recent_orders' => OrderResource::collection($recentOrders),
-            'recent_catering' => CateringInquiryResource::collection($recentCatering),
+            'recent_catering' => AdminCateringInquiryResource::collection($recentCatering),
             'recent_contact_messages' => ContactMessageResource::collection($recentMessages),
         ]);
     }

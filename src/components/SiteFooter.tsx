@@ -1,5 +1,11 @@
 import { Link } from "@tanstack/react-router";
+import { BrandLogo } from "@/components/BrandLogo";
 import { useSiteData } from "@/contexts/site-data-context";
+import {
+  buildTelHref,
+  getBusinessLocation,
+  getBusinessWhatsAppHref,
+} from "@/lib/site-settings";
 
 const quickLinks = [
   { to: "/", label: "Home" },
@@ -12,13 +18,34 @@ const quickLinks = [
 
 export function SiteFooter() {
   const { siteMeta } = useSiteData();
-  const whatsappNumber =
-    siteMeta.whatsappContactNumber || siteMeta.whatsappOrderNumber || siteMeta.phone.replace(/\D/g, "");
+  const location = getBusinessLocation(siteMeta);
+  const phoneHref = buildTelHref(siteMeta.phone);
+  const secondaryPhoneHref = buildTelHref(siteMeta.secondaryPhone);
+  const whatsappHref = getBusinessWhatsAppHref(siteMeta);
   const socialLinks = [
-    { label: "Instagram", href: siteMeta.socialLinks.instagram || "https://instagram.com" },
-    { label: "Facebook", href: siteMeta.socialLinks.facebook || "https://facebook.com" },
-    { label: "WhatsApp", href: siteMeta.socialLinks.whatsapp || `https://wa.me/${whatsappNumber}` },
-  ] as const;
+    siteMeta.socialLinks.instagram ? { label: "Instagram", href: siteMeta.socialLinks.instagram } : null,
+    siteMeta.socialLinks.facebook ? { label: "Facebook", href: siteMeta.socialLinks.facebook } : null,
+    siteMeta.socialLinks.tiktok ? { label: "TikTok", href: siteMeta.socialLinks.tiktok } : null,
+    siteMeta.socialLinks.youtube ? { label: "YouTube", href: siteMeta.socialLinks.youtube } : null,
+    siteMeta.socialLinks.whatsapp
+      ? { label: "WhatsApp", href: siteMeta.socialLinks.whatsapp }
+      : whatsappHref
+        ? { label: "WhatsApp", href: whatsappHref }
+        : null,
+  ].filter(Boolean) as Array<{ label: string; href: string }>;
+
+  const contactItems = [
+    siteMeta.phone && phoneHref ? { icon: "call", href: phoneHref, label: siteMeta.phone } : null,
+    siteMeta.secondaryPhone && secondaryPhoneHref
+      ? { icon: "call", href: secondaryPhoneHref, label: siteMeta.secondaryPhone }
+      : null,
+    siteMeta.email ? { icon: "mail", href: `mailto:${siteMeta.email}`, label: siteMeta.email } : null,
+    location.full && location.full !== "Business address pending"
+      ? { icon: "location_on", href: null, label: location.full }
+      : null,
+    siteMeta.hours ? { icon: "schedule", href: null, label: siteMeta.hours } : null,
+    whatsappHref ? { icon: "chat", href: whatsappHref, label: "WhatsApp Contact" } : null,
+  ].filter(Boolean) as Array<{ icon: string; href: string | null; label: string }>;
 
   return (
     <footer className="footer-shell mt-20 border-t border-[var(--vf-footer-line)]">
@@ -26,27 +53,37 @@ export function SiteFooter() {
         <div className="footer-grid">
           <div className="footer-brand space-y-5">
             <div>
-              <h2 className="heading-display text-[2.5rem] font-bold sm:text-[3.2rem]">{siteMeta.name}</h2>
+              <Link to="/" aria-label={`${siteMeta.name || "VISEMFOOD"} home`} className="inline-flex">
+                <BrandLogo
+                  variant="light"
+                  alt={`${siteMeta.name || "VISEMFOOD"} logo`}
+                  className="w-[11rem] sm:w-[12.5rem] xl:w-[13.5rem] drop-shadow-[0_8px_18px_rgba(247,241,228,0.08)]"
+                />
+              </Link>
               <p className="mt-3 text-[0.72rem] font-bold uppercase tracking-[0.18em] text-[var(--vf-footer-accent)]">
-                Authentic African Food
+                {siteMeta.tagline || "Authentic African Food"}
               </p>
             </div>
             <p className="footer-muted max-w-md text-sm leading-7 sm:text-base">
               Authentic African meals prepared with care for individuals, families, gatherings and special occasions.
             </p>
-            <div className="flex flex-wrap gap-3 pt-1">
-              {socialLinks.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="footer-link inline-flex min-h-11 items-center rounded-full border border-[var(--vf-footer-line)] px-4 text-sm font-medium transition hover:bg-[var(--vf-footer-hover)]"
-                >
-                  {item.label}
-                </a>
-              ))}
-            </div>
+            {socialLinks.length > 0 ? (
+              <div className="flex flex-wrap gap-3 pt-1">
+                {socialLinks.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="footer-link inline-flex min-h-11 items-center rounded-full border border-[var(--vf-footer-line)] px-4 text-sm font-medium transition hover:bg-[var(--vf-footer-hover)]"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <p className="footer-muted text-sm">Social links will appear here once they are configured in Admin settings.</p>
+            )}
           </div>
 
           <div className="space-y-5">
@@ -85,39 +122,29 @@ export function SiteFooter() {
             <p className="text-[0.72rem] font-bold uppercase tracking-[0.18em] text-[var(--vf-footer-accent)]">
               Contact
             </p>
-            <ul className="space-y-4 text-sm">
-              <li className="flex items-start gap-3">
-                <span className="material-symbols-rounded footer-muted mt-0.5 text-base">call</span>
-                <a href={`tel:${siteMeta.phone}`} className="footer-link break-words">
-                  {siteMeta.phone}
-                </a>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="material-symbols-rounded footer-muted mt-0.5 text-base">mail</span>
-                <a href={`mailto:${siteMeta.email}`} className="footer-link break-words">
-                  {siteMeta.email}
-                </a>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="material-symbols-rounded footer-muted mt-0.5 text-base">location_on</span>
-                <span className="footer-muted break-words">{siteMeta.address}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="material-symbols-rounded footer-muted mt-0.5 text-base">schedule</span>
-                <span className="footer-muted break-words">{siteMeta.hours}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="material-symbols-rounded footer-muted mt-0.5 text-base">chat</span>
-                <a
-                  href={`https://wa.me/${whatsappNumber}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="footer-link break-words"
-                >
-                  WhatsApp Contact
-                </a>
-              </li>
-            </ul>
+            {contactItems.length > 0 ? (
+              <ul className="space-y-4 text-sm">
+                {contactItems.map((item) => (
+                  <li key={`${item.icon}-${item.label}`} className="flex items-start gap-3">
+                    <span className="material-symbols-rounded footer-muted mt-0.5 text-base">{item.icon}</span>
+                    {item.href ? (
+                      <a
+                        href={item.href}
+                        target={item.href.startsWith("https://") ? "_blank" : undefined}
+                        rel={item.href.startsWith("https://") ? "noreferrer" : undefined}
+                        className="footer-link break-words"
+                      >
+                        {item.label}
+                      </a>
+                    ) : (
+                      <span className="footer-muted break-words">{item.label}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="footer-muted text-sm">Contact details will appear here once they are configured in Admin settings.</p>
+            )}
           </div>
         </div>
 

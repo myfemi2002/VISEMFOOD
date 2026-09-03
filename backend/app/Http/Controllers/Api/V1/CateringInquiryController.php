@@ -16,14 +16,18 @@ class CateringInquiryController extends Controller
         CateringInquiryStoreRequest $request,
         ReferenceGenerator $referenceGenerator,
     ): JsonResponse {
+        $validated = $request->validated();
+
         /** @var CateringInquiry $inquiry */
         $inquiry = CateringInquiry::query()->create([
-            ...$request->validated(),
+            ...$validated,
             'reference_number' => $referenceGenerator->nextCateringReference(),
         ]);
 
+        $inquiry->load('cateringPackage');
+
         return ApiResponse::success(
-            'Catering inquiry submitted successfully.',
+            'Your catering request has been received. We\'ll contact you shortly.',
             new CateringInquiryResource($inquiry),
             201,
         );

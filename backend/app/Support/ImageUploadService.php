@@ -14,7 +14,12 @@ class ImageUploadService
     /**
      * @return array{asset: MediaAsset, spec: array<string, mixed>}
      */
-    public function upload(UploadedFile $file, string $specKey, ?string $altText = null): array
+    public function upload(
+        UploadedFile $file,
+        string $specKey,
+        ?string $altText = null,
+        ?int $uploadedById = null,
+    ): array
     {
         $spec = config("visemfood-media.specs.$specKey");
 
@@ -26,6 +31,9 @@ class ImageUploadService
 
         $allowed = Arr::wrap($spec['formats'] ?? []);
         $extension = strtolower($file->getClientOriginalExtension());
+        $detectedMimeType = strtolower((string) $file->getMimeType());
+        $allowedMimeTypes = $this->mimeTypesForFormats($allowed);
+        $maxSizeKb = (int) ($spec['max_size_kb'] ?? config('visemfood.max_upload_size_kb', 8192));
 
         if (! in_array($extension, $allowed, true)) {
             throw ValidationException::withMessages([
@@ -33,7 +41,19 @@ class ImageUploadService
             ]);
         }
 
-        $size = getimagesize($file->getRealPath());
+        if (! in_array($detectedMimeType, $allowedMimeTypes, true)) {
+            throw ValidationException::withMessages([
+                'file' => ['The uploaded file MIME type is not supported. Upload a JPG, PNG, or WebP image.'],
+            ]);
+        }
+
+        if (($file->getSize() ?: 0) > ($maxSizeKb * 1024)) {
+            throw ValidationException::withMessages([
+                'file' => [sprintf('The uploaded image is larger than the %d MB limit.', max(1, (int) round($maxSizeKb / 1024)))],
+            ]);
+        }
+
+        $size = @getimagesize($file->getRealPath());
 
         if ($size === false) {
             throw ValidationException::withMessages([
@@ -42,11 +62,33 @@ class ImageUploadService
         }
 
         [$sourceWidth, $sourceHeight] = $size;
+        $detectedImageMime = strtolower((string) ($size['mime'] ?? $detectedMimeType));
 
         $maxMegapixels = (int) config('visemfood.max_upload_megapixels', 24);
         if (($sourceWidth * $sourceHeight) > ($maxMegapixels * 1_000_000)) {
             throw ValidationException::withMessages([
                 'file' => ['The uploaded image is too large to process safely on the server.'],
+            ]);
+        }
+
+        if (! in_array($detectedImageMime, $allowedMimeTypes, true)) {
+            throw ValidationException::withMessages([
+                'file' => ['The uploaded image could not be validated as a supported JPG, PNG, or WebP file.'],
+            ]);
+        }
+
+        $minimumWidth = (int) ($spec['min_width'] ?? 0);
+        $minimumHeight = (int) ($spec['min_height'] ?? 0);
+
+        if ($sourceWidth < $minimumWidth || $sourceHeight < $minimumHeight) {
+            throw ValidationException::withMessages([
+                'file' => [
+                    sprintf(
+                        'The uploaded image is too small. Minimum source size for this upload is %d x %d pixels.',
+                        $minimumWidth,
+                        $minimumHeight,
+                    ),
+                ],
             ]);
         }
 
@@ -64,58 +106,88 @@ class ImageUploadService
         $disk = config('visemfood-media.disks.default', 'public');
         $baseName = Str::uuid()->toString();
         $variants = [];
+        $writtenPaths = [];
+        $quality = (int) config('visemfood-media.encoding.webp_quality', 84);
 
-        foreach (($spec['variants'] ?? []) as $variantKey => $variantSpec) {
-            $resized = $this->coverResize(
-                $image,
-                (int) $variantSpec['width'],
-                (int) $variantSpec['height'],
-            );
+        try {
+            foreach (($spec['variants'] ?? []) as $variantKey => $variantSpec) {
+                $targetWidth = min((int) $variantSpec['width'], $sourceWidth);
+                $targetHeight = min((int) $variantSpec['height'], $sourceHeight);
 
-            $relativePath = sprintf('%s/%s-%s.webp', $directory, $baseName, $variantKey);
-            $absolutePath = Storage::disk($disk)->path($relativePath);
+                $resized = $this->coverResize(
+                    $image,
+                    $targetWidth,
+                    $targetHeight,
+                );
 
-            if (! is_dir(dirname($absolutePath))) {
-                mkdir(dirname($absolutePath), 0777, true);
+                $relativePath = sprintf('%s/%s-%s.webp', $directory, $baseName, $variantKey);
+                $encoded = $this->encodeWebp($resized, $quality);
+                imagedestroy($resized);
+
+                if (! Storage::disk($disk)->put($relativePath, $encoded)) {
+                    throw ValidationException::withMessages([
+                        'file' => ['The uploaded image could not be written to storage.'],
+                    ]);
+                }
+                $writtenPaths[] = $relativePath;
+
+                $variants[$variantKey] = [
+                    'path' => $relativePath,
+                    'url' => Storage::disk($disk)->url($relativePath),
+                    'width' => $targetWidth,
+                    'height' => $targetHeight,
+                    'size_bytes' => strlen($encoded),
+                ];
             }
 
-            imagewebp($resized, $absolutePath, 86);
-            imagedestroy($resized);
+            $primaryVariant = $variants['large'] ?? reset($variants);
+            $path = is_array($primaryVariant) ? (string) $primaryVariant['path'] : '';
+            $url = is_array($primaryVariant) ? (string) $primaryVariant['url'] : '';
+            $storedWidth = is_array($primaryVariant) ? (int) ($primaryVariant['width'] ?? $sourceWidth) : $sourceWidth;
+            $storedHeight = is_array($primaryVariant) ? (int) ($primaryVariant['height'] ?? $sourceHeight) : $sourceHeight;
+            $storedSizeBytes = is_array($primaryVariant) ? (int) ($primaryVariant['size_bytes'] ?? ($file->getSize() ?: 0)) : ($file->getSize() ?: 0);
 
-            $variants[$variantKey] = [
-                'path' => $relativePath,
-                'url' => Storage::disk($disk)->url($relativePath),
-                'width' => (int) $variantSpec['width'],
-                'height' => (int) $variantSpec['height'],
-            ];
+            $asset = MediaAsset::query()->create([
+                'storage_driver' => 'local',
+                'disk' => $disk,
+                'path' => $path,
+                'url' => $url,
+                'directory' => $directory,
+                'filename' => basename($path),
+                'original_filename' => $file->getClientOriginalName(),
+                'mime_type' => 'image/webp',
+                'extension' => 'webp',
+                'size_bytes' => $storedSizeBytes,
+                'width' => $storedWidth,
+                'height' => $storedHeight,
+                'alt_text' => $altText,
+                'purpose' => $specKey,
+                'uploaded_by' => $uploadedById,
+                'variants' => $variants,
+                'metadata' => [
+                    'source_mime_type' => $detectedImageMime,
+                    'source_extension' => $extension,
+                    'source_size_bytes' => $file->getSize() ?: 0,
+                    'source_width' => $sourceWidth,
+                    'source_height' => $sourceHeight,
+                    'recommended_width' => $spec['width'] ?? null,
+                    'recommended_height' => $spec['height'] ?? null,
+                    'minimum_width' => $minimumWidth,
+                    'minimum_height' => $minimumHeight,
+                    'ratio' => $spec['ratio'] ?? null,
+                    'webp_quality' => $quality,
+                    'retains_original_upload' => false,
+                ],
+            ]);
+        } catch (\Throwable $exception) {
+            foreach ($writtenPaths as $writtenPath) {
+                Storage::disk($disk)->delete($writtenPath);
+            }
+
+            imagedestroy($image);
+
+            throw $exception;
         }
-
-        $primaryVariant = $variants['large'] ?? reset($variants);
-        $path = is_array($primaryVariant) ? (string) $primaryVariant['path'] : '';
-        $url = is_array($primaryVariant) ? (string) $primaryVariant['url'] : '';
-
-        $asset = MediaAsset::query()->create([
-            'storage_driver' => 'local',
-            'disk' => $disk,
-            'path' => $path,
-            'url' => $url,
-            'directory' => $directory,
-            'filename' => basename($path),
-            'original_filename' => $file->getClientOriginalName(),
-            'mime_type' => 'image/webp',
-            'extension' => 'webp',
-            'size_bytes' => $file->getSize() ?: 0,
-            'width' => $sourceWidth,
-            'height' => $sourceHeight,
-            'alt_text' => $altText,
-            'purpose' => $specKey,
-            'variants' => $variants,
-            'metadata' => [
-                'recommended_width' => $spec['width'] ?? null,
-                'recommended_height' => $spec['height'] ?? null,
-                'ratio' => $spec['ratio'] ?? null,
-            ],
-        ]);
 
         imagedestroy($image);
 
@@ -180,5 +252,42 @@ class ImageUploadService
             8 => imagerotate($image, 90, 0),
             default => $image,
         };
+    }
+
+    /**
+     * @param  list<string>  $formats
+     * @return list<string>
+     */
+    private function mimeTypesForFormats(array $formats): array
+    {
+        $mimeTypes = [];
+
+        foreach ($formats as $format) {
+            foreach (match (strtolower($format)) {
+                'jpg', 'jpeg' => ['image/jpeg'],
+                'png' => ['image/png'],
+                'webp' => ['image/webp'],
+                default => [],
+            } as $mimeType) {
+                $mimeTypes[] = $mimeType;
+            }
+        }
+
+        return array_values(array_unique($mimeTypes));
+    }
+
+    private function encodeWebp(\GdImage $image, int $quality): string
+    {
+        ob_start();
+        $encoded = imagewebp($image, null, $quality);
+        $contents = ob_get_clean();
+
+        if ($encoded === false || ! is_string($contents) || $contents === '') {
+            throw ValidationException::withMessages([
+                'file' => ['The uploaded image could not be optimized for storage.'],
+            ]);
+        }
+
+        return $contents;
     }
 }

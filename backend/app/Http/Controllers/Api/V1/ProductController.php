@@ -6,25 +6,34 @@ use App\Enums\CategoryStatus;
 use App\Enums\ProductAvailabilityStatus;
 use App\Enums\PublicationStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\ProductIndexRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(ProductIndexRequest $request): JsonResponse
     {
         $products = Product::query()
-            ->with(['category.image', 'variants', 'media'])
+            ->with([
+                'category.image',
+                'variants' => fn ($query) => $query
+                    ->where('availability_status', '!=', ProductAvailabilityStatus::Unavailable->value)
+                    ->orderByDesc('is_default')
+                    ->orderBy('sort_order')
+                    ->orderBy('id'),
+                'primaryMedia',
+            ])
             ->where('status', PublicationStatus::Published->value)
             ->whereHas('category', fn ($query) => $query->where('status', CategoryStatus::Active->value));
 
         if ($request->boolean('available_only', true)) {
             $products
                 ->where('available_for_order', true)
-                ->where('availability_status', '!=', ProductAvailabilityStatus::Unavailable->value);
+                ->where('availability_status', '!=', ProductAvailabilityStatus::Unavailable->value)
+                ->whereHas('variants', fn ($query) => $query->where('availability_status', '!=', ProductAvailabilityStatus::Unavailable->value));
         }
 
         $category = trim((string) $request->query('category', ''));
@@ -49,8 +58,9 @@ class ProductController extends Controller
             $products->where('featured', $request->boolean('featured'));
         }
 
-        if ($type = $request->query('product_type')) {
-            $products->where('product_type', $type);
+        $productTypes = $request->productTypes();
+        if ($productTypes !== []) {
+            $products->whereIn('product_type', $productTypes);
         }
 
         $paginator = $products
@@ -69,7 +79,15 @@ class ProductController extends Controller
     public function show(string $slug): JsonResponse
     {
         $product = Product::query()
-            ->with(['category.image', 'variants', 'media'])
+            ->with([
+                'category.image',
+                'variants' => fn ($query) => $query
+                    ->where('availability_status', '!=', ProductAvailabilityStatus::Unavailable->value)
+                    ->orderByDesc('is_default')
+                    ->orderBy('sort_order')
+                    ->orderBy('id'),
+                'media' => fn ($query) => $query->orderByPivot('sort_order')->orderBy('media_assets.id'),
+            ])
             ->where('slug', $slug)
             ->where('status', PublicationStatus::Published->value)
             ->whereHas('category', fn ($query) => $query->where('status', CategoryStatus::Active->value))
@@ -81,7 +99,7 @@ class ProductController extends Controller
         );
     }
 
-    private function perPage(Request $request): int
+    private function perPage(ProductIndexRequest $request): int
     {
         return max(1, min((int) $request->integer('per_page', 12), 48));
     }

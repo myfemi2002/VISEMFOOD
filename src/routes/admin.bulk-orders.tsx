@@ -4,8 +4,9 @@ import { DataTable } from "@/components/DataTable";
 import { SectionHeading } from "@/components/SectionHeading";
 import { StatusChip } from "@/components/StatusChip";
 import { getErrorMessage } from "@/lib/api";
+import { formatCurrency } from "@/lib/currency";
 import { buildMeta } from "@/lib/meta";
-import { fallbackAdminOrders, fetchAdminOrders, getOrderTone, type AdminOrder } from "@/lib/visemfood-api";
+import { fetchAdminOrders, getOrderTone, type AdminOrder } from "@/lib/visemfood-api";
 
 const statusOptions = [
   { value: "all", label: "All Orders" },
@@ -31,13 +32,16 @@ export const Route = createFileRoute("/admin/bulk-orders")({
 function BulkOrdersAdminPage() {
   const [status, setStatus] = useState<(typeof statusOptions)[number]["value"]>("all");
   const [search, setSearch] = useState("");
-  const [rows, setRows] = useState<AdminOrder[]>(fallbackAdminOrders);
+  const [rows, setRows] = useState<AdminOrder[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadOrders() {
+      setIsLoading(true);
+
       try {
         const result = await fetchAdminOrders({
           status: status === "all" ? undefined : status,
@@ -52,6 +56,10 @@ function BulkOrdersAdminPage() {
       } catch (nextError) {
         if (!cancelled) {
           setError(getErrorMessage(nextError, "Unable to load the order queue right now."));
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
         }
       }
     }
@@ -124,72 +132,76 @@ function BulkOrdersAdminPage() {
         <div className="flex flex-wrap gap-3">
           <StatusChip tone="olive">{summary.active} active records</StatusChip>
           <StatusChip tone="warning">{summary.whatsappPending} awaiting WhatsApp follow-up</StatusChip>
-          <StatusChip tone="neutral">NGN {summary.totalValue.toLocaleString()} visible queue value</StatusChip>
+          <StatusChip tone="neutral">{formatCurrency(summary.totalValue)} visible queue value</StatusChip>
         </div>
       </div>
 
-      <DataTable
-        rows={rows}
-        columns={[
-          {
-            key: "orderNumber",
-            header: "Reference",
-            cell: (row) => (
-              <div>
-                <p className="font-semibold text-[var(--vf-primary)]">{row.orderNumber}</p>
-                <p className="text-xs uppercase tracking-[0.08em] text-[var(--vf-text-soft)]">
-                  {formatDateLabel(row.createdAt ?? row.orderedAt)}
-                </p>
-              </div>
-            ),
-          },
-          {
-            key: "customer",
-            header: "Customer",
-            cell: (row) => (
-              <div>
-                <p className="font-semibold text-[var(--vf-text)]">{row.customer}</p>
-                <p className="text-xs text-soft">{row.phone || row.email || "Guest checkout"}</p>
-              </div>
-            ),
-          },
-          {
-            key: "items",
-            header: "Items",
-            cell: (row) => (
-              <div>
-                <p className="font-medium text-[var(--vf-text)]">{row.leadItemLabel}</p>
-                <p className="text-xs text-soft">{row.itemCount} items in cart</p>
-              </div>
-            ),
-          },
-          {
-            key: "fulfillment",
-            header: "Fulfillment",
-            cell: (row) => (
-              <div>
-                <p className="font-medium capitalize text-[var(--vf-text)]">{row.deliveryType.replace(/_/g, " ")}</p>
-                <p className="text-xs text-soft">{formatDateLabel(row.preferredFulfillmentAt)}</p>
-              </div>
-            ),
-          },
-          {
-            key: "total",
-            header: "Total",
-            cell: (row) => (
-              <div>
-                <p className="font-semibold text-[var(--vf-text)]">NGN {row.total.toLocaleString()}</p>
-                <p className="text-xs text-soft">{row.finalTotal != null ? "Final agreed total" : "Estimated total"}</p>
-              </div>
-            ),
-          },
-          {
-            key: "status",
-            header: "Status",
-            cell: (row) => <StatusChip tone={getOrderTone(row.status)}>{row.statusLabel}</StatusChip>,
-          },
-        ]}
-      />
+      {isLoading && rows.length === 0 ? (
+        <div className="card-surface p-6 text-sm text-soft">Loading order records...</div>
+      ) : (
+        <DataTable
+          rows={rows}
+          columns={[
+            {
+              key: "orderNumber",
+              header: "Reference",
+              cell: (row) => (
+                <div>
+                  <p className="font-semibold text-[var(--vf-primary)]">{row.orderNumber}</p>
+                  <p className="text-xs uppercase tracking-[0.08em] text-[var(--vf-text-soft)]">
+                    {formatDateLabel(row.createdAt ?? row.orderedAt)}
+                  </p>
+                </div>
+              ),
+            },
+            {
+              key: "customer",
+              header: "Customer",
+              cell: (row) => (
+                <div>
+                  <p className="font-semibold text-[var(--vf-text)]">{row.customer}</p>
+                  <p className="text-xs text-soft">{row.phone || row.email || "Guest checkout"}</p>
+                </div>
+              ),
+            },
+            {
+              key: "items",
+              header: "Items",
+              cell: (row) => (
+                <div>
+                  <p className="font-medium text-[var(--vf-text)]">{row.leadItemLabel}</p>
+                  <p className="text-xs text-soft">{row.itemCount} items in cart</p>
+                </div>
+              ),
+            },
+            {
+              key: "fulfillment",
+              header: "Fulfillment",
+              cell: (row) => (
+                <div>
+                  <p className="font-medium capitalize text-[var(--vf-text)]">{row.deliveryType.replace(/_/g, " ")}</p>
+                  <p className="text-xs text-soft">{formatDateLabel(row.preferredFulfillmentAt)}</p>
+                </div>
+              ),
+            },
+            {
+              key: "total",
+              header: "Total",
+              cell: (row) => (
+                <div>
+                  <p className="font-semibold text-[var(--vf-text)]">{formatCurrency(row.total)}</p>
+                  <p className="text-xs text-soft">{row.finalTotal != null ? "Final agreed total" : "Estimated total"}</p>
+                </div>
+              ),
+            },
+            {
+              key: "status",
+              header: "Status",
+              cell: (row) => <StatusChip tone={getOrderTone(row.status)}>{row.statusLabel}</StatusChip>,
+            },
+          ]}
+        />
+      )}
     </section>
   );
 }

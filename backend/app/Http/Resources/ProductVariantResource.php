@@ -7,6 +7,16 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProductVariantResource extends JsonResource
 {
+    protected function salePrice(): ?float
+    {
+        return $this->compare_price !== null ? (float) $this->compare_price : null;
+    }
+
+    protected function effectivePrice(): float
+    {
+        return $this->salePrice() ?? (float) $this->price;
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -16,17 +26,17 @@ class ProductVariantResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'sku' => $this->sku,
             'portion_label' => $this->portion_label,
             'description' => $this->description,
-            'price' => (float) $this->price,
-            'compare_price' => $this->compare_price !== null ? (float) $this->compare_price : null,
+            'price' => $this->effectivePrice(),
+            'base_price' => (float) $this->price,
+            'sale_price' => $this->salePrice(),
+            'compare_price' => $this->salePrice(),
+            'effective_price' => $this->effectivePrice(),
             'currency_code' => $this->currency_code,
             'availability_status' => $this->availability_status?->value ?? $this->availability_status,
             'is_default' => (bool) $this->is_default,
             'sort_order' => $this->sort_order,
-            'created_at' => $this->created_at?->toIso8601String(),
-            'updated_at' => $this->updated_at?->toIso8601String(),
         ];
     }
 }

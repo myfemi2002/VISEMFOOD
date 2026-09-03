@@ -7,8 +7,9 @@ return [
     'order_reference_prefix' => env('VISEMFOOD_ORDER_REFERENCE_PREFIX', 'VF'),
     'catering_reference_prefix' => env('VISEMFOOD_CATERING_REFERENCE_PREFIX', 'CAT'),
     'contact_reference_prefix' => env('VISEMFOOD_CONTACT_REFERENCE_PREFIX', 'MSG'),
-    'default_currency_code' => env('VISEMFOOD_DEFAULT_CURRENCY_CODE', 'NGN'),
-    'default_currency_symbol' => env('VISEMFOOD_DEFAULT_CURRENCY_SYMBOL', '₦'),
+    'default_currency_code' => env('VISEMFOOD_DEFAULT_CURRENCY_CODE', 'USD'),
+    'default_currency_symbol' => env('VISEMFOOD_DEFAULT_CURRENCY_SYMBOL', '$'),
+    'default_currency_locale' => env('VISEMFOOD_DEFAULT_CURRENCY_LOCALE', 'en-US'),
     'max_upload_megapixels' => (int) env('VISEMFOOD_MAX_UPLOAD_MEGAPIXELS', 24),
     'max_upload_size_kb' => (int) env('VISEMFOOD_MAX_UPLOAD_SIZE_KB', 8192),
 ];

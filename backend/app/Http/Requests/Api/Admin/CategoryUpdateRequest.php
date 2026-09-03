@@ -6,6 +6,7 @@ use App\Enums\CategoryStatus;
 use App\Models\Category;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class CategoryUpdateRequest extends FormRequest
 {
@@ -30,5 +31,43 @@ class CategoryUpdateRequest extends FormRequest
             'status' => ['required', Rule::in(CategoryStatus::values())],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $slug = $this->input('slug');
+
+        $this->merge([
+            'name' => trim((string) $this->input('name', '')),
+            'slug' => is_string($slug) && trim($slug) !== '' ? Str::slug($slug) : null,
+            'description' => $this->normalizeNullableString('description'),
+            'image_media_id' => $this->normalizeNullableInteger('image_media_id'),
+            'status' => strtolower(trim((string) $this->input('status', CategoryStatus::Active->value))),
+            'sort_order' => $this->normalizeNullableInteger('sort_order'),
+        ]);
+    }
+
+    private function normalizeNullableString(string $key): ?string
+    {
+        $value = $this->input($key);
+
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $normalized = trim($value);
+
+        return $normalized !== '' ? $normalized : null;
+    }
+
+    private function normalizeNullableInteger(string $key): int|string|null
+    {
+        $value = $this->input($key);
+
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return $value;
     }
 }

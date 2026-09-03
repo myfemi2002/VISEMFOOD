@@ -28,6 +28,7 @@ class CheckoutPreviewRequest extends FormRequest
             'preferred_fulfillment_at' => ['nullable', 'date'],
             'customer_notes' => ['nullable', 'string', 'max:10000'],
             'items' => ['required', 'array', 'min:1'],
+            'items.*.product_id' => ['nullable', 'integer'],
             'items.*.slug' => ['required', 'string', 'max:190'],
             'items.*.variant_id' => ['nullable', 'integer'],
             'items.*.quantity' => ['required', 'integer', 'min:1', 'max:1000'],

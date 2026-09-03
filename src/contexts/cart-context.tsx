@@ -1,83 +1,148 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-type CartItem = {
-  slug: string;
-  name: string;
-  price: number;
+export type CartItem = {
+  lineKey: string;
+  productId: number;
+  productSlug: string;
+  productName: string;
+  variantId: number | null;
+  variantName: string | null;
+  displayPrice: number;
+  currencyCode: string;
   quantity: number;
   image: string;
+};
+
+export type CartItemInput = Omit<CartItem, "lineKey" | "quantity">;
+
+export type CartLineTarget = {
+  productId: number;
+  variantId: number | null;
 };
 
 type CartContextValue = {
   items: CartItem[];
   cartCount: number;
-  bulkQuantities: Record<string, number>;
-  addItem: (item: Omit<CartItem, "quantity">) => void;
-  setItemQuantity: (slug: string, quantity: number) => void;
-  setBulkQuantity: (slug: string, quantity: number) => void;
+  addItem: (item: CartItemInput) => void;
+  setItemQuantity: (target: CartLineTarget, quantity: number) => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
 const STORAGE_KEY = "visemfood-cart";
+const STORAGE_VERSION = 2;
+
+type StoredCartState = {
+  version?: number;
+  items?: unknown;
+};
+
+export function buildCartLineKey(productId: number, variantId: number | null) {
+  return `${productId}:${variantId ?? "default"}`;
+}
+
+function isCartItem(value: unknown): value is CartItem {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const item = value as Partial<CartItem>;
+
+  return (
+    typeof item.productId === "number" &&
+    Number.isFinite(item.productId) &&
+    typeof item.productSlug === "string" &&
+    typeof item.productName === "string" &&
+    typeof item.displayPrice === "number" &&
+    Number.isFinite(item.displayPrice) &&
+    typeof item.currencyCode === "string" &&
+    typeof item.quantity === "number" &&
+    Number.isFinite(item.quantity) &&
+    typeof item.image === "string"
+  );
+}
+
+function sanitizeCartItems(items: unknown): CartItem[] {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+
+  return items
+    .filter(isCartItem)
+    .map((item) => ({
+      ...item,
+      variantId: typeof item.variantId === "number" ? item.variantId : null,
+      variantName: typeof item.variantName === "string" ? item.variantName : null,
+      lineKey: typeof item.lineKey === "string" && item.lineKey !== "" ? item.lineKey : buildCartLineKey(item.productId, item.variantId),
+      quantity: Math.max(1, Math.round(item.quantity)),
+    }));
+}
+
+function createCartItem(item: CartItemInput): CartItem {
+  return {
+    ...item,
+    lineKey: buildCartLineKey(item.productId, item.variantId),
+    quantity: 1,
+  };
+}
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const [bulkQuantities, setBulkQuantities] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (!stored) return;
+
+    if (!stored) {
+      return;
+    }
+
     try {
-      const parsed = JSON.parse(stored) as {
-        items?: CartItem[];
-        bulkQuantities?: Record<string, number>;
-      };
-      setItems(parsed.items ?? []);
-      setBulkQuantities(parsed.bulkQuantities ?? {});
-    } catch {}
+      const parsed = JSON.parse(stored) as StoredCartState;
+      setItems(sanitizeCartItems(parsed.version === STORAGE_VERSION ? parsed.items : []));
+    } catch {
+      setItems([]);
+    }
   }, []);
 
   useEffect(() => {
     window.localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
+        version: STORAGE_VERSION,
         items,
-        bulkQuantities,
       }),
     );
-  }, [items, bulkQuantities]);
+  }, [items]);
 
   const value = useMemo<CartContextValue>(
     () => ({
       items,
       cartCount: items.reduce((sum, item) => sum + item.quantity, 0),
-      bulkQuantities,
       addItem: (item) => {
+        const nextLineKey = buildCartLineKey(item.productId, item.variantId);
+
         setItems((current) => {
-          const existing = current.find((entry) => entry.slug === item.slug);
+          const existing = current.find((entry) => entry.lineKey === nextLineKey);
+
           if (existing) {
             return current.map((entry) =>
-              entry.slug === item.slug ? { ...entry, quantity: entry.quantity + 1 } : entry,
+              entry.lineKey === nextLineKey ? { ...entry, quantity: entry.quantity + 1 } : entry,
             );
           }
-          return [...current, { ...item, quantity: 1 }];
+
+          return [...current, createCartItem(item)];
         });
       },
-      setItemQuantity: (slug, quantity) => {
+      setItemQuantity: (target, quantity) => {
+        const lineKey = buildCartLineKey(target.productId, target.variantId);
+
         setItems((current) =>
           quantity <= 0
-            ? current.filter((item) => item.slug !== slug)
-            : current.map((item) => (item.slug === slug ? { ...item, quantity } : item)),
+            ? current.filter((item) => item.lineKey !== lineKey)
+            : current.map((item) => (item.lineKey === lineKey ? { ...item, quantity } : item)),
         );
       },
-      setBulkQuantity: (slug, quantity) => {
-        setBulkQuantities((current) => ({
-          ...current,
-          [slug]: Math.max(0, quantity),
-        }));
-      },
     }),
-    [bulkQuantities, items],
+    [items],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

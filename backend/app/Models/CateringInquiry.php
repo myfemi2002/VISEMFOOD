@@ -13,6 +13,7 @@ class CateringInquiry extends Model
 
     protected $fillable = [
         'reference_number',
+        'catering_package_id',
         'customer_name',
         'email',
         'phone',
@@ -22,6 +23,7 @@ class CateringInquiry extends Model
         'preferred_service',
         'location',
         'budget',
+        'budget_amount',
         'requirements',
         'notes',
         'status',
@@ -33,6 +35,7 @@ class CateringInquiry extends Model
     {
         return [
             'event_date' => 'datetime',
+            'budget_amount' => 'decimal:2',
             'status' => CateringInquiryStatus::class,
         ];
     }
@@ -40,5 +43,10 @@ class CateringInquiry extends Model
     public function assignedTo(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to_user_id');
+    }
+
+    public function cateringPackage(): BelongsTo
+    {
+        return $this->belongsTo(CateringPackage::class);
     }
 }

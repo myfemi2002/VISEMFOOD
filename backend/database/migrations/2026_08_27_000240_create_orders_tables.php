@@ -21,7 +21,7 @@ return new class extends Migration
             $table->timestamp('preferred_fulfillment_at')->nullable()->index();
             $table->text('customer_notes')->nullable();
             $table->text('admin_notes')->nullable();
-            $table->string('currency_code', 10)->default(config('visemfood.default_currency_code', 'NGN'));
+            $table->string('currency_code', 10)->default(config('visemfood.default_currency_code', 'USD'));
             $table->decimal('subtotal', 12, 2)->default(0);
             $table->decimal('delivery_fee', 12, 2)->default(0);
             $table->decimal('discount_amount', 12, 2)->default(0);

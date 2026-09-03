@@ -4,10 +4,9 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { StatCard } from "@/components/StatCard";
 import { useAdminSummary } from "@/contexts/admin-summary-context";
 import { getErrorMessage } from "@/lib/api";
+import { formatCurrency } from "@/lib/currency";
 import { buildMeta } from "@/lib/meta";
 import {
-  fallbackAdminOrders,
-  fallbackProducts,
   fetchAdminOrders,
   fetchAdminProducts,
   type AdminOrder,
@@ -25,14 +24,17 @@ export const Route = createFileRoute("/admin/analytics")({
 
 function AnalyticsAdminPage() {
   const { dashboard } = useAdminSummary();
-  const [orders, setOrders] = useState<AdminOrder[]>(fallbackAdminOrders);
-  const [products, setProducts] = useState<Product[]>(fallbackProducts);
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadAnalyticsData() {
+      setIsLoading(true);
+
       try {
         const [ordersResult, productsResult] = await Promise.all([
           fetchAdminOrders({ perPage: 100 }),
@@ -47,6 +49,10 @@ function AnalyticsAdminPage() {
       } catch (nextError) {
         if (!cancelled) {
           setError(getErrorMessage(nextError, "Unable to load analytics data right now."));
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
         }
       }
     }
@@ -161,10 +167,14 @@ function AnalyticsAdminPage() {
         </div>
       ) : null}
 
+      {isLoading && orders.length === 0 && products.length === 0 ? (
+        <div className="card-surface p-6 text-sm text-soft">Loading analytics data...</div>
+      ) : null}
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <StatCard label="Monthly Revenue" value={`NGN ${summary.monthlyRevenue.toLocaleString()}`} note={monthLabel} />
+        <StatCard label="Monthly Revenue" value={formatCurrency(summary.monthlyRevenue)} note={monthLabel} />
         <StatCard label="Weekly Orders" value={`${summary.weeklyOrders}`} />
-        <StatCard label="Average Order Value" value={`NGN ${summary.averageOrderValue.toLocaleString()}`} />
+        <StatCard label="Average Order Value" value={formatCurrency(summary.averageOrderValue)} />
         <StatCard label="Completion Rate" value={`${summary.completedRate}%`} />
         <StatCard label="Menu Availability" value={`${summary.availabilityRate}%`} />
       </div>

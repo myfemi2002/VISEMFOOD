@@ -7,6 +7,12 @@ import { z } from "zod";
 import { useSiteData } from "@/contexts/site-data-context";
 import { ApiError, getErrorMessage } from "@/lib/api";
 import { buildMeta } from "@/lib/meta";
+import {
+  buildTelHref,
+  getBusinessLocation,
+  getBusinessWhatsAppHref,
+  getOpeningHoursRows,
+} from "@/lib/site-settings";
 import { submitContactMessage } from "@/lib/visemfood-api";
 
 const heroImage =
@@ -87,21 +93,18 @@ function ContactPage() {
 
   const whatsappShareHref = `https://wa.me/?text=${encodeURIComponent(`Check out VISEMFOOD: ${shareUrl}`)}`;
   const emailShareHref = `mailto:?subject=${encodeURIComponent("VISEMFOOD Premium African Catering")}&body=${encodeURIComponent(`Take a look at VISEMFOOD: ${shareUrl}`)}`;
-  const [hoursDays, hoursRange] = siteMeta.hours.split(",").map((part) => part.trim());
-  const addressSegments = siteMeta.address.split(",").map((part) => part.trim());
-  const operatingHours = [
-    {
-      days: hoursRange ? hoursDays : "Business Hours",
-      hours: hoursRange || siteMeta.hours,
-    },
-    {
-      days: "Private Events",
-      hours: "By inquiry",
-    },
-  ] as const;
-  const primaryLocation = addressSegments[0] ?? siteMeta.address;
-  const supportingLocation = addressSegments.slice(1).join(", ") || "Lagos, Nigeria";
-  const phoneHref = `tel:${siteMeta.phone.replace(/[^\d+]/g, "")}`;
+  const location = getBusinessLocation(siteMeta);
+  const phoneHref = buildTelHref(siteMeta.phone);
+  const secondaryPhoneHref = buildTelHref(siteMeta.secondaryPhone);
+  const whatsappHref = getBusinessWhatsAppHref(siteMeta);
+  const operatingHours = getOpeningHoursRows(siteMeta.openingHours)
+    .filter((schedule) => schedule.isOpen)
+    .map((schedule) => ({
+      days: schedule.label,
+      hours: schedule.hours,
+    }));
+  const primaryLocation = location.primary;
+  const supportingLocation = location.secondary || siteMeta.country || "Location details pending";
 
   const submit = form.handleSubmit(async (values) => {
     try {
@@ -256,27 +259,49 @@ function ContactPage() {
                       {siteMeta.name}
                     </p>
                     <p className="mt-2 text-xs font-bold uppercase tracking-[0.22em] text-[var(--vf-text-soft)]">
-                      Premium African Catering & Hospitality
+                      {siteMeta.tagline || "Premium African Catering & Hospitality"}
                     </p>
                   </div>
 
                   <div className="space-y-4">
                     <ContactInfoItem icon="location_on" title="Main Kitchen">
                       <p>{primaryLocation}</p>
-                      <p>{supportingLocation}</p>
+                      {supportingLocation ? <p>{supportingLocation}</p> : null}
                     </ContactInfoItem>
 
                     <ContactInfoItem icon="call" title="Phone">
-                      <a href={phoneHref} className="transition-colors hover:text-[var(--vf-primary)]">
-                        {siteMeta.phone}
-                      </a>
+                      {phoneHref ? (
+                        <a href={phoneHref} className="transition-colors hover:text-[var(--vf-primary)]">
+                          {siteMeta.phone}
+                        </a>
+                      ) : (
+                        <span>Phone pending</span>
+                      )}
+                      {siteMeta.secondaryPhone && secondaryPhoneHref ? <p className="mt-1">{siteMeta.secondaryPhone}</p> : null}
                     </ContactInfoItem>
 
                     <ContactInfoItem icon="mail" title="Email">
-                      <a href={`mailto:${siteMeta.email}`} className="transition-colors hover:text-[var(--vf-primary)]">
-                        {siteMeta.email}
-                      </a>
+                      {siteMeta.email ? (
+                        <a href={`mailto:${siteMeta.email}`} className="transition-colors hover:text-[var(--vf-primary)]">
+                          {siteMeta.email}
+                        </a>
+                      ) : (
+                        <span>Email pending</span>
+                      )}
                     </ContactInfoItem>
+
+                    {whatsappHref ? (
+                      <ContactInfoItem icon="chat" title="WhatsApp">
+                        <a
+                          href={whatsappHref}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="transition-colors hover:text-[var(--vf-primary)]"
+                        >
+                          Message our hospitality desk
+                        </a>
+                      </ContactInfoItem>
+                    ) : null}
                   </div>
                 </div>
 
@@ -293,7 +318,9 @@ function ContactPage() {
                   </div>
 
                   <ul className="mt-5 space-y-3">
-                    {operatingHours.map((schedule) => (
+                    {(operatingHours.length > 0
+                      ? operatingHours
+                      : [{ days: "Business Hours", hours: siteMeta.hours || "Hours will be updated shortly." }]).map((schedule) => (
                       <li
                         key={schedule.days}
                         className="flex items-center justify-between gap-4 border-b border-[var(--vf-border-soft)] pb-3 text-sm last:border-b-0 last:pb-0 sm:text-base"
@@ -302,6 +329,10 @@ function ContactPage() {
                         <span className="font-bold text-[var(--vf-text)]">{schedule.hours}</span>
                       </li>
                     ))}
+                    <li className="flex items-center justify-between gap-4 border-b border-[var(--vf-border-soft)] pb-3 text-sm last:border-b-0 last:pb-0 sm:text-base">
+                      <span className="text-soft">Private Events</span>
+                      <span className="font-bold text-[var(--vf-text)]">By inquiry</span>
+                    </li>
                   </ul>
                 </article>
 
@@ -333,7 +364,7 @@ function ContactPage() {
                 <div className="card-surface relative min-h-[340px] overflow-hidden p-2 sm:min-h-[460px] lg:h-full">
                   <iframe
                     title="VISEMFOOD location map"
-                    src={`https://www.google.com/maps?q=${encodeURIComponent(siteMeta.address)}&output=embed`}
+                    src={`https://www.google.com/maps?q=${encodeURIComponent(location.full || siteMeta.address || siteMeta.name)}&output=embed`}
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     className="absolute inset-2 h-[calc(100%-1rem)] w-[calc(100%-1rem)] rounded-[calc(var(--vf-radius-lg)-6px)] border-0"
@@ -349,13 +380,18 @@ function ContactPage() {
                   <div className="pointer-events-none absolute inset-x-6 bottom-6 grid gap-3 sm:grid-cols-2">
                     <div className="rounded-[calc(var(--vf-radius-md)+2px)] border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-elevated)] px-4 py-3 shadow-[var(--vf-shadow-soft)] backdrop-blur-md">
                       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">Call or email</p>
-                      <p className="mt-1 text-sm font-bold text-[var(--vf-text)] sm:text-base">{siteMeta.phone}</p>
-                      <p className="mt-1 text-sm text-soft">{siteMeta.email}</p>
+                      <p className="mt-1 text-sm font-bold text-[var(--vf-text)] sm:text-base">
+                        {siteMeta.phone || siteMeta.secondaryPhone || "Phone pending"}
+                      </p>
+                      {siteMeta.secondaryPhone && siteMeta.phone ? (
+                        <p className="mt-1 text-xs text-soft">{siteMeta.secondaryPhone}</p>
+                      ) : null}
+                      <p className="mt-1 text-sm text-soft">{siteMeta.email || "Email pending"}</p>
                     </div>
                     <div className="rounded-[calc(var(--vf-radius-md)+2px)] border border-[var(--vf-border-soft)] bg-[var(--vf-overlay-elevated)] px-4 py-3 shadow-[var(--vf-shadow-soft)] backdrop-blur-md">
                       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--vf-text-soft)]">Service base</p>
                       <p className="mt-1 text-sm font-bold text-[var(--vf-text)] sm:text-base">{primaryLocation}</p>
-                      <p className="mt-1 text-sm text-soft">{supportingLocation}</p>
+                      <p className="mt-1 text-sm text-soft">{supportingLocation || "Location details pending"}</p>
                     </div>
                   </div>
                 </div>

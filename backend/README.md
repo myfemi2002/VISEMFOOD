@@ -23,6 +23,8 @@ php artisan serve
 
 Default seeded admin accounts:
 
+- Development only: these come from local seeder defaults unless you explicitly override them in `backend/.env`.
+- Production must set strong `VISEMFOOD_SUPER_ADMIN_*` and `VISEMFOOD_ADMIN_*` credentials before seeding.
 - `superadmin@visemfood.test` / `Password12345`
 - `admin@visemfood.test` / `Password12345`
 

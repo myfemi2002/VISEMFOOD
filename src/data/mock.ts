@@ -167,7 +167,7 @@ export const cateringRequests: CateringRequest[] = [
     eventDate: "2026-09-12",
     guests: 250,
     status: "Quoted",
-    budget: "NGN 4.5m - 5m",
+    budget: "$4,500 - $5,000",
   },
   {
     id: "CR-1045",
@@ -176,7 +176,7 @@ export const cateringRequests: CateringRequest[] = [
     eventDate: "2026-08-29",
     guests: 80,
     status: "Confirmed",
-    budget: "NGN 1.2m - 1.5m",
+    budget: "$1,200 - $1,500",
   },
   {
     id: "CR-1048",
@@ -185,7 +185,7 @@ export const cateringRequests: CateringRequest[] = [
     eventDate: "2026-09-03",
     guests: 35,
     status: "New",
-    budget: "NGN 450k - 700k",
+    budget: "$450 - $700",
   },
 ];
 

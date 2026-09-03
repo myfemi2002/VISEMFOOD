@@ -3,11 +3,12 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { useSiteData } from "@/contexts/site-data-context";
 import { buildMeta } from "@/lib/meta";
-import { fallbackProducts, type Product } from "@/lib/visemfood-api";
+import { type Product } from "@/lib/visemfood-api";
 
 type QuickFilter = "all" | "featured" | "available" | "limited" | "hosting";
 
 const allCategoryDescription = "Every bowl, platter, tray, cooler, and premium staple in the VISEMFOOD kitchen.";
+const menuHeroImage = "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1400&q=80";
 
 function isHostingReady(product: Product) {
   const content = `${product.name} ${product.servingSize} ${product.tags?.join(" ") ?? ""}`.toLowerCase();
@@ -20,13 +21,13 @@ export const Route = createFileRoute("/menu")({
       title: "Menu | VISEMFOOD",
       description:
         "Browse the VISEMFOOD premium African menu with refined search, category filtering, and direct ordering actions.",
-      image: fallbackProducts[0]?.image,
+      image: menuHeroImage,
     }),
   component: MenuPage,
 });
 
 function MenuPage() {
-  const { categories, products } = useSiteData();
+  const { categories, products, status, error, refresh } = useSiteData();
   const [activeCategory, setActiveCategory] = useState("all");
   const [query, setQuery] = useState("");
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
@@ -38,7 +39,7 @@ function MenuPage() {
       ...categories.map((category) => ({
         id: category.slug,
         label: category.name,
-        description: category.description,
+        description: category.description || `Explore ${category.name.toLowerCase()} from the live VISEMFOOD menu.`,
       })),
     ],
     [categories],
@@ -90,6 +91,8 @@ function MenuPage() {
   const browsingDescription = query.trim()
     ? `Showing ${dishCountLabel} for "${query}".`
     : activeCategoryMeta.description;
+  const isCatalogLoading = status === "loading" && products.length === 0;
+  const hasCatalogError = status === "error" && products.length === 0;
 
   function resetFilters() {
     setActiveCategory("all");
@@ -297,7 +300,24 @@ function MenuPage() {
             </div>
           </div>
 
-          {filtered.length === 0 ? (
+          {isCatalogLoading ? (
+            <div className="card-surface mt-8 max-w-2xl p-8 text-center sm:mx-auto sm:p-10">
+              <h3 className="heading-display text-3xl font-bold text-[var(--vf-text)]">Loading the live menu</h3>
+              <p className="mt-3 text-sm leading-7 text-soft sm:text-base">
+                We're pulling the latest categories, products, and availability from the VISEMFOOD catalog.
+              </p>
+            </div>
+          ) : hasCatalogError ? (
+            <div className="card-surface mt-8 max-w-2xl p-8 text-center sm:mx-auto sm:p-10">
+              <h3 className="heading-display text-3xl font-bold text-[var(--vf-text)]">Unable to load the menu right now</h3>
+              <p className="mt-3 text-sm leading-7 text-soft sm:text-base">
+                {error ?? "The live VISEMFOOD menu is temporarily unavailable. Please try again."}
+              </p>
+              <button type="button" className="btn-primary mt-6 w-full sm:w-auto" onClick={() => void refresh()}>
+                Retry
+              </button>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="card-surface mt-8 max-w-2xl p-8 text-center sm:mx-auto sm:p-10">
               <h3 className="heading-display text-3xl font-bold text-[var(--vf-text)]">No dishes matched your filters</h3>
               <p className="mt-3 text-sm leading-7 text-soft sm:text-base">

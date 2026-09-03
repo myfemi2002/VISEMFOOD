@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('whatsapp_contact_number', 40)->nullable();
             $table->text('business_address')->nullable();
             $table->string('business_hours')->nullable();
-            $table->string('currency_code', 10)->default(config('visemfood.default_currency_code', 'NGN'));
-            $table->string('currency_symbol', 10)->default(config('visemfood.default_currency_symbol', '₦'));
+            $table->string('currency_code', 10)->default(config('visemfood.default_currency_code', 'USD'));
+            $table->string('currency_symbol', 10)->default(config('visemfood.default_currency_symbol', '$'));
             $table->text('delivery_information')->nullable();
             $table->text('checkout_notice')->nullable();
             $table->json('social_links')->nullable();
