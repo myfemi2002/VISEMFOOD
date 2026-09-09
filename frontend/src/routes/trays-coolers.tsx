@@ -3,12 +3,11 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import { ProductCard } from "@/components/ProductCard";
 import { SearchField } from "@/components/SearchField";
 import { StatusChip } from "@/components/StatusChip";
-import { useCart } from "@/contexts/cart-context";
 import { getErrorMessage } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { getMediaAltText, getMediaVariantUrl } from "@/lib/media";
 import { buildMeta } from "@/lib/meta";
-import { fetchProducts, getProductTone, type Product, type ProductVariant } from "@/lib/visemfood-api";
+import { fetchProducts, getProductTone, type Product } from "@/lib/visemfood-api";
 
 type OfferingFilter = "all" | "bowls" | "trays" | "coolers" | "hosting";
 type OfferingCategory = Exclude<OfferingFilter, "all">;
@@ -53,7 +52,6 @@ export const Route = createFileRoute("/trays-coolers")({
 });
 
 function TraysCoolersPage() {
-  const { addItem } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
   const [status, setStatus] = useState<CatalogStatus>("loading");
   const [error, setError] = useState<string | null>(null);
@@ -186,32 +184,6 @@ function TraysCoolersPage() {
   function resetFilters() {
     setActiveFilter("all");
     setQuery("");
-  }
-
-  function handleQuickAdd(product: Product) {
-    const selectedVariant = getDefaultOrderVariant(product);
-    const isUnavailable =
-      !product.isOrderable ||
-      product.availability === "Sold Out" ||
-      selectedVariant?.availabilityStatus === "unavailable";
-
-    if (isUnavailable) {
-      return;
-    }
-
-    addItem({
-      productId: product.id,
-      productSlug: product.slug,
-      productName: product.name,
-      variantId: selectedVariant?.id ?? null,
-      variantName: selectedVariant?.name ?? null,
-      displayPrice: selectedVariant?.effectivePrice ?? getStartingPrice(product),
-      currencyCode: product.currencyCode,
-      image:
-        getMediaVariantUrl(product.primaryImage, "medium") ||
-        getMediaVariantUrl(product.primaryImage, "thumbnail") ||
-        product.image,
-    });
   }
 
   function renderExploreLink(offering: BulkOffering, compact = false) {
@@ -350,14 +322,6 @@ function TraysCoolersPage() {
                     </div>
 
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                      <button
-                        type="button"
-                        className="btn-primary w-full sm:w-auto disabled:cursor-not-allowed disabled:opacity-60"
-                        disabled={!featuredOffering.product.isOrderable}
-                        onClick={() => handleQuickAdd(featuredOffering.product)}
-                      >
-                        {featuredOffering.product.isOrderable ? "Add Default Option" : "Unavailable"}
-                      </button>
                       {renderExploreLink(featuredOffering)}
                     </div>
                   </div>
@@ -422,14 +386,6 @@ function TraysCoolersPage() {
                               {formatCurrency(offering.price, { currency: offering.product.currencyCode })}
                             </p>
                           </div>
-                          <button
-                            type="button"
-                            className="btn-primary min-h-[2.5rem] rounded-[var(--vf-radius-md)] px-4 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-60"
-                            disabled={!offering.product.isOrderable}
-                            onClick={() => handleQuickAdd(offering.product)}
-                          >
-                            {offering.product.isOrderable ? "Add" : "Unavailable"}
-                          </button>
                         </div>
 
                         {renderExploreLink(offering, true)}
@@ -563,7 +519,7 @@ function toBulkOffering(product: Product): BulkOffering | null {
     kindLabel: getKindLabel(category),
     badge: getBadge(product, category),
     price: getStartingPrice(product),
-    servingRange: getDefaultOrderVariant(product)?.portionLabel ?? product.servingSize,
+    servingRange: product.servingSize,
     description: product.shortDescription || product.description,
     image:
       getMediaVariantUrl(product.primaryImage, "large") ||
@@ -675,16 +631,6 @@ function getStartingPrice(product: Product) {
   }
 
   return product.effectivePrice || product.price || product.basePrice;
-}
-
-function getDefaultOrderVariant(product: Product): ProductVariant | null {
-  return (
-    product.variants.find((variant) => variant.id === product.defaultVariant?.id) ??
-    product.defaultVariant ??
-    product.variants.find((variant) => variant.availabilityStatus !== "unavailable") ??
-    product.variants[0] ??
-    null
-  );
 }
 
 

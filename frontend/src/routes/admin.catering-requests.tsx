@@ -97,32 +97,31 @@ function CateringRequestsAdminPage() {
     };
   }, [deferredSearch, packageFilter, status]);
 
-  useEffect(() => {
-    if (rows.length === 0) {
-      setSelectedId(null);
-      setSelectedInquiry(null);
-      return;
-    }
-    if (!selectedId || !rows.some((row) => row.id === selectedId)) {
-      setSelectedId(rows[0].id);
-    }
-  }, [rows, selectedId]);
 
   useEffect(() => {
     if (selectedId === null) {
+      setSelectedInquiry(null);
+      setDetailError(null);
+      setDraftStatus("new");
+      setDraftNotes("");
+      setIsDetailLoading(false);
       return;
     }
+
     const inquiryId = selectedId;
     let cancelled = false;
+
+    setSelectedInquiry(null);
+    setDetailError(null);
+    setIsDetailLoading(true);
+
     async function loadDetail() {
-      setIsDetailLoading(true);
       try {
         const inquiry = await fetchAdminCateringInquiry(inquiryId);
         if (!cancelled) {
           setSelectedInquiry(inquiry);
           setDraftStatus(inquiry.statusValue);
           setDraftNotes(inquiry.internalNotes ?? "");
-          setDetailError(null);
         }
       } catch (error) {
         if (!cancelled) {
@@ -135,6 +134,7 @@ function CateringRequestsAdminPage() {
         }
       }
     }
+
     void loadDetail();
     return () => {
       cancelled = true;
@@ -145,7 +145,32 @@ function CateringRequestsAdminPage() {
     open: rows.filter((row) => ["new", "contacted", "quoted"].includes(row.statusValue)).length,
     confirmed: rows.filter((row) => row.statusValue === "confirmed").length,
     guests: rows.reduce((total, row) => total + row.guests, 0),
-  }), [rows]);  async function saveInquiry() {
+  }), [rows]);
+
+  useEffect(() => {
+    if (selectedId === null) {
+      return;
+    }
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [selectedId]);
+
+  function closeReviewModal() {
+    setSelectedId(null);
+    setSelectedInquiry(null);
+    setDetailError(null);
+    setIsDetailLoading(false);
+    setDraftStatus("new");
+    setDraftNotes("");
+    setDetailReloadKey((value) => value + 1);
+  }
+
+  async function saveInquiry() {
     if (!selectedInquiry) {
       return;
     }
@@ -159,18 +184,22 @@ function CateringRequestsAdminPage() {
       setSelectedInquiry(result.inquiry);
       setDraftStatus(result.inquiry.statusValue);
       setDraftNotes(result.inquiry.internalNotes ?? "");
-      await Promise.all([
-        refreshSummary(),
-        (async () => {
-          const refreshed = await fetchAdminCateringInquiries({
-            status: status === "all" ? undefined : status,
-            cateringPackageId: packageFilter === "all" ? undefined : packageFilter,
-            search: deferredSearch.trim() || undefined,
-            perPage: 100,
-          });
-          setRows(refreshed.items);
-        })(),
-      ]);
+      setRows((currentRows) =>
+        currentRows.map((row) =>
+          row.id === result.inquiry.id
+            ? {
+                ...row,
+                status: result.inquiry.status,
+                statusValue: result.inquiry.statusValue,
+                internalNotes: result.inquiry.internalNotes,
+                assignedToName: result.inquiry.assignedToName,
+                assignedToUserId: result.inquiry.assignedToUserId,
+                updatedAt: result.inquiry.updatedAt,
+              }
+            : row,
+        ),
+      );
+      await refreshSummary();
       toast.success("Catering inquiry updated", { description: result.message });
     } catch (error) {
       toast.error("Unable to update inquiry", { description: getErrorMessage(error, "Please try again.") });
@@ -207,26 +236,140 @@ function CateringRequestsAdminPage() {
           ]} /> : null}
         </section>
 
-        <aside className="card-surface h-fit space-y-5 p-5 sm:p-6 xl:sticky xl:top-24">
-          <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--vf-primary)]">Inquiry Detail</p><h2 className="heading-display mt-2 text-3xl font-bold text-[var(--vf-text)]">{selectedInquiry ? selectedInquiry.referenceNumber : "Select an inquiry"}</h2></div>{selectedInquiry ? <StatusChip tone={getCateringTone(draftStatus)}>{titleCase(draftStatus)}</StatusChip> : null}</div>
-          {isDetailLoading ? <div className="rounded-[var(--vf-radius-md)] bg-[var(--vf-surface)] p-4 text-sm text-soft">Loading inquiry details...</div> : null}
-          {detailError ? <div className="rounded-[var(--vf-radius-md)] border border-[var(--vf-warning-border)] bg-[var(--vf-warning-soft)] p-4 text-sm text-[var(--vf-text)]">{detailError}</div> : null}
-          {!isDetailLoading && !selectedInquiry ? <div className="rounded-[var(--vf-radius-md)] border border-dashed border-[var(--vf-border-soft)] bg-[var(--vf-surface)] p-4 text-sm text-soft">Select an inquiry to review customer details, package context, and internal notes.</div> : null}
-          {selectedInquiry ? <>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <InfoBlock label="Customer" value={selectedInquiry.client} supporting={selectedInquiry.email || selectedInquiry.phone || "Contact pending"} />
-              <InfoBlock label="Package" value={selectedInquiry.packageName ?? "Custom request"} supporting={selectedInquiry.packageStartingPrice !== null ? `Starts ${formatCurrency(selectedInquiry.packageStartingPrice, { currency: selectedInquiry.packageCurrencyCode })}` : "No package selected"} />
-              <InfoBlock label="Event" value={selectedInquiry.eventType} supporting={selectedInquiry.eventDate || "Date pending"} />
-              <InfoBlock label="Guests" value={selectedInquiry.guests ? selectedInquiry.guests.toLocaleString() : "TBD"} supporting={selectedInquiry.preferredService ?? "Service to be confirmed"} />
-              <InfoBlock label="Budget" value={selectedInquiry.budgetAmount !== null ? formatCurrency(selectedInquiry.budgetAmount, { currency: selectedInquiry.packageCurrencyCode }) : selectedInquiry.budget} supporting={selectedInquiry.location ?? "Location pending"} />
-              <InfoBlock label="Assigned To" value={selectedInquiry.assignedToName ?? "Unassigned"} supporting={formatDateTime(selectedInquiry.updatedAt)} />
+        {selectedId !== null ? (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--vf-backdrop)] p-4 backdrop-blur-[2px]">
+            <div
+              className="relative flex max-h-[90vh] w-full max-w-[850px] flex-col overflow-hidden rounded-[calc(var(--vf-radius-lg)+0.2rem)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] shadow-[var(--vf-shadow-float)]"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="catering-inquiry-review-title"
+              aria-describedby="catering-inquiry-review-description"
+            >
+              <div className="flex items-start justify-between gap-4 border-b border-[var(--vf-border-soft)] px-5 py-4 sm:px-6">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--vf-primary)]">Catering Inquiry Review</p>
+                  <h2 id="catering-inquiry-review-title" className="heading-display mt-2 text-3xl font-bold text-[var(--vf-text)]">
+                    {selectedInquiry?.referenceNumber ?? "Review inquiry"}
+                  </h2>
+                  <p id="catering-inquiry-review-description" className="mt-2 text-sm leading-7 text-soft">
+                    Customer inquiry details and internal status
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  {selectedInquiry ? <StatusChip tone={getCateringTone(draftStatus)}>{titleCase(draftStatus)}</StatusChip> : null}
+                  <button
+                    type="button"
+                    onClick={closeReviewModal}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[var(--vf-text-soft)] transition-colors hover:bg-[var(--vf-surface-muted)] hover:text-[var(--vf-text)]"
+                    aria-label="Close catering inquiry review"
+                  >
+                    <span className="material-symbols-rounded">close</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-6">
+                {isDetailLoading ? (
+                  <div className="rounded-[var(--vf-radius-md)] bg-[var(--vf-surface)] p-4 text-sm text-soft">Loading inquiry details...</div>
+                ) : null}
+                {detailError ? (
+                  <div className="space-y-4 rounded-[var(--vf-radius-md)] border border-[var(--vf-warning-border)] bg-[var(--vf-warning-soft)] p-4 text-sm text-[var(--vf-text)]">
+                    <p>{detailError}</p>
+                    <div className="flex flex-wrap gap-3">
+                      <button type="button" className="btn-primary rounded-full px-4 py-2 text-xs" onClick={() => setDetailReloadKey((value) => value + 1)}>
+                        Retry
+                      </button>
+                      <button type="button" className="btn-ghost rounded-full px-4 py-2 text-xs" onClick={closeReviewModal}>
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+
+                {!isDetailLoading && !detailError && !selectedInquiry ? (
+                  <div className="rounded-[var(--vf-radius-md)] border border-dashed border-[var(--vf-border-soft)] bg-[var(--vf-surface)] p-4 text-sm text-soft">
+                    Select an inquiry to review customer details, package context, and internal notes.
+                  </div>
+                ) : null}
+
+                {selectedInquiry ? (
+                  <div className="space-y-6">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <InfoBlock label="Customer" value={selectedInquiry.client} supporting={selectedInquiry.email || selectedInquiry.phone || "Not provided"} />
+                      <InfoBlock label="Package" value={selectedInquiry.packageName ?? "Custom request"} supporting={selectedInquiry.packageStartingPrice !== null ? `Starts ${formatCurrency(selectedInquiry.packageStartingPrice, { currency: selectedInquiry.packageCurrencyCode })}` : "No package selected"} />
+                      <InfoBlock label="Event" value={selectedInquiry.eventType} supporting={selectedInquiry.eventDate || "Not provided"} />
+                      <InfoBlock label="Guests" value={selectedInquiry.guests ? selectedInquiry.guests.toLocaleString() : "Not provided"} supporting={selectedInquiry.preferredService ?? "Not provided"} />
+                      <InfoBlock label="Budget" value={selectedInquiry.budgetAmount !== null ? formatCurrency(selectedInquiry.budgetAmount, { currency: selectedInquiry.packageCurrencyCode }) : selectedInquiry.budget} supporting={selectedInquiry.location ?? "Not provided"} />
+                      <InfoBlock label="Assigned To" value={selectedInquiry.assignedToName ?? "Unassigned"} supporting={formatDateTime(selectedInquiry.updatedAt)} />
+                    </div>
+
+                    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                      <div className="space-y-4">
+                        <section className="rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface)] p-4">
+                          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--vf-text-soft)]">Customer Information</p>
+                          <dl className="mt-4 space-y-3 text-sm">
+                            <DetailRow label="Name" value={selectedInquiry.client} />
+                            <DetailRow label="Email" value={selectedInquiry.email || "Not provided"} href={selectedInquiry.email ? `mailto:${selectedInquiry.email}` : undefined} />
+                            <DetailRow label="Phone" value={selectedInquiry.phone || "Not provided"} href={selectedInquiry.phone ? `tel:${selectedInquiry.phone}` : undefined} />
+                          </dl>
+                        </section>
+
+                        <section className="rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface)] p-4">
+                          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--vf-text-soft)]">Event Details</p>
+                          <dl className="mt-4 space-y-3 text-sm">
+                            <DetailRow label="Package" value={selectedInquiry.packageName ?? "Custom request"} />
+                            <DetailRow label="Event Type" value={selectedInquiry.eventType} />
+                            <DetailRow label="Event Date" value={selectedInquiry.eventDate || "Not provided"} />
+                            <DetailRow label="Guest Count" value={selectedInquiry.guests ? selectedInquiry.guests.toLocaleString() : "Not provided"} />
+                            <DetailRow label="Budget" value={selectedInquiry.budgetAmount !== null ? formatCurrency(selectedInquiry.budgetAmount, { currency: selectedInquiry.packageCurrencyCode }) : selectedInquiry.budget} />
+                            <DetailRow label="Location" value={selectedInquiry.location || "Not provided"} />
+                          </dl>
+                        </section>
+                      </div>
+
+                      <div className="space-y-4">
+                        <section className="rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface)] p-4">
+                          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--vf-text-soft)]">Requirements</p>
+                          <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-[var(--vf-text)]">{selectedInquiry.requirements || selectedInquiry.notes || "No additional requirements were provided."}</p>
+                        </section>
+
+                        <section className="rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface)] p-4">
+                          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--vf-text-soft)]">Admin Notes</p>
+                          <textarea
+                            className="textarea-field mt-4"
+                            rows={6}
+                            value={draftNotes}
+                            onChange={(event) => setDraftNotes(event.target.value)}
+                            placeholder="Spoke with customer. Preparing quotation."
+                          />
+                        </section>
+                      </div>
+                    </div>
+
+                    <label className="block">
+                      <span className="mb-2 block text-sm font-semibold text-[var(--vf-text)]">Status</span>
+                      <select className="select-field" value={draftStatus} onChange={(event) => setDraftStatus(event.target.value)}>
+                        {statusOptions.filter((option) => option !== "all").map((option) => <option key={option} value={option}>{titleCase(option)}</option>)}
+                      </select>
+                    </label>
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="flex flex-col gap-3 border-t border-[var(--vf-border-soft)] px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+                <button type="button" className="btn-ghost w-full rounded-full px-4 py-2 text-sm sm:w-auto" onClick={closeReviewModal}>
+                  Close
+                </button>
+                {selectedInquiry ? (
+                  <button type="button" className="btn-primary w-full rounded-full px-5 py-2 text-sm sm:w-auto" onClick={() => void saveInquiry()} disabled={isSaving || isDetailLoading}>
+                    {isSaving ? "Saving..." : "Save Changes"}
+                  </button>
+                ) : null}
+              </div>
             </div>
-            <label className="block"><span className="mb-2 block text-sm font-semibold text-[var(--vf-text)]">Status</span><select className="select-field" value={draftStatus} onChange={(event) => setDraftStatus(event.target.value)}>{statusOptions.filter((option) => option !== "all").map((option) => <option key={option} value={option}>{titleCase(option)}</option>)}</select></label>
-            <label className="block"><span className="mb-2 block text-sm font-semibold text-[var(--vf-text)]">Internal Notes</span><textarea className="textarea-field" rows={6} value={draftNotes} onChange={(event) => setDraftNotes(event.target.value)} placeholder="Spoke with customer. Preparing quotation." /></label>
-            <div className="rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface)] p-4 text-sm text-soft"><p className="font-semibold text-[var(--vf-text)]">Customer Requirements</p><p className="mt-2 whitespace-pre-wrap">{selectedInquiry.requirements || selectedInquiry.notes || "No additional requirements were provided."}</p></div>
-            <div className="flex flex-col gap-3 sm:flex-row"><button type="button" className="btn-primary w-full sm:w-auto" onClick={() => void saveInquiry()} disabled={isSaving}>{isSaving ? "Saving..." : "Save Changes"}</button><button type="button" className="btn-ghost w-full sm:w-auto" onClick={() => selectedInquiry && setDetailReloadKey((value) => value + 1)} disabled={isDetailLoading}>Reload Detail</button></div>
-          </> : null}
-        </aside>
+          </div>
+        ) : null}
+
       </div>
     </section>
   );
@@ -246,6 +389,23 @@ function formatDateTime(value: string | null) {
 
 function InfoBlock({ label, value, supporting }: { label: string; value: string; supporting: string }) {
   return <div className="rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface)] p-4"><p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--vf-text-soft)]">{label}</p><p className="mt-2 text-sm font-semibold text-[var(--vf-text)]">{value}</p><p className="mt-1 text-sm text-soft">{supporting}</p></div>;
+}
+
+function DetailRow({ label, value, href }: { label: string; value: string; href?: string }) {
+  const content = href ? (
+    <a href={href} className="break-words text-sm font-semibold text-[var(--vf-text)] transition-colors hover:text-[var(--vf-primary)]">
+      {value}
+    </a>
+  ) : (
+    <span className="break-words text-sm font-semibold text-[var(--vf-text)]">{value}</span>
+  );
+
+  return (
+    <div className="flex items-start justify-between gap-4 border-b border-[var(--vf-border-soft)] pb-3 last:border-b-0 last:pb-0">
+      <span className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--vf-text-soft)]">{label}</span>
+      <div className="max-w-[65%] text-right">{content}</div>
+    </div>
+  );
 }
 
 

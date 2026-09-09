@@ -1780,6 +1780,7 @@ export async function submitContactMessage(payload: {
 }) {
   const { data, message } = await apiRequest<ApiContactMessage>("/api/v1/contact", {
     method: "POST",
+    requiresCsrf: true,
     body: payload,
   });
 
@@ -1806,6 +1807,7 @@ export async function submitCateringInquiry(payload: {
 }) {
   const { data, message } = await apiRequest<ApiCateringInquiry>("/api/v1/catering", {
     method: "POST",
+    requiresCsrf: true,
     body: payload,
   });
 
@@ -2545,6 +2547,3 @@ export async function continueCheckoutOnWhatsApp(orderNumber: string): Promise<C
     message: data.whatsapp.message,
   };
 }
-
-
-

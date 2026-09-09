@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -8,7 +8,7 @@ import { useSiteData } from "@/contexts/site-data-context";
 import { ApiError, getErrorMessage } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { buildMeta } from "@/lib/meta";
-import { buildTelHref, getBusinessLocation, getBusinessWhatsAppHref, getOpeningHoursRows } from "@/lib/site-settings";
+import { buildTelHref, buildWhatsAppHref, getBusinessLocation, getBusinessWhatsAppHref, getOpeningHoursRows } from "@/lib/site-settings";
 import { fetchCateringPackages, submitCateringInquiry, type CateringPackage } from "@/lib/visemfood-api";
 
 const heroImage = "https://lh3.googleusercontent.com/aida-public/AB6AXuDLr8dtm6vU1eWAJQ9B1fxlIVTIko1M5rPXtfvqe3lBRxI_Om-15whDZAAkXuX4pzaqx_7j8515ye7scMr_CNEPOQlj1SKGeHvFe2OE0BMenTCS44HGHPFd9accSXXpnT9aikoBTXMKYEI1-lqVfHj8QckSPtimiozj93r9zNEqWxwdZkFTMOXyN3aPUK7k7fx3j8DlBc_bQUPd3vzCuFJOkwGq_qxtv3RmVxT0Qi-ORwOK9avRyTQ3";
@@ -34,6 +34,14 @@ type CateringValues = z.output<typeof cateringSchema>;
 type InquiryReceipt = {
   referenceNumber: string;
   customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  eventDate: string;
+  guestCount: number;
+  budgetAmount: number | null;
+  venueLocation: string;
+  requirements: string | null;
+  preferredService: string;
   packageName: string | null;
 };
 
@@ -43,11 +51,13 @@ export const Route = createFileRoute("/catering")({
 });
 
 function CateringPage() {
+  const submitLockRef = useRef(false);
   const { siteMeta } = useSiteData();
   const [packages, setPackages] = useState<CateringPackage[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [loadError, setLoadError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState<InquiryReceipt | null>(null);
+  const [submittedWhatsAppUrl, setSubmittedWhatsAppUrl] = useState<string | null>(null);
   const form = useForm<CateringFormValues, unknown, CateringValues>({
     resolver: zodResolver(cateringSchema),
     defaultValues: {
@@ -102,8 +112,13 @@ function CateringPage() {
   }
 
   const submit = form.handleSubmit(async (values) => {
+    if (submitLockRef.current) {
+      return;
+    }
+
+    submitLockRef.current = true;
     try {
-      const result = await submitCateringInquiry({
+      const requestPayload = {
         catering_package_id: values.packageId ? Number(values.packageId) : null,
         customer_name: values.fullName,
         email: values.email,
@@ -115,15 +130,48 @@ function CateringPage() {
         location: values.venueLocation,
         budget_amount: values.budgetAmount ?? null,
         requirements: values.specialNotes || null,
+      };
+      const result = await submitCateringInquiry(requestPayload);
+      const whatsappMessage = buildCateringRequestWhatsAppMessage({
+        referenceNumber: result.data.referenceNumber,
+        customerName: values.fullName,
+        customerPhone: values.phone,
+        customerEmail: values.email,
+        eventDate: values.eventDate,
+        guestCount: values.guestCount,
+        budgetAmount: values.budgetAmount ?? null,
+        venueLocation: values.venueLocation,
+        requirements: values.specialNotes || null,
+        preferredService: values.preferredService,
+        packageName: result.data.packageName ?? selectedPackage?.name ?? null,
+        currencyCode: siteMeta.currencyCode,
+        currencyLocale: siteMeta.currencyLocale,
       });
+      const whatsappUrl = buildWhatsAppHref(siteMeta.whatsappContactNumber || siteMeta.whatsappOrderNumber, whatsappMessage);
       setSubmitted({
         referenceNumber: result.data.referenceNumber,
         customerName: values.fullName,
+        customerPhone: values.phone,
+        customerEmail: values.email,
+        eventDate: values.eventDate,
+        guestCount: values.guestCount,
+        budgetAmount: values.budgetAmount ?? null,
+        venueLocation: values.venueLocation,
+        requirements: values.specialNotes || null,
+        preferredService: values.preferredService,
         packageName: result.data.packageName ?? selectedPackage?.name ?? null,
       });
+      setSubmittedWhatsAppUrl(whatsappUrl);
       toast.success("Catering request received", {
         description: `${result.message} Reference ${result.data.referenceNumber}.`,
       });
+      if (whatsappUrl) {
+        try {
+          window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+        } catch {
+          // Popup-blocker fallback remains available below.
+        }
+      }
       form.reset({
         packageId: values.packageId,
         fullName: "",
@@ -138,6 +186,7 @@ function CateringPage() {
         specialNotes: "",
       });
     } catch (error) {
+      setSubmittedWhatsAppUrl(null);
       if (error instanceof ApiError && error.errors) {
         const fieldMap: Record<string, keyof CateringValues> = {
           catering_package_id: "packageId",
@@ -164,6 +213,8 @@ function CateringPage() {
       toast.error("Unable to submit catering request", {
         description: getErrorMessage(error, "Please review the details and try again."),
       });
+    } finally {
+      submitLockRef.current = false;
     }
   });
 
@@ -176,7 +227,7 @@ function CateringPage() {
               <span className="material-symbols-rounded text-base">workspace_premium</span>
               Premium Events
             </div>
-            <h1 className="heading-display mt-5 text-[3rem] font-bold leading-[0.98] text-[var(--vf-secondary)] sm:text-[4rem] lg:text-[5rem]">
+            <h1 className="heading-display mt-5 text-[2.4rem] font-bold leading-[1.02] text-[var(--vf-secondary)] sm:text-[2.9rem] lg:text-[3.35rem] xl:text-[3.5rem]">
               Bespoke catering and warm hospitality for gatherings that matter.
             </h1>
             <p className="mt-5 max-w-xl text-base leading-8 text-soft sm:text-lg sm:leading-9">
@@ -270,7 +321,7 @@ function CateringPage() {
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--vf-primary)]">Real Catering Inquiry</p>
             <h2 className="heading-display mt-2 text-4xl font-bold text-[var(--vf-secondary)] sm:text-5xl">Share the event brief</h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-soft sm:text-base">This form submits directly to the live VISEMFOOD catering inquiry API and appears in the Admin inbox with status tracking.</p>
-            {submitted ? <div className="mt-5 rounded-[var(--vf-radius-md)] border border-[var(--vf-success-border)] bg-[var(--vf-success-soft)] p-4 text-sm text-[var(--vf-text)]"><p className="font-semibold">Inquiry received for {submitted.customerName}.</p><p className="mt-2">Reference {submitted.referenceNumber}{submitted.packageName ? ` | Package: ${submitted.packageName}` : ""}</p></div> : null}
+            {submitted ? (<div className="mt-5 rounded-[var(--vf-radius-md)] border border-[var(--vf-success-border)] bg-[var(--vf-success-soft)] p-4 text-sm text-[var(--vf-text)]"><p className="font-semibold">Catering request submitted successfully for {submitted.customerName}.</p><p className="mt-2">Reference {submitted.referenceNumber}{submitted.packageName ? ` | Package: ${submitted.packageName}` : ""}</p><p className="mt-2 text-soft">A copy of your request is ready to send to our team on WhatsApp.</p>{submittedWhatsAppUrl ? <a href={submittedWhatsAppUrl} target="_blank" rel="noreferrer" className="btn-primary mt-4 w-full rounded-full sm:w-auto">Continue on WhatsApp</a> : null}</div>) : null}
             {selectedPackage ? <div className="mt-5 rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface)] p-4 text-sm text-soft"><p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--vf-primary)]">Selected Package</p><p className="mt-2 text-lg font-semibold text-[var(--vf-secondary)]">{selectedPackage.name}</p><p className="mt-1">Starting from {formatCurrency(selectedPackage.startingPrice, { currency: selectedPackage.currencyCode })} | {guestRange(selectedPackage.minimumGuests, selectedPackage.maximumGuests)}</p></div> : null}
             <form onSubmit={submit} className="mt-6 space-y-5">
               <div className="grid gap-5 md:grid-cols-2">
@@ -294,7 +345,7 @@ function CateringPage() {
               <Field label="Requirements" error={form.formState.errors.specialNotes?.message}><textarea className="textarea-field" rows={5} {...form.register("specialNotes")} placeholder="Service style, dietary notes, venue logistics, or any detail that helps the team prepare." /></Field>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-sm leading-7 text-soft">Final pricing is confirmed by our team after we review your event size, service style, and logistics.</p>
-                <button type="submit" className="btn-primary w-full rounded-full sm:w-auto" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? "Sending Inquiry..." : "Submit Catering Request"}</button>
+                <button type="submit" className="btn-primary w-full rounded-full sm:w-auto" disabled={form.formState.isSubmitting || submitLockRef.current}>{form.formState.isSubmitting ? "Sending Inquiry..." : "Submit Catering Request"}</button>
               </div>
             </form>
           </div>
@@ -335,4 +386,62 @@ function guestRange(minimumGuests: number, maximumGuests: number | null) {
 
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return <label className="block"><span className="mb-2 block text-sm font-semibold text-[var(--vf-text)]">{label}</span>{children}{error ? <span className="mt-2 block text-sm text-[var(--vf-danger)]">{error}</span> : null}</label>;
+}
+
+
+function buildCateringRequestWhatsAppMessage(input: {
+  referenceNumber: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  eventDate: string;
+  guestCount: number;
+  budgetAmount: number | null;
+  venueLocation: string;
+  requirements: string | null;
+  preferredService: string;
+  packageName: string | null;
+  currencyCode: string;
+  currencyLocale: string;
+}) {
+  const eventDate = formatHumanDate(input.eventDate);
+  const budget = input.budgetAmount !== null ? formatCurrency(input.budgetAmount, { currency: input.currencyCode, locale: input.currencyLocale }) : null;
+  const lines = [
+    'Hello VISEMFOOD,',
+    '',
+    'I have submitted a new catering request through the VISEMFOOD website.',
+    '',
+    '*CATERING REQUEST*',
+    `Request Reference: ${input.referenceNumber}`,
+    `Name: ${input.customerName}`,
+    `Phone: ${input.customerPhone}`,
+    `Email: ${input.customerEmail}`,
+    input.packageName ? `Package: ${input.packageName}` : null,
+    `Event Date: ${eventDate}`,
+    `Number of Guests: ${input.guestCount}`,
+    budget ? `Budget: ${budget}` : null,
+    `Event Location: ${input.venueLocation}`,
+    `Preferred Service: ${input.preferredService}`,
+    input.requirements ? `Requirements:\n${input.requirements}` : 'Requirements: Not specified',
+    '',
+    'I would like to continue discussing the catering request with your team.',
+    '',
+    'Thank you.',
+  ];
+
+  return lines.filter((line): line is string => line !== null && line !== '').join('\n');
+}
+
+function formatHumanDate(value: string) {
+  const date = new Date(`${value}T00:00:00`);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(date);
 }
