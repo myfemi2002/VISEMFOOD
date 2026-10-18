@@ -2,11 +2,21 @@
 
 namespace App\Http\Resources;
 
+use App\Models\MediaAsset;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PublicSiteSettingResource extends JsonResource
 {
+    private function mediaAssetPayload(?MediaAsset $asset): ?array
+    {
+        if (! $asset) {
+            return null;
+        }
+
+        return (new MediaAssetResource($asset))->resolve();
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -37,6 +47,15 @@ class PublicSiteSettingResource extends JsonResource
             'seo_default_title' => $this->seo_default_title,
             'seo_default_description' => $this->seo_default_description,
             'default_share_image_url' => $this->default_share_image_url,
+            'homepage_hero_media_type' => $this->homepage_hero_media_type ?? 'image',
+            'homepage_hero_media_asset_id' => $this->homepage_hero_media_asset_id,
+            'homepage_hero_poster_media_id' => $this->homepage_hero_poster_media_id,
+            'homepage_hero_media' => $this->relationLoaded('homepageHeroMedia') ? $this->mediaAssetPayload($this->homepageHeroMedia) : null,
+            'homepage_hero_poster' => $this->relationLoaded('homepageHeroPoster') ? $this->mediaAssetPayload($this->homepageHeroPoster) : null,
+            'homepage_hero_external_url' => $this->homepage_hero_external_url,
+            'homepage_hero_alt_text' => $this->homepage_hero_alt_text,
+            'homepage_hero_autoplay' => (bool) ($this->homepage_hero_autoplay ?? true),
+            'homepage_hero_loop' => (bool) ($this->homepage_hero_loop ?? true),
         ];
     }
 }

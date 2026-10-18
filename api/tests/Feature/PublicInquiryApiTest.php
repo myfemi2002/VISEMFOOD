@@ -35,7 +35,7 @@ class PublicInquiryApiTest extends TestCase
             'email' => 'amina@example.test',
             'phone' => '+2348000033333',
             'event_type' => 'Wedding Reception',
-            'event_date' => '2026-09-12 14:00:00',
+            'event_date' => now()->addMonth()->format('Y-m-d 14:00:00'),
             'number_of_guests' => 250,
             'location' => 'Lekki, Lagos',
             'budget' => '$4,500 - $5,000',

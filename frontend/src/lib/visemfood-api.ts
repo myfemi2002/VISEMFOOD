@@ -186,6 +186,15 @@ type ApiSiteSettings = {
   seo_default_title?: string | null;
   seo_default_description?: string | null;
   default_share_image_url?: string | null;
+  homepage_hero_media_type?: HomepageHeroMedia['type'] | null;
+  homepage_hero_media_asset_id?: number | null;
+  homepage_hero_poster_media_id?: number | null;
+  homepage_hero_media?: ApiMediaAsset | null;
+  homepage_hero_poster?: ApiMediaAsset | null;
+  homepage_hero_external_url?: string | null;
+  homepage_hero_alt_text?: string | null;
+  homepage_hero_autoplay?: boolean | null;
+  homepage_hero_loop?: boolean | null;
   created_at?: string | null;
   updated_at?: string | null;
 };
@@ -567,6 +576,18 @@ export type OpeningHoursEntry = {
 
 export type OpeningHours = Record<OpeningHoursDayKey, OpeningHoursEntry>;
 
+export type HomepageHeroMedia = {
+  type: "image" | "video" | "youtube" | "facebook" | "instagram" | "external";
+  mediaAssetId: number | null;
+  posterMediaId: number | null;
+  media: MediaAsset | null;
+  poster: MediaAsset | null;
+  externalUrl: string;
+  altText: string;
+  autoplay: boolean;
+  loop: boolean;
+};
+
 export type SiteSocialLinks = {
   instagram: string;
   facebook: string;
@@ -600,6 +621,7 @@ export type SiteMeta = {
   seoDefaultTitle: string;
   seoDefaultDescription: string;
   defaultShareImageUrl: string;
+  homepageHeroMedia: HomepageHeroMedia;
   createdAt?: string | null;
   updatedAt?: string | null;
 };
@@ -625,6 +647,7 @@ export type SiteSettingsUpdateInput = {
   seoDefaultTitle: string;
   seoDefaultDescription: string;
   defaultShareImageUrl: string;
+  homepageHeroMedia: HomepageHeroMedia;
 };
 
 export type AdminUser = {
@@ -1068,6 +1091,17 @@ export const emptySiteMeta: SiteMeta = {
   seoDefaultTitle: "",
   seoDefaultDescription: "",
   defaultShareImageUrl: "",
+  homepageHeroMedia: {
+    type: "image",
+    mediaAssetId: null,
+    posterMediaId: null,
+    media: null,
+    poster: null,
+    externalUrl: "",
+    altText: "",
+    autoplay: true,
+    loop: true,
+  },
 };
 
 export const fallbackSiteMeta: SiteMeta = {
@@ -1102,6 +1136,17 @@ export const fallbackSiteMeta: SiteMeta = {
   seoDefaultTitle: "",
   seoDefaultDescription: "",
   defaultShareImageUrl: "",
+  homepageHeroMedia: {
+    type: "image",
+    mediaAssetId: null,
+    posterMediaId: null,
+    media: null,
+    poster: null,
+    externalUrl: "",
+    altText: "",
+    autoplay: true,
+    loop: true,
+  },
 };
 
 export const fallbackAdminOrders: AdminOrder[] = mockBulkOrders.map((order) => ({
@@ -1436,6 +1481,17 @@ function toSiteMeta(settings: ApiSiteSettings): SiteMeta {
     seoDefaultTitle: settings.seo_default_title || emptySiteMeta.seoDefaultTitle,
     seoDefaultDescription: settings.seo_default_description || emptySiteMeta.seoDefaultDescription,
     defaultShareImageUrl: settings.default_share_image_url || emptySiteMeta.defaultShareImageUrl,
+    homepageHeroMedia: {
+      type: settings.homepage_hero_media_type || "image",
+      mediaAssetId: settings.homepage_hero_media_asset_id ?? null,
+      posterMediaId: settings.homepage_hero_poster_media_id ?? null,
+      media: settings.homepage_hero_media ? toMediaAsset(settings.homepage_hero_media) : null,
+      poster: settings.homepage_hero_poster ? toMediaAsset(settings.homepage_hero_poster) : null,
+      externalUrl: settings.homepage_hero_external_url ?? "",
+      altText: settings.homepage_hero_alt_text ?? "",
+      autoplay: settings.homepage_hero_autoplay ?? true,
+      loop: settings.homepage_hero_loop ?? true,
+    },
     socialLinks: {
       instagram: settings.social_links?.instagram ?? "",
       facebook: settings.social_links?.facebook ?? "",
@@ -1841,6 +1897,23 @@ export async function fetchCurrentAdminUser() {
   return toAdminUser(data);
 }
 
+export type AdminSessionStatus = {
+  inactivity_expires_at: number | null;
+};
+
+export async function fetchAdminSessionStatus() {
+  const { data } = await apiRequest<AdminSessionStatus>("/api/v1/admin/session");
+  return data;
+}
+
+export async function renewAdminSession() {
+  const { data } = await apiRequest<AdminSessionStatus>("/api/v1/admin/session/activity", {
+    method: "POST",
+    requiresCsrf: true,
+  });
+  return data;
+}
+
 export async function logoutAdmin() {
   const { message } = await apiRequest<null>("/api/v1/admin/logout", {
     method: "POST",
@@ -1897,6 +1970,13 @@ export async function updateAdminSiteSettings(payload: SiteSettingsUpdateInput) 
       seo_default_title: payload.seoDefaultTitle || null,
       seo_default_description: payload.seoDefaultDescription || null,
       default_share_image_url: payload.defaultShareImageUrl || null,
+      homepage_hero_media_type: payload.homepageHeroMedia.type,
+      homepage_hero_media_asset_id: payload.homepageHeroMedia.mediaAssetId,
+      homepage_hero_poster_media_id: payload.homepageHeroMedia.posterMediaId,
+      homepage_hero_external_url: payload.homepageHeroMedia.externalUrl || null,
+      homepage_hero_alt_text: payload.homepageHeroMedia.altText || null,
+      homepage_hero_autoplay: payload.homepageHeroMedia.autoplay,
+      homepage_hero_loop: payload.homepageHeroMedia.loop,
     },
   });
 

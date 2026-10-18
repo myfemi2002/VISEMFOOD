@@ -8,8 +8,6 @@ import { buildMeta } from "@/lib/meta";
 
 const heroImage =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuAXIiOo1d4KnfGk1qfi1Zi51ywVFueVqbGqZyvCbGON2co7-QQcky16p242UFb7YnnQF1BkNUT4honwH2cbdagyQs2bIa_xjkyOKcYMG3hZ8ys4Rt4bN6_DHymMoGylxNAwLwPsEIQ_OlxE_n4U_YTyVNJ0dFe1M7NXlQJGaIICUoBmPMn-eCKi7CCJl-ZO2SPMbWyPDVQ7zzE-ymkJY1HIvEpUa5DYuL2pUMGMZ-BwTRMACG-6n6MV";
-// Paste a public YouTube, Facebook, or Instagram video URL here to replace the homepage hero image.
-const heroVideoUrl = "";
 const storyImage =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuApCXd_WmNeVEJRZpDuzJIyZ2g9BSmK8dy2BzLnax54Y9WDOcpIU1pcg_Q9_OY36dCgwTkseCkMLP6roc-E1dlTEQYmx1yXgvkWqSh8Z2mR5qXBq5bI76v4XtB76ggB60zFn73FSkQ5_H3AyJELswJqD-K_QDoFBNnPZ6e8QGUWSbYuwEZTaqIxUF9a5e2YDAe9ZQj8-Z_GAJWcJ4EoxnzB4egjbMi4C8EPDxKzF58ScxMavFXr3TZA";
 
@@ -74,6 +72,14 @@ function LandingPage() {
   const heroProduct = featuredProducts[0] ?? products[0];
   const isCatalogLoading = status === "loading" && products.length === 0;
   const hasCatalogError = status === "error" && products.length === 0;
+  const homepageHeroMedia = siteMeta.homepageHeroMedia;
+  const homepageHeroMediaUrl = homepageHeroMedia.media?.url || homepageHeroMedia.externalUrl;
+  const homepageHeroImageSrc =
+    homepageHeroMedia.type === "image"
+      ? homepageHeroMedia.media?.url || homepageHeroMedia.externalUrl || heroImage
+      : homepageHeroMedia.poster?.url || homepageHeroMedia.media?.url || heroImage;
+  const homepageHeroVideoUrl = homepageHeroMedia.type === "image" ? "" : homepageHeroMediaUrl;
+  const homepageHeroAlt = homepageHeroMedia.altText || "Elegant African cuisine spread prepared for premium hospitality";
 
   const orderMoments = [
     {
@@ -201,9 +207,13 @@ function LandingPage() {
             <div className="floating-surface overflow-hidden p-3 sm:p-4">
               <div className="overflow-hidden rounded-[calc(var(--vf-radius-lg)+0.25rem)]">
                 <HeroMediaFrame
-                  videoUrl={heroVideoUrl}
-                  imageSrc={heroImage}
-                  imageAlt="Elegant African cuisine spread prepared for premium hospitality"
+                  videoUrl={homepageHeroVideoUrl}
+                  mediaType={homepageHeroMedia.type}
+                  posterSrc={homepageHeroMedia.poster?.url ?? null}
+                  imageSrc={homepageHeroImageSrc}
+                  imageAlt={homepageHeroAlt}
+                  autoplay={homepageHeroMedia.autoplay}
+                  loop={homepageHeroMedia.loop}
                 />
               </div>
             </div>

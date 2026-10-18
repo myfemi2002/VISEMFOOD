@@ -52,6 +52,9 @@ class AuthController extends Controller
 
         Auth::guard('web')->login($user);
         $request->session()->regenerate();
+        $now = now()->timestamp;
+        $request->session()->put('admin.last_activity_at', $now);
+        $request->session()->put('admin.inactivity_deadline', $now + 900);
 
         $user->forceFill([
             'last_login_at' => now(),
@@ -74,6 +77,25 @@ class AuthController extends Controller
         $user->load('role.permissions');
 
         return ApiResponse::success('Authenticated user fetched successfully.', new UserResource($user));
+    }
+
+    public function sessionStatus(Request $request): JsonResponse
+    {
+        return ApiResponse::success('Admin session status fetched successfully.', [
+            'inactivity_expires_at' => $request->session()->get('admin.inactivity_deadline'),
+        ]);
+    }
+
+    public function renewSession(Request $request): JsonResponse
+    {
+        $now = now()->timestamp;
+        $deadline = (int) $request->session()->get('admin.inactivity_deadline', 0);
+        if ($deadline > 0 && $deadline <= $now) {
+            return ApiResponse::error('Your admin session expired after 15 minutes of inactivity.', 401, ['code' => 'ADMIN_SESSION_EXPIRED']);
+        }
+        $request->session()->put('admin.last_activity_at', $now);
+        $request->session()->put('admin.inactivity_deadline', $now + 900);
+        return ApiResponse::success('Admin session renewed successfully.', ['inactivity_expires_at' => $now + 900]);
     }
 
     public function logout(Request $request, AdminSecurityLogger $securityLogger): JsonResponse

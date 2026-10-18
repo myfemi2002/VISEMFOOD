@@ -259,7 +259,7 @@ function ProductDetailPage() {
         <div className="space-y-5 sm:space-y-6">
           <div className="flex flex-wrap items-center gap-2">
             <StatusChip tone="olive">{product.category}</StatusChip>
-            <StatusChip tone={getProductTone(product.availability)}>{product.availability}</StatusChip>
+            <StatusChip tone={getProductTone(product.availability)} variant="product-availability">{product.availability}</StatusChip>
             <span className="inline-flex items-center rounded-full border border-[var(--vf-border-soft)] bg-[var(--vf-surface-elevated)] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--vf-secondary)]">
               {formatProductType(product.productType)}
             </span>
@@ -329,7 +329,7 @@ function ProductDetailPage() {
                           <p className="text-lg font-bold text-[var(--vf-secondary)]">
                             {formatCurrency(variant.effectivePrice, { currency: variant.currencyCode })}
                           </p>
-                          <StatusChip tone={getProductTone(product.availability)}>
+                          <StatusChip tone={getProductTone(product.availability)} variant="product-availability">
                             {unavailable ? "Sold Out" : variant.availabilityStatus === "limited" ? "Limited" : "Available"}
                           </StatusChip>
                         </div>
@@ -349,7 +349,7 @@ function ProductDetailPage() {
             <div className="card-surface p-5">
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--vf-text-soft)]">Availability</p>
               <div className="mt-3">
-                <StatusChip tone={getProductTone(product.availability)}>{product.availability}</StatusChip>
+                <StatusChip tone={getProductTone(product.availability)} variant="product-availability">{product.availability}</StatusChip>
               </div>
             </div>
           </div>

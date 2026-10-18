@@ -54,6 +54,9 @@ class SiteSettingsService
             'checkout_notice' => 'You will continue to WhatsApp to confirm availability, delivery details and final pricing with our team.',
             'seo_default_title' => 'VISEMFOOD | Premium African Catering Platform',
             'seo_default_description' => 'Premium African catering, trays, bowls, coolers, and warm hospitality for gatherings of every size.',
+            'homepage_hero_media_type' => 'image',
+            'homepage_hero_autoplay' => true,
+            'homepage_hero_loop' => true,
         ];
     }
 
@@ -92,6 +95,13 @@ class SiteSettingsService
             'seo_default_title' => $this->cleanString($validated['seo_default_title'] ?? $current?->seo_default_title),
             'seo_default_description' => $this->cleanString($validated['seo_default_description'] ?? $current?->seo_default_description),
             'default_share_image_url' => $this->cleanString($validated['default_share_image_url'] ?? $current?->default_share_image_url),
+            'homepage_hero_media_type' => $this->normalizeHeroMediaType($validated['homepage_hero_media_type'] ?? $current?->homepage_hero_media_type),
+            'homepage_hero_media_asset_id' => $validated['homepage_hero_media_asset_id'] ?? $current?->homepage_hero_media_asset_id,
+            'homepage_hero_poster_media_id' => $validated['homepage_hero_poster_media_id'] ?? $current?->homepage_hero_poster_media_id,
+            'homepage_hero_external_url' => $this->cleanString($validated['homepage_hero_external_url'] ?? $current?->homepage_hero_external_url),
+            'homepage_hero_alt_text' => $this->cleanString($validated['homepage_hero_alt_text'] ?? $current?->homepage_hero_alt_text),
+            'homepage_hero_autoplay' => (bool) ($validated['homepage_hero_autoplay'] ?? $current?->homepage_hero_autoplay ?? true),
+            'homepage_hero_loop' => (bool) ($validated['homepage_hero_loop'] ?? $current?->homepage_hero_loop ?? true),
         ];
     }
 
@@ -247,6 +257,17 @@ class SiteSettingsService
         } catch (\Throwable) {
             return $time;
         }
+    }
+
+    private function normalizeHeroMediaType(mixed $value): string
+    {
+        if (! is_string($value)) {
+            return 'image';
+        }
+
+        $normalized = strtolower(trim($value));
+
+        return in_array($normalized, ['image', 'video', 'youtube', 'facebook', 'instagram', 'external'], true) ? $normalized : 'image';
     }
 
     private function cleanString(mixed $value): ?string

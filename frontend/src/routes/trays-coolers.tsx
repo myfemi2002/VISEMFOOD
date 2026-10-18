@@ -271,7 +271,7 @@ function TraysCoolersPage() {
                     {featuredOffering.badge}
                   </div>
                   <div className="absolute right-5 top-5">
-                    <StatusChip tone={getProductTone(featuredOffering.product.availability)}>
+                    <StatusChip tone={getProductTone(featuredOffering.product.availability)} variant="product-availability">
                       {featuredOffering.product.availability}
                     </StatusChip>
                   </div>
@@ -362,7 +362,7 @@ function TraysCoolersPage() {
                       <p className="text-sm leading-7 text-soft">{offering.description}</p>
                       <div className="flex items-center justify-between gap-3">
                         <p className="text-sm font-medium text-[var(--vf-text-soft)]">{offering.servingRange}</p>
-                        <StatusChip tone={getProductTone(offering.product.availability)}>{offering.product.availability}</StatusChip>
+                        <StatusChip tone={getProductTone(offering.product.availability)} variant="product-availability">{offering.product.availability}</StatusChip>
                       </div>
 
                       <div className="flex flex-wrap gap-2">

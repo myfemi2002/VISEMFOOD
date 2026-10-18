@@ -12,7 +12,7 @@ class SiteSettingController extends Controller
 {
     public function show(SiteSettingsService $siteSettings): JsonResponse
     {
-        $settings = $siteSettings->getOrCreate();
+        $settings = $siteSettings->getOrCreate()->load(['homepageHeroMedia', 'homepageHeroPoster']);
 
         return ApiResponse::success(
             'Site settings fetched successfully.',

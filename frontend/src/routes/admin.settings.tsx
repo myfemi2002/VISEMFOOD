@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { MediaLibraryDialog } from "@/components/admin/MediaLibraryDialog";
 import { getErrorMessage, isApiError } from "@/lib/api";
+import { getMediaVariantUrl } from "@/lib/media";
 import { buildMeta } from "@/lib/meta";
 import { OPENING_HOURS_DAYS } from "@/lib/site-settings";
 import {
@@ -86,6 +88,17 @@ const settingsSchema = z.object({
   seoDefaultTitle: z.string().max(160, "SEO title is too long."),
   seoDefaultDescription: z.string().max(320, "SEO description is too long."),
   defaultShareImageUrl: z.union([z.literal(""), z.url("Enter a valid image URL.")]),
+  homepageHeroMedia: z.object({
+    type: z.enum(["image", "video", "youtube", "facebook", "instagram", "external"]),
+    mediaAssetId: z.number().nullable(),
+    posterMediaId: z.number().nullable(),
+    media: z.any().nullable(),
+    poster: z.any().nullable(),
+    externalUrl: z.union([z.literal(""), z.url("Enter a valid hero media URL.")]),
+    altText: z.string().max(190, "Alt text is too long."),
+    autoplay: z.boolean(),
+    loop: z.boolean(),
+  }),
   currencyCode: z.literal("USD"),
   currencySymbol: z.literal("$"),
   currencyLocale: z.literal("en-US"),
@@ -132,6 +145,7 @@ function toFormValues(settings: SiteMeta): SiteSettingsFormValues {
     seoDefaultTitle: settings.seoDefaultTitle,
     seoDefaultDescription: settings.seoDefaultDescription,
     defaultShareImageUrl: settings.defaultShareImageUrl,
+    homepageHeroMedia: settings.homepageHeroMedia,
     currencyCode: "USD",
     currencySymbol: "$",
     currencyLocale: "en-US",
@@ -162,6 +176,13 @@ function toFieldPath(field: string): string {
     .replace(/^seo_default_title$/, "seoDefaultTitle")
     .replace(/^seo_default_description$/, "seoDefaultDescription")
     .replace(/^default_share_image_url$/, "defaultShareImageUrl")
+    .replace(/^homepage_hero_media_type$/, "homepageHeroMedia.type")
+    .replace(/^homepage_hero_media_asset_id$/, "homepageHeroMedia.mediaAssetId")
+    .replace(/^homepage_hero_poster_media_id$/, "homepageHeroMedia.posterMediaId")
+    .replace(/^homepage_hero_external_url$/, "homepageHeroMedia.externalUrl")
+    .replace(/^homepage_hero_alt_text$/, "homepageHeroMedia.altText")
+    .replace(/^homepage_hero_autoplay$/, "homepageHeroMedia.autoplay")
+    .replace(/^homepage_hero_loop$/, "homepageHeroMedia.loop")
     .replace(/^currency_code$/, "currencyCode")
     .replace(/^currency_symbol$/, "currencySymbol")
     .replace(/^currency_locale$/, "currencyLocale")
@@ -206,6 +227,7 @@ function AdminSiteSettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [mediaDialogTarget, setMediaDialogTarget] = useState<"hero" | "poster" | null>(null);
 
   const form = useForm<SiteSettingsFormValues>({
     resolver: zodResolver(settingsSchema),
@@ -235,6 +257,17 @@ function AdminSiteSettingsPage() {
       seoDefaultTitle: "",
       seoDefaultDescription: "",
       defaultShareImageUrl: "",
+      homepageHeroMedia: {
+        type: "image",
+        mediaAssetId: null,
+        posterMediaId: null,
+        media: null,
+        poster: null,
+        externalUrl: "",
+        altText: "",
+        autoplay: true,
+        loop: true,
+      },
       currencyCode: "USD",
       currencySymbol: "$",
       currencyLocale: "en-US",
@@ -293,6 +326,9 @@ function AdminSiteSettingsPage() {
   });
 
   const isSaving = form.formState.isSubmitting;
+  const heroMedia = form.watch("homepageHeroMedia");
+  const selectedHeroImageUrl = heroMedia.media ? getMediaVariantUrl(heroMedia.media, "medium") || heroMedia.media.url : "";
+  const selectedPosterImageUrl = heroMedia.poster ? getMediaVariantUrl(heroMedia.poster, "medium") || heroMedia.poster.url : "";
 
   return (
     <div className="space-y-6">
@@ -499,6 +535,118 @@ function AdminSiteSettingsPage() {
         </SettingsSection>
 
         <SettingsSection
+          title="Homepage Hero Media"
+          description="Control the right-side homepage hero image or video. Unsupported external URLs fall back to the selected image."
+        >
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+            <div className="space-y-5">
+              <Field label="Hero Media Type" error={form.formState.errors.homepageHeroMedia?.type?.message}>
+                <select className="select-field" {...form.register("homepageHeroMedia.type")}>
+                  <option value="image">Image</option>
+                  <option value="video">Uploaded/direct video URL</option>
+                  <option value="youtube">YouTube</option>
+                  <option value="facebook">Facebook</option>
+                  <option value="instagram">Instagram</option>
+                  <option value="external">Approved external media URL</option>
+                </select>
+              </Field>
+
+              {heroMedia.type !== "image" ? (
+                <Field label="External Media URL" error={form.formState.errors.homepageHeroMedia?.externalUrl?.message}>
+                  <input
+                    className="field"
+                    {...form.register("homepageHeroMedia.externalUrl")}
+                    placeholder="https://youtube.com/watch?v=..."
+                  />
+                  <p className="mt-2 text-xs text-[var(--vf-text-soft)]">Use YouTube, Facebook, Instagram, or a direct video URL. Arbitrary HTML is not accepted.</p>
+                </Field>
+              ) : null}
+
+              <Field label="Hero Alt Text" error={form.formState.errors.homepageHeroMedia?.altText?.message}>
+                <input
+                  className="field"
+                  {...form.register("homepageHeroMedia.altText")}
+                  placeholder="Elegant African cuisine spread prepared for premium hospitality"
+                />
+              </Field>
+
+              {heroMedia.type === "video" ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="flex items-center gap-3 rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface)] p-4 text-sm font-semibold text-[var(--vf-text)]">
+                    <input type="checkbox" className="h-4 w-4 accent-[var(--vf-primary)]" {...form.register("homepageHeroMedia.autoplay")} />
+                    Autoplay direct video
+                  </label>
+                  <label className="flex items-center gap-3 rounded-[var(--vf-radius-md)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface)] p-4 text-sm font-semibold text-[var(--vf-text)]">
+                    <input type="checkbox" className="h-4 w-4 accent-[var(--vf-primary)]" {...form.register("homepageHeroMedia.loop")} />
+                    Loop direct video
+                  </label>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              <div className="rounded-[var(--vf-radius-lg)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface)] p-4">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-primary)]">Primary / Fallback Image</p>
+                {selectedHeroImageUrl ? (
+                  <img src={selectedHeroImageUrl} alt="Selected homepage hero media" className="mt-3 aspect-[4/3] w-full rounded-[var(--vf-radius-md)] object-cover" />
+                ) : (
+                  <div className="mt-3 flex aspect-[4/3] items-center justify-center rounded-[var(--vf-radius-md)] bg-[var(--vf-surface-muted)] text-sm text-soft">
+                    Current homepage fallback remains active
+                  </div>
+                )}
+                <div className="mt-4 flex flex-col gap-2">
+                  <button type="button" className="btn-primary rounded-full px-4 py-2 text-sm" onClick={() => setMediaDialogTarget("hero")}>
+                    Choose Image
+                  </button>
+                  {heroMedia.media ? (
+                    <button
+                      type="button"
+                      className="btn-secondary rounded-full px-4 py-2 text-sm"
+                      onClick={() => {
+                        form.setValue("homepageHeroMedia.mediaAssetId", null, { shouldDirty: true });
+                        form.setValue("homepageHeroMedia.media", null, { shouldDirty: true });
+                      }}
+                    >
+                      Clear Image
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+
+              {heroMedia.type !== "image" ? (
+                <div className="rounded-[var(--vf-radius-lg)] border border-[var(--vf-border-soft)] bg-[var(--vf-surface)] p-4">
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--vf-primary)]">Video Poster Image</p>
+                {selectedPosterImageUrl ? (
+                  <img src={selectedPosterImageUrl} alt="Selected homepage hero poster" className="mt-3 aspect-[4/3] w-full rounded-[var(--vf-radius-md)] object-cover" />
+                ) : (
+                  <div className="mt-3 flex aspect-[4/3] items-center justify-center rounded-[var(--vf-radius-md)] bg-[var(--vf-surface-muted)] text-sm text-soft">
+                    Optional fallback while video loads
+                  </div>
+                )}
+                <div className="mt-4 flex flex-col gap-2">
+                  <button type="button" className="btn-primary rounded-full px-4 py-2 text-sm" onClick={() => setMediaDialogTarget("poster")}>
+                    Choose Poster
+                  </button>
+                  {heroMedia.poster ? (
+                    <button
+                      type="button"
+                      className="btn-secondary rounded-full px-4 py-2 text-sm"
+                      onClick={() => {
+                        form.setValue("homepageHeroMedia.posterMediaId", null, { shouldDirty: true });
+                        form.setValue("homepageHeroMedia.poster", null, { shouldDirty: true });
+                      }}
+                    >
+                      Clear Poster
+                    </button>
+                  ) : null}
+                </div>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </SettingsSection>
+
+        <SettingsSection
           title="SEO"
           description="These are global defaults for the brand. They stay lightweight in Phase 2 and do not replace page-specific SEO later."
         >
@@ -555,6 +703,26 @@ function AdminSiteSettingsPage() {
           </button>
         </div>
       </form>
+
+      <MediaLibraryDialog
+        isOpen={mediaDialogTarget !== null}
+        title={mediaDialogTarget === "poster" ? "Choose Homepage Hero Poster" : "Choose Homepage Hero Image"}
+        description="Select an existing image or upload a new optimized image for the homepage hero media slot."
+        initialPurpose="all"
+        uploadSpecKey="hero"
+        preferredAltText={heroMedia.altText || "VISEMFOOD homepage hero media"}
+        selectedIds={[heroMedia.mediaAssetId, heroMedia.posterMediaId].filter((id): id is number => typeof id === "number")}
+        onSelect={(asset) => {
+          if (mediaDialogTarget === "poster") {
+            form.setValue("homepageHeroMedia.posterMediaId", asset.id, { shouldDirty: true });
+            form.setValue("homepageHeroMedia.poster", asset, { shouldDirty: true });
+          } else {
+            form.setValue("homepageHeroMedia.mediaAssetId", asset.id, { shouldDirty: true });
+            form.setValue("homepageHeroMedia.media", asset, { shouldDirty: true });
+          }
+        }}
+        onClose={() => setMediaDialogTarget(null)}
+      />
     </div>
   );
 }

@@ -301,6 +301,33 @@ function CatalogAdminPage() {
       return;
     }
 
+    const imageDimensions = await new Promise<{ width: number; height: number } | null>((resolve) => {
+      const image = new Image();
+      image.onload = () => {
+        resolve({ width: image.naturalWidth, height: image.naturalHeight });
+        URL.revokeObjectURL(image.src);
+      };
+      image.onerror = () => {
+        resolve(null);
+        URL.revokeObjectURL(image.src);
+      };
+      image.src = URL.createObjectURL(file);
+    });
+
+    if (!imageDimensions) {
+      toast.error("Unable to read image", {
+        description: "Please choose a valid JPG, PNG, or WebP image.",
+      });
+      return;
+    }
+
+    if (imageDimensions.width < 600 || imageDimensions.height < 600) {
+      toast.error("Image is too small", {
+        description: `Product images must be at least 600 x 600 pixels. This image is ${imageDimensions.width} x ${imageDimensions.height} pixels.`,
+      });
+      return;
+    }
+
     setIsImageUploading(true);
 
     try {
@@ -957,6 +984,10 @@ function CatalogAdminPage() {
                   />
                 </>
               </Field>
+
+              <p className="-mt-2 text-xs leading-5 text-[var(--vf-text-soft)]">
+                Minimum image size: <strong className="text-[var(--vf-text)]">600 x 600 pixels</strong>. JPG, PNG, or WebP up to 5MB.
+              </p>
 
               <p className="text-sm text-soft">
                 {isImageUploading

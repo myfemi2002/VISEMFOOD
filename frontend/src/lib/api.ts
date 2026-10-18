@@ -1,6 +1,6 @@
 type ApiMeta = Record<string, unknown>;
 
-export type ApiValidationErrors = Record<string, string[]>;
+export type ApiValidationErrors = Record<string, string[] | string>;
 
 type ApiEnvelope<T> = {
   success: boolean;
@@ -23,6 +23,7 @@ export class ApiError extends Error {
   status: number;
   errors?: ApiValidationErrors;
   meta?: ApiMeta;
+  code?: string;
 
   constructor(
     message: string,
@@ -30,6 +31,7 @@ export class ApiError extends Error {
       status?: number;
       errors?: ApiValidationErrors;
       meta?: ApiMeta;
+      code?: string;
     } = {},
   ) {
     super(message);
@@ -37,6 +39,7 @@ export class ApiError extends Error {
     this.status = options.status ?? 500;
     this.errors = options.errors;
     this.meta = options.meta;
+    this.code = options.code;
   }
 }
 
@@ -210,6 +213,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
       status: response.status,
       errors: payload?.errors,
       meta: payload?.meta,
+      code: typeof payload?.errors?.code === "string" ? payload.errors.code : undefined,
     });
   }
 
@@ -276,8 +280,12 @@ export function getValidationMessages(error: unknown) {
   }
 
   return Object.values(validationError.errors)
-    .flat()
+    .flatMap((message) => (Array.isArray(message) ? message : [message]))
     .filter((message): message is string => typeof message === "string" && message.trim() !== "");
+}
+
+export function isAdminSessionExpiredError(error: unknown) {
+  return error instanceof ApiError && error.status === 401 && error.code === "ADMIN_SESSION_EXPIRED";
 }
 
 

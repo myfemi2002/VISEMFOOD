@@ -6,6 +6,7 @@ import { CartProvider, useCart } from "@/contexts/cart-context";
 import { SiteDataProvider, useSiteData } from "@/contexts/site-data-context";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { AdminSessionMonitor } from "@/components/admin/AdminSessionMonitor";
 
 export function AppFrame({ children }: { children: React.ReactNode }) {
   return (
@@ -14,6 +15,7 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
         <SiteDataProvider>
           <CartProvider>
             <AppChrome>{children}</AppChrome>
+            <AdminSessionMonitor />
             <Toaster richColors position="top-right" />
           </CartProvider>
         </SiteDataProvider>

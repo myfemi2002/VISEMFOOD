@@ -49,6 +49,13 @@ class SiteSettingUpdateRequest extends FormRequest
             'seo_default_title' => ['nullable', 'string', 'max:160'],
             'seo_default_description' => ['nullable', 'string', 'max:320'],
             'default_share_image_url' => ['nullable', 'url:http,https', 'max:2048'],
+            'homepage_hero_media_type' => ['required', Rule::in(['image', 'video', 'youtube', 'facebook', 'instagram', 'external'])],
+            'homepage_hero_media_asset_id' => ['nullable', 'integer', 'exists:media_assets,id'],
+            'homepage_hero_poster_media_id' => ['nullable', 'integer', 'exists:media_assets,id'],
+            'homepage_hero_external_url' => ['nullable', 'url:http,https', 'max:2048'],
+            'homepage_hero_alt_text' => ['nullable', 'string', 'max:190'],
+            'homepage_hero_autoplay' => ['required', 'boolean'],
+            'homepage_hero_loop' => ['required', 'boolean'],
         ];
 
         foreach ($days as $day) {
@@ -103,6 +110,13 @@ class SiteSettingUpdateRequest extends FormRequest
             'seo_default_title' => $this->normalizeNullableString($this->input('seo_default_title')),
             'seo_default_description' => $this->normalizeNullableString($this->input('seo_default_description')),
             'default_share_image_url' => $this->normalizeNullableString($this->input('default_share_image_url')),
+            'homepage_hero_media_type' => $this->normalizeHeroMediaType($this->input('homepage_hero_media_type')),
+            'homepage_hero_media_asset_id' => $this->normalizeNullableInteger($this->input('homepage_hero_media_asset_id')),
+            'homepage_hero_poster_media_id' => $this->normalizeNullableInteger($this->input('homepage_hero_poster_media_id')),
+            'homepage_hero_external_url' => $this->normalizeNullableString($this->input('homepage_hero_external_url')),
+            'homepage_hero_alt_text' => $this->normalizeNullableString($this->input('homepage_hero_alt_text')),
+            'homepage_hero_autoplay' => filter_var($this->input('homepage_hero_autoplay', true), FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? true,
+            'homepage_hero_loop' => filter_var($this->input('homepage_hero_loop', true), FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? true,
             'social_links' => [
                 'instagram' => $this->normalizeNullableString($socialLinks['instagram'] ?? null),
                 'facebook' => $this->normalizeNullableString($socialLinks['facebook'] ?? null),
@@ -152,8 +166,57 @@ class SiteSettingUpdateRequest extends FormRequest
                 if ($isOrderingEnabled && $orderNumber === null && $contactNumber === null) {
                     $validator->errors()->add('whatsapp_order_number', 'A WhatsApp number is required when WhatsApp ordering is enabled.');
                 }
+
+                $heroType = $this->input('homepage_hero_media_type');
+                $heroAssetId = $this->input('homepage_hero_media_asset_id');
+                $heroExternalUrl = $this->input('homepage_hero_external_url');
+
+                if ($heroType === 'video' && $heroAssetId === null && $heroExternalUrl === null) {
+                    $validator->errors()->add('homepage_hero_media_asset_id', 'Choose a media asset or provide a direct video URL for the homepage hero.');
+                }
+
+                if (in_array($heroType, ['youtube', 'facebook', 'instagram', 'external'], true) && $heroExternalUrl === null) {
+                    $validator->errors()->add('homepage_hero_external_url', 'A media URL is required for this homepage hero media type.');
+                }
+
+                if (is_string($heroExternalUrl) && in_array($heroType, ['youtube', 'facebook', 'instagram'], true) && ! $this->heroUrlMatchesProvider($heroType, $heroExternalUrl)) {
+                    $validator->errors()->add('homepage_hero_external_url', 'The media URL must match the selected provider.');
+                }
             },
         ];
+    }
+
+    private function heroUrlMatchesProvider(string $provider, string $url): bool
+    {
+        $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+        $host = preg_replace('/^www\./', '', $host) ?: '';
+
+        return match ($provider) {
+            'youtube' => in_array($host, ['youtube.com', 'm.youtube.com', 'youtu.be'], true),
+            'facebook' => str_ends_with($host, 'facebook.com') || $host === 'fb.watch',
+            'instagram' => str_ends_with($host, 'instagram.com'),
+            default => false,
+        };
+    }
+
+    private function normalizeHeroMediaType(mixed $value): string
+    {
+        if (! is_string($value)) {
+            return 'image';
+        }
+
+        $normalized = strtolower(trim($value));
+
+        return in_array($normalized, ['image', 'video', 'youtube', 'facebook', 'instagram', 'external'], true) ? $normalized : 'image';
+    }
+
+    private function normalizeNullableInteger(mixed $value): ?int
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return is_numeric($value) ? (int) $value : null;
     }
 
     private function normalizeNullableString(mixed $value): ?string

@@ -30,6 +30,12 @@ function LoginPage() {
   const redirectTarget =
     typeof search.redirect === "string" && search.redirect.startsWith("/") ? search.redirect : "/admin";
 
+  useEffect(() => {
+    if (search.session === "expired") {
+      toast.error("Your session expired after 15 minutes of inactivity. Please sign in again.");
+    }
+  }, [search.session]);
+
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -60,7 +66,6 @@ function LoginPage() {
     toast.success("Admin access granted", {
       description: "Redirecting you into the VISEMFOOD operations suite.",
     });
-    window.location.assign(redirectTarget);
   });
 
   return (

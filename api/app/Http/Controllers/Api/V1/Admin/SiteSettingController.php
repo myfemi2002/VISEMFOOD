@@ -17,7 +17,7 @@ class SiteSettingController extends Controller
     {
         return ApiResponse::success(
             'Site settings fetched successfully.',
-            new AdminSiteSettingResource($siteSettings->getOrCreate()),
+            new AdminSiteSettingResource($siteSettings->getOrCreate()->load(['homepageHeroMedia', 'homepageHeroPoster'])),
         );
     }
 
@@ -59,7 +59,7 @@ class SiteSettingController extends Controller
 
         return ApiResponse::success(
             'Settings updated successfully.',
-            new AdminSiteSettingResource($settings->fresh()),
+            new AdminSiteSettingResource($settings->fresh()->load(['homepageHeroMedia', 'homepageHeroPoster'])),
         );
     }
 }

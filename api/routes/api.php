@@ -48,8 +48,10 @@ Route::prefix('v1')->group(function (): void {
         Route::post('forgot-password', [AdminAuthController::class, 'forgotPassword'])->middleware('throttle:admin-login');
         Route::post('reset-password', [AdminAuthController::class, 'resetPassword'])->middleware('throttle:admin-login');
 
-        Route::middleware('auth:sanctum')->group(function (): void {
+        Route::middleware(['auth:sanctum', 'admin.inactivity'])->group(function (): void {
             Route::get('me', [AdminAuthController::class, 'me']);
+            Route::get('session', [AdminAuthController::class, 'sessionStatus']);
+            Route::post('session/activity', [AdminAuthController::class, 'renewSession']);
             Route::post('logout', [AdminAuthController::class, 'logout']);
             Route::post('change-password', [AdminAuthController::class, 'changePassword']);
 

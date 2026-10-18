@@ -15,6 +15,7 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use App\Http\Middleware\SetSecurityHeaders;
+use App\Http\Middleware\EnforceAdminInactivity;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -30,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'permission' => EnsureUserHasPermission::class,
             'role' => EnsureUserHasRole::class,
+            'admin.inactivity' => EnforceAdminInactivity::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

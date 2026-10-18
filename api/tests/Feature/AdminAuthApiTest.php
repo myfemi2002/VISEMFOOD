@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\UserStatus;
 use App\Models\User;
+use Carbon\Carbon;
 use Database\Seeders\AdminUserSeeder;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -90,5 +91,77 @@ class AdminAuthApiTest extends TestCase
             'email' => 'admin@visemfood.test',
             'password' => 'Password12345',
         ])->assertStatus(422)->assertJsonPath('message', 'Invalid login credentials.');
+    }
+
+    public function test_login_initializes_and_reports_the_inactivity_deadline(): void
+    {
+        $loginResponse = $this->postJson('/api/v1/admin/login', [
+            'email' => 'admin@visemfood.test',
+            'password' => 'Password12345',
+        ])->assertOk();
+
+        $sessionCookie = $loginResponse->getCookie(config('session.cookie'));
+        $this->assertNotNull($sessionCookie);
+
+        $this->withCookie(config('session.cookie'), $sessionCookie->getValue())
+            ->getJson('/api/v1/admin/session')
+            ->assertOk()
+            ->assertJsonPath('data.inactivity_expires_at', now()->timestamp + 900);
+    }
+
+    public function test_background_admin_reads_do_not_extend_inactivity(): void
+    {
+        $loginResponse = $this->postJson('/api/v1/admin/login', [
+            'email' => 'admin@visemfood.test',
+            'password' => 'Password12345',
+        ])->assertOk();
+
+        $sessionCookie = $loginResponse->getCookie(config('session.cookie'));
+        $deadline = now()->timestamp + 900;
+        Carbon::setTestNow(now()->addSeconds(300));
+
+        $this->withCookie(config('session.cookie'), $sessionCookie->getValue())
+            ->getJson('/api/v1/admin/me')
+            ->assertOk();
+
+        $this->withCookie(config('session.cookie'), $sessionCookie->getValue())
+            ->getJson('/api/v1/admin/session')
+            ->assertOk()
+            ->assertJsonPath('data.inactivity_expires_at', $deadline);
+
+        Carbon::setTestNow();
+    }
+
+    public function test_expired_admin_sessions_cannot_access_or_renew(): void
+    {
+        $loginResponse = $this->postJson('/api/v1/admin/login', [
+            'email' => 'admin@visemfood.test',
+            'password' => 'Password12345',
+        ])->assertOk();
+
+        $sessionCookie = $loginResponse->getCookie(config('session.cookie'));
+        Carbon::setTestNow(now()->addSeconds(901));
+
+        $this->withCookie(config('session.cookie'), $sessionCookie->getValue())
+            ->getJson('/api/v1/admin/me')
+            ->assertStatus(401)
+            ->assertJsonPath('errors.code', 'ADMIN_SESSION_EXPIRED');
+
+        Carbon::setTestNow();
+
+        $renewLoginResponse = $this->postJson('/api/v1/admin/login', [
+            'email' => 'admin@visemfood.test',
+            'password' => 'Password12345',
+        ])->assertOk();
+
+        $renewSessionCookie = $renewLoginResponse->getCookie(config('session.cookie'));
+        Carbon::setTestNow(now()->addSeconds(901));
+
+        $this->withCookie(config('session.cookie'), $renewSessionCookie->getValue())
+            ->postJson('/api/v1/admin/session/activity')
+            ->assertStatus(401)
+            ->assertJsonPath('errors.code', 'ADMIN_SESSION_EXPIRED');
+
+        Carbon::setTestNow();
     }
 }

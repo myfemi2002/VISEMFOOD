@@ -23,6 +23,7 @@ type AdminAuthContextValue = {
   } | null;
   login: (credentials: { email: string; password: string }) => Promise<LoginResult>;
   logout: () => Promise<void>;
+  markSessionExpired: () => void;
 };
 
 const AdminAuthContext = createContext<AdminAuthContextValue | null>(null);
@@ -31,18 +32,20 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const isAdminRoute = pathname.startsWith("/admin");
+  const shouldHydrateAdminSession = pathname.startsWith("/admin") || pathname === "/login";
 
   useEffect(() => {
     let cancelled = false;
 
-    if (!isAdminRoute) {
+    if (!shouldHydrateAdminSession) {
       setUser(null);
       setIsHydrated(true);
       return () => {
         cancelled = true;
       };
     }
+
+    setIsHydrated(false);
 
     async function hydrateSession() {
       try {
@@ -71,7 +74,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [isAdminRoute]);
+  }, [shouldHydrateAdminSession]);
 
   const value = useMemo<AdminAuthContextValue>(
     () => ({
@@ -105,6 +108,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
 
         setUser(null);
       },
+      markSessionExpired: () => setUser(null),
     }),
     [isHydrated, user],
   );

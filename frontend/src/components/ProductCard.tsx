@@ -64,7 +64,7 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         <div className="absolute right-4 top-4">
-          <StatusChip tone={tone}>{product.availability}</StatusChip>
+          <StatusChip tone={tone} variant="product-availability">{product.availability}</StatusChip>
         </div>
 
         <div

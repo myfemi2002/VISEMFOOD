@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 type SupportedVideoProvider = "youtube" | "facebook" | "instagram";
 
 type VideoEmbed = {
@@ -8,8 +10,12 @@ type VideoEmbed = {
 
 type HeroMediaFrameProps = {
   videoUrl?: string | null;
+  mediaType?: "image" | "video" | "youtube" | "facebook" | "instagram" | "external";
+  posterSrc?: string | null;
   imageSrc: string;
   imageAlt: string;
+  autoplay?: boolean;
+  loop?: boolean;
   className?: string;
 };
 
@@ -141,16 +147,37 @@ function getVideoEmbed(urlValue?: string | null): VideoEmbed | null {
   return null;
 }
 
-export function HeroMediaFrame({ videoUrl, imageSrc, imageAlt, className }: HeroMediaFrameProps) {
+export function HeroMediaFrame({
+  videoUrl,
+  mediaType = "image",
+  posterSrc,
+  imageSrc,
+  imageAlt,
+  autoplay = true,
+  loop = true,
+  className,
+}: HeroMediaFrameProps) {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updatePreference = () => setPrefersReducedMotion(mediaQuery.matches);
+
+    updatePreference();
+    mediaQuery.addEventListener("change", updatePreference);
+
+    return () => mediaQuery.removeEventListener("change", updatePreference);
+  }, []);
+
+  const shouldAutoplay = autoplay && !prefersReducedMotion;
   const embed = getVideoEmbed(videoUrl);
+  const frameClass =
+    className ?? "h-[360px] w-full overflow-hidden rounded-[calc(var(--vf-radius-lg)+0.25rem)] bg-[var(--vf-surface-strong)] sm:h-[460px] lg:h-[600px]";
+  const mediaClass = className ?? "h-[360px] w-full object-cover sm:h-[460px] lg:h-[600px]";
 
   if (embed) {
     return (
-      <div
-        className={
-          className ?? "h-[360px] w-full overflow-hidden rounded-[calc(var(--vf-radius-lg)+0.25rem)] bg-[var(--vf-surface-strong)] sm:h-[460px] lg:h-[600px]"
-        }
-      >
+      <div className={frameClass}>
         <iframe
           src={embed.src}
           title={embed.title}
@@ -164,13 +191,21 @@ export function HeroMediaFrame({ videoUrl, imageSrc, imageAlt, className }: Hero
     );
   }
 
-  return (
-    <img
-      src={imageSrc}
-      alt={imageAlt}
-      className={
-        className ?? "h-[360px] w-full object-cover sm:h-[460px] lg:h-[600px]"
-      }
-    />
-  );
+  if (mediaType === "video" && videoUrl) {
+    return (
+      <video
+        src={videoUrl}
+        poster={posterSrc ?? imageSrc}
+        className={mediaClass}
+        autoPlay={shouldAutoplay}
+        muted={shouldAutoplay}
+        loop={loop}
+        playsInline
+        controls={!shouldAutoplay}
+        aria-label={imageAlt}
+      />
+    );
+  }
+
+  return <img src={imageSrc} alt={imageAlt} className={mediaClass} />;
 }
